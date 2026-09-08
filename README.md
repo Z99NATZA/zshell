@@ -8,34 +8,59 @@
 ```
 
 zshell is a quiet, responsive desktop shell for Hyprland. It provides a
-floating dock, workspace controls, quick settings, and draggable desktop cards
-while keeping the current Waybar setup untouched.
+floating dock, workspace controls, quick settings, and draggable desktop cards.
 
 ## Requirements
 
-- Hyprland on Wayland
-- Quickshell `0.3.1` or newer
-- NetworkManager and BlueZ
-- An MPRIS-compatible media player
-- JetBrains Mono Nerd Font
+```text
+Required
+- Ubuntu with Hyprland on Wayland
+- Quickshell 0.3.1 or newer
 
-Follow the current
-[Quickshell installation guide](https://quickshell.org/docs/v0.3.1/guide/install-setup/)
-for your distribution.
+Used by shell components
+- NetworkManager: Wi-Fi status and controls
+- BlueZ: Bluetooth status and controls
+- MPRIS-compatible player: media card
+- JetBrains Mono Nerd Font: interface icons
+```
+
+## Installation
+
+```bash
+# Ubuntu: install the latest stable Quickshell release
+sudo add-apt-repository ppa:avengemedia/danklinux
+sudo apt update
+sudo apt install quickshell
+
+# Verify
+qs --version
+```
+
+For other distributions, use the
+[official Quickshell installation guide](https://quickshell.org/docs/v0.3.1/guide/install-setup/).
 
 ## Run | [More...](docs/runtime-integration.md)
 
 ```bash
-# Verify
+# Open the project
+cd ~/my_code/zshell
+
+# Check the project
 make check
 
-# Run from this repository
+# Run
 make run
+
+# Stop
+# Press Ctrl+C in this terminal
 ```
 
-The project runs directly from its repository and does not need to be copied
-into `~/.config` during development. Startup integration is intentionally not
-enabled by the MVP.
+```text
+- The project runs directly from this repository.
+- Files do not need to be copied into ~/.config during development.
+- Startup integration is not enabled by the MVP.
+- The current Waybar and Hyprland startup configuration remain unchanged.
+```
 
 ## Interaction
 
