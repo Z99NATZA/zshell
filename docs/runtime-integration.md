@@ -8,7 +8,9 @@ Waybar or modify Hyprland startup.
 - Hyprland on Wayland
 - Quickshell `0.3.1` or newer
 - NetworkManager and BlueZ for system controls
+- PipeWire for reactive output volume control
 - An MPRIS-compatible player for the media card
+- `hypr-power-menu` on `PATH` for the dock power button
 - JetBrains Mono Nerd Font for shell icons
 
 Ubuntu packages Quickshell through the DankLinux PPA. Follow the current
@@ -43,5 +45,8 @@ with the current Waybar.
 - Missing Quickshell stops `scripts/run.sh` with a direct requirement message.
 - Missing NetworkManager, BlueZ, or MPRIS data hides or disables only the
   affected controls; the shell remains usable.
+- Missing PipeWire output data disables the volume control.
+- Missing `hypr-power-menu` leaves the power button visible, but the action
+  exits without opening a menu.
 - Layout writes are atomic. A write error is reported by Quickshell and does not
   replace the previous state file.

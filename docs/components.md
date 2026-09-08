@@ -4,7 +4,7 @@
 
 | Component | Responsibility |
 | --- | --- |
-| `Dock` | Workspace actions, edit mode, system status, and panel toggle |
+| `Dock` | Workspace actions, edit mode, audio, time, language, and power |
 | `QuickSettingsPanel` | Wi-Fi, Bluetooth, theme, and layout controls |
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
 | `ClockCard` | Reactive time and persisted drag position |
@@ -22,6 +22,10 @@
   high-contrast circular indicator.
 - Both language indicators consume the same `KeyboardLayout.code`; neither
   starts its own process.
+- The dock volume button toggles mute on click and changes volume by 5% per
+  mouse-wheel step.
+- The power button delegates to `hypr-power-menu`; it never runs a session or
+  machine power action directly.
 - Desktop cards report committed positions. `LayoutState` owns persistence.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
   require new credentials are visible but disabled in the MVP.

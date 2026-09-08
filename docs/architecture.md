@@ -20,7 +20,7 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 | --- | --- |
 | `shell.qml` | Per-screen window composition |
 | `components/` | Rendering and direct pointer interaction |
-| `services/` | Reactive adapters for system state not exposed as a direct property |
+| `services/` | Shared reactive system state, display mapping, and direct actions |
 | `state/` | Runtime UI state and persisted user choices |
 | `theme/` | Semantic visual and motion tokens |
 | `scripts/` | Local run and verification commands |

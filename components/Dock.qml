@@ -45,7 +45,7 @@ PanelWindow {
 
 	SystemClock {
 		id: clock
-		precision: SystemClock.Minutes
+		precision: SystemClock.Seconds
 	}
 
 	mask: Region {
@@ -165,6 +165,16 @@ PanelWindow {
 			spacing: 2
 
 			ActionButton {
+				icon: AudioOutput.icon
+				text: AudioOutput.label
+				enabled: AudioOutput.available
+				wheelEnabled: true
+				onClicked: AudioOutput.toggleMute()
+				onWheelUp: AudioOutput.changeVolume(5)
+				onWheelDown: AudioOutput.changeVolume(-5)
+			}
+
+			ActionButton {
 				compact: root.connectedNetwork === null
 				icon: root.connectedNetwork ? "󰖩" : "󰖪"
 				text: root.connectedNetwork ? root.connectedNetwork.name : ""
@@ -180,13 +190,19 @@ PanelWindow {
 			}
 
 			ActionButton {
-				text: Qt.formatDateTime(clock.date, "HH:mm")
+				text: Qt.formatDateTime(clock.date, "HH:mm:ss")
 				onClicked: UiState.quickSettingsOpen = !UiState.quickSettingsOpen
 			}
 
 			LanguageIndicator {
 				code: KeyboardLayout.code
 				shown: LayoutState.showLanguageRight
+			}
+
+			ActionButton {
+				compact: true
+				icon: "󰐥"
+				onClicked: Quickshell.execDetached(["hypr-power-menu"])
 			}
 		}
 	}

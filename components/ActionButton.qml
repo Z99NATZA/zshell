@@ -8,7 +8,10 @@ Rectangle {
 	property string text: ""
 	property bool active: false
 	property bool compact: false
+	property bool wheelEnabled: false
 	signal clicked
+	signal wheelUp
+	signal wheelDown
 
 	implicitWidth: compact ? 34 : Math.max(72, content.implicitWidth + Theme.spacingMd * 2)
 	implicitHeight: 34
@@ -60,5 +63,16 @@ Rectangle {
 		hoverEnabled: true
 		cursorShape: root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
 		onClicked: if (root.enabled) root.clicked()
+		onWheel: wheel => {
+			if (!root.enabled || !root.wheelEnabled || wheel.angleDelta.y === 0) {
+				wheel.accepted = false
+				return
+			}
+
+			if (wheel.angleDelta.y > 0) root.wheelUp()
+			else root.wheelDown()
+
+			wheel.accepted = true
+		}
 	}
 }
