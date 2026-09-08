@@ -24,6 +24,9 @@
   starts its own process.
 - The dock volume button toggles mute on click and changes volume by 5% per
   mouse-wheel step.
+- Dock Wi-Fi and Bluetooth labels are capped at 12 characters. Bluetooth shows
+  the first connected device and reserves space for `+N` when more are active;
+  Quick Settings keeps the full names.
 - The power button delegates to `hypr-power-menu`; it never runs a session or
   machine power action directly.
 - Desktop cards report committed positions. `LayoutState` owns persistence.

@@ -23,6 +23,18 @@ PanelWindow {
 	color: "transparent"
 	exclusiveZone: 0
 	aboveWindows: true
+	readonly property int statusLabelLimit: 12
+
+	function limitedStatusLabel(value, suffix) {
+		const label = value || ""
+		const ending = (suffix || "").slice(0, statusLabelLimit)
+		const available = statusLabelLimit - ending.length
+
+		if (available === 0) return ending
+		if (label.length <= available) return label + ending
+		if (available === 1) return "…" + ending
+		return label.slice(0, available - 1) + "…" + ending
+	}
 
 	readonly property var wifiDevice: {
 		const devices = Networking.devices.values
@@ -40,8 +52,28 @@ PanelWindow {
 		}
 		return null
 	}
+	readonly property string wifiLabel: connectedNetwork
+		? limitedStatusLabel(connectedNetwork.name, "")
+		: ""
 
 	readonly property var bluetoothAdapter: Bluetooth.defaultAdapter
+	readonly property var connectedBluetoothDevices: {
+		if (!bluetoothAdapter) return []
+
+		const connected = []
+		const devices = bluetoothAdapter.devices.values
+		for (let index = 0; index < devices.length; index++) {
+			if (devices[index].connected) connected.push(devices[index])
+		}
+		return connected
+	}
+	readonly property string bluetoothLabel: {
+		if (connectedBluetoothDevices.length === 0) return ""
+
+		const extra = connectedBluetoothDevices.length - 1
+		const suffix = extra > 0 ? " +" + extra : ""
+		return limitedStatusLabel(connectedBluetoothDevices[0].name, suffix)
+	}
 
 	SystemClock {
 		id: clock
@@ -177,13 +209,14 @@ PanelWindow {
 			ActionButton {
 				compact: root.connectedNetwork === null
 				icon: root.connectedNetwork ? "󰖩" : "󰖪"
-				text: root.connectedNetwork ? root.connectedNetwork.name : ""
+				text: root.wifiLabel
 				onClicked: UiState.quickSettingsOpen = !UiState.quickSettingsOpen
 			}
 
 			ActionButton {
-				compact: true
+				compact: root.connectedBluetoothDevices.length === 0
 				icon: root.bluetoothAdapter && root.bluetoothAdapter.enabled ? "󰂯" : "󰂲"
+				text: root.bluetoothLabel
 				onClicked: UiState.quickSettingsOpen = !UiState.quickSettingsOpen
 			}
 
