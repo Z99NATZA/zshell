@@ -8,7 +8,7 @@ Item {
 	property bool shown: true
 
 	width: shown ? 30 : 0
-	height: 30
+	height: 34
 	opacity: shown ? 1 : 0
 	visible: shown || opacity > 0
 	clip: true

@@ -27,20 +27,27 @@ Rectangle {
 	Row {
 		id: content
 		anchors.centerIn: parent
+		height: Math.max(iconLabel.implicitHeight, textLabel.implicitHeight)
 		spacing: root.text.length > 0 ? Theme.spacingSm : 0
 
 		Text {
+			id: iconLabel
 			visible: root.icon.length > 0
+			height: content.height
 			text: root.icon
 			color: root.active ? Theme.accent : Theme.text
+			verticalAlignment: Text.AlignVCenter
 			font.family: Theme.fontFamily
 			font.pixelSize: 15
 		}
 
 		Text {
+			id: textLabel
 			visible: root.text.length > 0
+			height: content.height
 			text: root.text
 			color: Theme.text
+			verticalAlignment: Text.AlignVCenter
 			font.family: Theme.textFontFamily
 			font.pixelSize: 12
 			elide: Text.ElideRight
