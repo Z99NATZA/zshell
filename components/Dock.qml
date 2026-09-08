@@ -178,14 +178,12 @@ PanelWindow {
 				compact: root.connectedNetwork === null
 				icon: root.connectedNetwork ? "󰖩" : "󰖪"
 				text: root.connectedNetwork ? root.connectedNetwork.name : ""
-				active: root.connectedNetwork !== null
 				onClicked: UiState.quickSettingsOpen = !UiState.quickSettingsOpen
 			}
 
 			ActionButton {
 				compact: true
 				icon: root.bluetoothAdapter && root.bluetoothAdapter.enabled ? "󰂯" : "󰂲"
-				active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
 				onClicked: UiState.quickSettingsOpen = !UiState.quickSettingsOpen
 			}
 
