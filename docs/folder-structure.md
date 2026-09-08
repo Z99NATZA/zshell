@@ -3,6 +3,7 @@
 ```text
 shell.qml                   per-screen composition entry point
 components/                 windows and reusable visual controls
+services/                   reactive system-state adapters
 state/                      runtime and persisted shell state
 theme/                      semantic design tokens
 scripts/                    run and focused verification commands

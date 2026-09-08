@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Networking
 import Quickshell.Bluetooth
+import qs.services
 import qs.state
 import qs.theme
 
@@ -57,18 +58,28 @@ PanelWindow {
 		id: editIsland
 		anchors.left: parent.left
 		anchors.verticalCenter: parent.verticalCenter
-		width: editButton.width + Theme.spacingSm * 2
+		width: editRow.width + Theme.spacingSm * 2
 		height: parent.height
 		raised: true
 
-		ActionButton {
-			id: editButton
+		Row {
+			id: editRow
 			anchors.centerIn: parent
-			compact: !UiState.editMode
-			icon: "󰆾"
-			text: UiState.editMode ? "Done" : ""
-			active: UiState.editMode
-			onClicked: UiState.editMode = !UiState.editMode
+			spacing: 2
+
+			LanguageIndicator {
+				code: KeyboardLayout.code
+				shown: LayoutState.showLanguageLeft
+			}
+
+			ActionButton {
+				id: editButton
+				compact: !UiState.editMode
+				icon: "󰆾"
+				text: UiState.editMode ? "Done" : ""
+				active: UiState.editMode
+				onClicked: UiState.editMode = !UiState.editMode
+			}
 		}
 	}
 
@@ -171,6 +182,11 @@ PanelWindow {
 			ActionButton {
 				text: Qt.formatDateTime(clock.date, "HH:mm")
 				onClicked: UiState.quickSettingsOpen = !UiState.quickSettingsOpen
+			}
+
+			LanguageIndicator {
+				code: KeyboardLayout.code
+				shown: LayoutState.showLanguageRight
 			}
 		}
 	}

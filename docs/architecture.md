@@ -20,6 +20,7 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 | --- | --- |
 | `shell.qml` | Per-screen window composition |
 | `components/` | Rendering and direct pointer interaction |
+| `services/` | Reactive adapters for system state not exposed as a direct property |
 | `state/` | Runtime UI state and persisted user choices |
 | `theme/` | Semantic visual and motion tokens |
 | `scripts/` | Local run and verification commands |
@@ -36,8 +37,9 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 ## Dependency direction
 
 ```text
-shell -> components -> state/theme
-components -> Quickshell integrations
+shell -> components -> services/state/theme
+components -> Quickshell integrations and services
+services -> Quickshell integrations and focused system queries
 state -> Quickshell.Io
 theme -> persisted theme selection
 ```
@@ -47,6 +49,7 @@ State and theme code do not import visual components.
 ## Detailed documents
 
 - [Components](components.md)
+- [Services](services.md)
 - [Design system](design-system.md)
 - [State management](state-management.md)
 - [Folder structure](folder-structure.md)

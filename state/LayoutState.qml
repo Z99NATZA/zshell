@@ -11,6 +11,8 @@ Singleton {
 	property alias musicX: adapter.musicX
 	property alias musicY: adapter.musicY
 	property alias themeName: adapter.themeName
+	property alias showLanguageLeft: adapter.showLanguageLeft
+	property alias showLanguageRight: adapter.showLanguageRight
 
 	FileView {
 		path: Quickshell.statePath("layout.json")
@@ -26,6 +28,8 @@ Singleton {
 			property int musicX: 48
 			property int musicY: 720
 			property string themeName: "one-half-gray"
+			property bool showLanguageLeft: true
+			property bool showLanguageRight: true
 		}
 	}
 }

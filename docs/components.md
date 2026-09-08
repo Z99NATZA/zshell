@@ -9,6 +9,7 @@
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
 | `ClockCard` | Reactive time and persisted drag position |
 | `MusicCard` | Current MPRIS metadata, progress, and transport controls |
+| `LanguageIndicator` | Fixed-width current keyboard label |
 | `ActionButton` | Shared compact hover, active, and disabled behavior |
 | `ShellSurface` | Shared surface, border, radius, and color transitions |
 
@@ -19,6 +20,8 @@
 - The workspace switcher starts with the configurable `Theme.workspaceIcon`.
   Its numbers have no shared container, and the active workspace uses a
   high-contrast circular indicator.
+- Both language indicators consume the same `KeyboardLayout.code`; neither
+  starts its own process.
 - Desktop cards report committed positions. `LayoutState` owns persistence.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
   require new credentials are visible but disabled in the MVP.
