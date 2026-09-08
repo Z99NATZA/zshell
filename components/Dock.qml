@@ -72,28 +72,58 @@ PanelWindow {
 		}
 	}
 
-	ShellSurface {
+	Item {
 		id: workspaceIsland
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.verticalCenter: parent.verticalCenter
-		width: workspaceRow.width + Theme.spacingSm * 2
+		width: workspaceRow.width
 		height: parent.height
-		raised: true
 
 		Row {
 			id: workspaceRow
 			anchors.centerIn: parent
-			spacing: 2
+			spacing: Theme.spacingXs
 
 			Repeater {
 				model: 5
 
-				ActionButton {
+				Rectangle {
+					id: workspaceButton
+
 					required property int index
-					compact: true
-					text: String(index + 1)
-					active: Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id === index + 1
-					onClicked: Hyprland.dispatch("workspace " + (index + 1))
+					readonly property bool active: Hyprland.focusedWorkspace
+						&& Hyprland.focusedWorkspace.id === index + 1
+
+					width: 30
+					height: 30
+					radius: height / 2
+					color: active
+						? Theme.text
+						: (workspacePointer.containsMouse ? Theme.surfaceSoft : "transparent")
+
+					Behavior on color {
+						ColorAnimation { duration: Theme.motionDuration }
+					}
+
+					Text {
+						anchors.centerIn: parent
+						text: String(workspaceButton.index + 1)
+						color: workspaceButton.active ? Theme.background : Theme.textMuted
+						font.family: Theme.textFontFamily
+						font.pixelSize: 12
+
+						Behavior on color {
+							ColorAnimation { duration: Theme.motionDuration }
+						}
+					}
+
+					MouseArea {
+						id: workspacePointer
+						anchors.fill: parent
+						hoverEnabled: true
+						cursorShape: Qt.PointingHandCursor
+						onClicked: Hyprland.dispatch("workspace " + (workspaceButton.index + 1))
+					}
 				}
 			}
 		}
