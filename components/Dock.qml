@@ -84,6 +84,17 @@ PanelWindow {
 			anchors.centerIn: parent
 			spacing: Theme.spacingXs
 
+			Text {
+				width: 30
+				height: 30
+				text: Theme.workspaceIcon
+				color: Theme.text
+				horizontalAlignment: Text.AlignHCenter
+				verticalAlignment: Text.AlignVCenter
+				font.family: Theme.fontFamily
+				font.pixelSize: 15
+			}
+
 			Repeater {
 				model: 5
 

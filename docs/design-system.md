@@ -10,6 +10,7 @@ color, and motion rather than decoration or repeated labels.
 | Corner radius | `6px` |
 | Interaction duration | `180ms` |
 | Motion easing | `Easing.OutCubic` |
+| Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |
 | Text font | `JetBrains Mono` |
 
@@ -22,6 +23,9 @@ not allowed outside the theme owner.
 The default variant is One Half Gray. One Half Light demonstrates that visual
 components remain independent from a specific palette. Theme selection is
 persisted with the layout state.
+
+Change the leading workspace glyph in `Theme.workspaceIcon`. Dock layout code
+does not own the icon value.
 
 ## Interface rules
 

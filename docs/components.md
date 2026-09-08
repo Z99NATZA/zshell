@@ -16,7 +16,8 @@
 
 - Visual components consume semantic theme roles; they do not define palettes.
 - `ActionButton` owns reusable control feedback. Feature components own layout.
-- Workspace numbers have no shared container. The active workspace uses a
+- The workspace switcher starts with the configurable `Theme.workspaceIcon`.
+  Its numbers have no shared container, and the active workspace uses a
   high-contrast circular indicator.
 - Desktop cards report committed positions. `LayoutState` owns persistence.
 - The system panel connects only to remembered Wi-Fi networks. Networks that

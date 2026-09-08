@@ -29,6 +29,7 @@ Singleton {
 	readonly property int spacingSm: 8
 	readonly property int spacingMd: 12
 	readonly property int spacingLg: 16
+	readonly property string workspaceIcon: ""
 	readonly property string fontFamily: "JetBrainsMono Nerd Font"
 	readonly property string textFontFamily: "JetBrains Mono"
 }
