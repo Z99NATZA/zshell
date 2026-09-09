@@ -21,8 +21,9 @@
   radio control. Its bottom switch changes modes without closing the panel.
 - Quick Settings is modal while open. Clicking outside it or pressing Escape
   dismisses it; clicks inside it never fall through to another window.
-- Drag the Quick Settings header to move the panel. Its committed position is
-  restored across restarts and clamped to the current screen.
+- Drag the Quick Settings header, including its surrounding padding and gaps,
+  to move the panel. Header controls keep their own click targets. The committed
+  position is restored across restarts and clamped to the current screen.
 - Quick Settings expands from the Dock control that opened it and collapses
   back to that control when dismissed. It has no dedicated close button.
 - Quick Settings adjusts every component surface from fully transparent to

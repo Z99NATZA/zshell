@@ -288,6 +288,24 @@ PanelWindow {
 			onClicked: mouse => mouse.accepted = true
 		}
 
+		MouseArea {
+			id: panelDragArea
+			anchors.left: parent.left
+			anchors.right: parent.right
+			anchors.top: parent.top
+			height: Theme.spacingLg + header.height
+			enabled: root.modalVisible && !root.closing && !openAnimation.running
+			hoverEnabled: true
+			cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+			drag.target: panelSurface
+			drag.minimumX: 12
+			drag.maximumX: root.screen.width - panelSurface.width - 12
+			drag.minimumY: 12
+			drag.maximumY: root.screen.height - panelSurface.height - 72
+			drag.smoothed: true
+			onReleased: root.commitPosition(panelSurface.x, panelSurface.y)
+		}
+
 		Item {
 			id: content
 			anchors.fill: parent
@@ -301,7 +319,7 @@ PanelWindow {
 				height: 34
 
 				Item {
-					id: dragArea
+					id: titleArea
 					anchors.left: parent.left
 					anchors.right: opacityControl.left
 					anchors.rightMargin: Theme.spacingMd
@@ -318,20 +336,6 @@ PanelWindow {
 						font.family: Theme.textFontFamily
 						font.pixelSize: 14
 						font.weight: Font.Medium
-					}
-
-					DragHandler {
-						id: panelDrag
-						enabled: root.modalVisible && !root.closing
-							&& !openAnimation.running
-						target: panelSurface
-						xAxis.minimum: 12
-						xAxis.maximum: root.screen.width - panelSurface.width - 12
-						yAxis.minimum: 12
-						yAxis.maximum: root.screen.height - panelSurface.height - 72
-						onActiveChanged: {
-							if (!active) root.commitPosition(panelSurface.x, panelSurface.y)
-						}
 					}
 				}
 
