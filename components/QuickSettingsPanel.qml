@@ -665,16 +665,6 @@ PanelWindow {
 					}
 				}
 
-				ActionButton {
-					anchors.right: parent.right
-					anchors.verticalCenter: parent.verticalCenter
-					compact: true
-					icon: "󰐥"
-					onClicked: {
-						root.requestClose()
-						Quickshell.execDetached(["hypr-power-menu"])
-					}
-				}
 			}
 		}
 	}

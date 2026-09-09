@@ -38,8 +38,8 @@
 - Dock Wi-Fi and Bluetooth labels are capped at 12 characters. Bluetooth shows
   the first connected device and reserves space for `+N` when more are active;
   Quick Settings keeps the full names.
-- The power button delegates to `hypr-power-menu`; it never runs a session or
-  machine power action directly.
+- The Dock is the sole Power entry point. Its button delegates to
+  `hypr-power-menu`; it never runs a session or machine power action directly.
 - Desktop cards report committed positions. `LayoutState` owns persistence.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
   require new credentials are visible but disabled.
