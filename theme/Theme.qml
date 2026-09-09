@@ -40,6 +40,8 @@ Singleton {
 	readonly property int modalOpenDuration: 280
 	readonly property int modalCloseDuration: 220
 	readonly property int radioPulseDuration: 1800
+	readonly property int radarSweepDuration: 4800
+	readonly property int radarBusySweepDuration: 2600
 	readonly property int spacingXs: 4
 	readonly property int spacingSm: 8
 	readonly property int spacingMd: 12

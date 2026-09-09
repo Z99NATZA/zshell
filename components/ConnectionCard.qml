@@ -8,15 +8,29 @@ ShellSurface {
 	property string title: ""
 	property string subtitle: ""
 	property bool active: false
+	property bool radarHighlight: false
 	signal clicked
 
 	implicitWidth: 176
 	implicitHeight: 58
-	raised: active
-	interactive: active || pointer.containsMouse
+	raised: active || radarHighlight
+	interactive: active || radarHighlight || pointer.containsMouse
 	opacity: enabled ? 1 : 0.42
+	scale: radarHighlight ? 1.04 : 1
 
 	Behavior on opacity {
+		NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
+	}
+
+	Behavior on x {
+		NumberAnimation { duration: Theme.modalOpenDuration; easing.type: Easing.OutCubic }
+	}
+
+	Behavior on y {
+		NumberAnimation { duration: Theme.modalOpenDuration; easing.type: Easing.OutCubic }
+	}
+
+	Behavior on scale {
 		NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
 	}
 

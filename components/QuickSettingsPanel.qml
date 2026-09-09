@@ -27,6 +27,7 @@ PanelWindow {
 	property bool closing: false
 	property real settledX: 0
 	property real settledY: 0
+	readonly property var radarCardAngles: [-140, -40, 0, 40, 140, 180]
 
 	function clampedX(value) {
 		return Math.max(12, Math.min(screen.width - panelSurface.width - 12, value))
@@ -110,15 +111,67 @@ PanelWindow {
 		LayoutState.componentOpacity = Math.max(0, Math.min(1, nextValue))
 	}
 
-	function connectionAngle(index, count) {
-		if (count === 1) return -90
-		if (count === 2) return -150 + index * 120
-		if (count === 3) return -90 + index * 120
-		if (count === 4) return -135 + index * 90
-		if (count === 5) return -90 + index * 72
+	function connectionKey(item, kind) {
+		const identity = kind === "bluetooth"
+			? (item.address || item.name)
+			: item.name
+		return kind + ":" + (identity || "unknown")
+	}
 
-		const angles = [-140, -40, 0, 40, 140, 180]
-		return angles[index]
+	function stableHash(value) {
+		let hash = 0
+		const text = String(value)
+
+		for (let index = 0; index < text.length; index++) {
+			hash = ((hash << 5) - hash + text.charCodeAt(index)) | 0
+		}
+
+		return Math.abs(hash)
+	}
+
+	function stableUnit(key, salt) {
+		return stableHash(String(key) + ":" + salt) / 2147483648
+	}
+
+	function radarItems(items, kind) {
+		const copy = items.slice()
+		copy.sort((first, second) => stableHash(connectionKey(first, kind))
+			- stableHash(connectionKey(second, kind)))
+		return copy
+	}
+
+	function radarTargets(items, kind) {
+		return items.map(item => ({
+			key: connectionKey(item, kind),
+			active: !!item.connected
+		}))
+	}
+
+	function cardSlot(index, items, kind) {
+		const occupied = []
+		let resolvedSlot = 0
+
+		for (let itemIndex = 0; itemIndex <= index; itemIndex++) {
+			const key = connectionKey(items[itemIndex], kind)
+			let slot = Math.floor(stableUnit(key, "card-slot")
+				* radarCardAngles.length)
+
+			while (occupied[slot]) slot = (slot + 1) % radarCardAngles.length
+			occupied[slot] = true
+			resolvedSlot = slot
+		}
+
+		return resolvedSlot
+	}
+
+	function cardAngle(index, items, kind, key) {
+		return radarCardAngles[cardSlot(index, items, kind)]
+			+ (stableUnit(key, "card-angle") - 0.5) * 12
+	}
+
+	function cardRadius(key, axis) {
+		const base = axis === "x" ? 240 : 134
+		return base + (stableUnit(key, "card-" + axis) - 0.5) * 16
 	}
 
 	function toggleBluetoothScan() {
@@ -142,10 +195,13 @@ PanelWindow {
 	readonly property var wifiNetworks: wifiDevice
 		? wifiDevice.networks.values.slice(0, 6)
 		: []
+	readonly property var radarWifiNetworks: radarItems(wifiNetworks, "wifi")
 	readonly property var bluetoothAdapter: Bluetooth.defaultAdapter
 	readonly property var bluetoothDevices: bluetoothAdapter
 		? bluetoothAdapter.devices.values.slice(0, 6)
 		: []
+	readonly property var radarBluetoothDevices: radarItems(bluetoothDevices,
+		"bluetooth")
 
 	Component.onCompleted: {
 		if (UiState.quickSettingsOpen) scheduleOpen()
@@ -420,17 +476,32 @@ PanelWindow {
 						NumberAnimation { duration: Theme.motionDuration }
 					}
 
+					RadarField {
+						id: bluetoothRadar
+						anchors.centerIn: parent
+						targets: root.radarTargets(root.radarBluetoothDevices, "bluetooth")
+						active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
+						busy: root.bluetoothAdapter && root.bluetoothAdapter.discovering
+						motionEnabled: root.modalVisible && !root.closing
+							&& UiState.quickSettingsPage === "bluetooth"
+					}
+
 					Repeater {
-						model: root.bluetoothDevices
+						model: root.radarBluetoothDevices
 
 						ConnectionCard {
 							required property var modelData
 							required property int index
-							readonly property real angle: root.connectionAngle(index,
-								root.bluetoothDevices.length) * Math.PI / 180
+							readonly property string radarKey: root.connectionKey(modelData,
+								"bluetooth")
+							readonly property real angle: root.cardAngle(index,
+								root.radarBluetoothDevices, "bluetooth", radarKey)
+								* Math.PI / 180
 
-							x: bluetoothPage.width / 2 + Math.cos(angle) * 246 - width / 2
-							y: bluetoothPage.height / 2 + Math.sin(angle) * 138 - height / 2
+							x: bluetoothPage.width / 2 + Math.cos(angle)
+								* root.cardRadius(radarKey, "x") - width / 2
+							y: bluetoothPage.height / 2 + Math.sin(angle)
+								* root.cardRadius(radarKey, "y") - height / 2
 							icon: "󰂯"
 							title: modelData.name || modelData.address
 							subtitle: modelData.connected
@@ -440,6 +511,7 @@ PanelWindow {
 								: (modelData.pairing ? "Pairing…"
 									: (modelData.paired ? "Connect" : "Pair"))
 							active: modelData.connected
+							radarHighlight: bluetoothRadar.targetIlluminated(radarKey)
 							enabled: UiState.quickSettingsPage === "bluetooth"
 								&& root.bluetoothAdapter && root.bluetoothAdapter.enabled
 								&& !modelData.blocked
@@ -454,6 +526,7 @@ PanelWindow {
 
 					RadioOrb {
 						anchors.centerIn: parent
+						z: 2
 						icon: root.bluetoothAdapter && root.bluetoothAdapter.enabled
 							? "󰂯" : "󰂲"
 						status: !root.bluetoothAdapter ? "No adapter"
@@ -479,23 +552,37 @@ PanelWindow {
 						NumberAnimation { duration: Theme.motionDuration }
 					}
 
+					RadarField {
+						id: wifiRadar
+						anchors.centerIn: parent
+						targets: root.radarTargets(root.radarWifiNetworks, "wifi")
+						active: Networking.wifiEnabled
+						motionEnabled: root.modalVisible && !root.closing
+							&& UiState.quickSettingsPage === "wifi"
+					}
+
 					Repeater {
-						model: root.wifiNetworks
+						model: root.radarWifiNetworks
 
 						ConnectionCard {
 							required property var modelData
 							required property int index
-							readonly property real angle: root.connectionAngle(index,
-								root.wifiNetworks.length) * Math.PI / 180
+							readonly property string radarKey: root.connectionKey(modelData,
+								"wifi")
+							readonly property real angle: root.cardAngle(index,
+								root.radarWifiNetworks, "wifi", radarKey) * Math.PI / 180
 
-							x: wifiPage.width / 2 + Math.cos(angle) * 246 - width / 2
-							y: wifiPage.height / 2 + Math.sin(angle) * 138 - height / 2
+							x: wifiPage.width / 2 + Math.cos(angle)
+								* root.cardRadius(radarKey, "x") - width / 2
+							y: wifiPage.height / 2 + Math.sin(angle)
+								* root.cardRadius(radarKey, "y") - height / 2
 							icon: modelData.connected ? "󰖩" : "󰖪"
 							title: modelData.name
 							subtitle: modelData.connected ? "Connected"
 								: (modelData.stateChanging ? "Connecting…"
 									: (modelData.known ? "Connect" : "Credentials required"))
 							active: modelData.connected
+							radarHighlight: wifiRadar.targetIlluminated(radarKey)
 							enabled: UiState.quickSettingsPage === "wifi"
 								&& Networking.wifiEnabled
 								&& (modelData.connected || modelData.known)
@@ -508,6 +595,7 @@ PanelWindow {
 
 					RadioOrb {
 						anchors.centerIn: parent
+						z: 2
 						icon: Networking.wifiEnabled ? "󰖩" : "󰖪"
 						status: Networking.wifiEnabled ? "Wi-Fi on" : "Wi-Fi off"
 						active: Networking.wifiEnabled

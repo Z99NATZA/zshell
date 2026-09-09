@@ -12,6 +12,8 @@ color, and motion rather than decoration or repeated labels.
 | Modal open duration | `280ms` |
 | Modal close duration | `220ms` |
 | Radio pulse duration | `1800ms` |
+| Radar sweep duration | `4800ms` |
+| Active scan sweep duration | `2600ms` |
 | Motion easing | `Easing.OutCubic` |
 | Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |
@@ -52,5 +54,8 @@ does not own the icon value.
   never animate one continuously or continuously sample idle data.
 - Small radio rings may pulse while their matching Quick Settings page is
   visible. They stop with the modal and never sample system state on a timer.
+- Connection radar sweeps use small cached Canvas surfaces and run only while their
+  radio and matching Quick Settings page are active. Target positions are
+  deterministic so service refreshes do not make cards or blips jump.
 - Use Quickshell service bindings for system changes. Aside from bounded visual
   feedback, the clock and active media progress are the only time-based updates.
