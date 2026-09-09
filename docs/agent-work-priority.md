@@ -30,8 +30,10 @@ then reset it after that priority is complete.
 
 ## Git operations
 
-- Authorized implementation may use necessary local Git operations, including
-  staging and committing the agreed changes.
+- Before completing an `ok impl` task, run its required checks, stage only the
+  agreed changes, and create a local commit.
+- Work authorized by `ok refine`, `ok fix`, or `ok update` may use necessary
+  local Git operations, including staging and committing the agreed changes.
 - Inspect staged changes and do not stage unrelated files.
 - Use `<type>: <message>` or `<type>(<scope>): <message>`.
 - Use a scope only when the whole commit belongs to one specific subsystem.
