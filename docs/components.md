@@ -16,6 +16,8 @@
 ## Boundaries
 
 - Visual components consume semantic theme roles; they do not define palettes.
+- Quick Settings adjusts every component surface from fully transparent to
+  opaque in 10% steps. Text, icons, and media artwork remain opaque.
 - `ActionButton` owns reusable control feedback. Feature components own layout.
 - The workspace switcher starts with the configurable `Theme.workspaceIcon`.
   Its numbers have no shared container, and the active workspace uses a

@@ -20,6 +20,9 @@ color, and motion rather than decoration or repeated labels.
 `surface`, `border`, `text`, `textMuted`, `accent`, and `danger`; raw colors are
 not allowed outside the theme owner.
 
+The persisted component opacity applies to all surface and border roles. It
+does not reduce the opacity of foreground text, icons, or media artwork.
+
 The default variant is One Half Gray. One Half Light demonstrates that visual
 components remain independent from a specific palette. Theme selection is
 persisted with the layout state.

@@ -23,6 +23,11 @@ PanelWindow {
 	aboveWindows: true
 	exclusionMode: ExclusionMode.Ignore
 
+	function changeComponentOpacity(delta) {
+		const nextValue = Math.round((LayoutState.componentOpacity + delta) * 10) / 10
+		LayoutState.componentOpacity = Math.max(0, Math.min(1, nextValue))
+	}
+
 	readonly property var wifiDevice: {
 		const devices = Networking.devices.values
 		for (let index = 0; index < devices.length; index++) {
@@ -162,6 +167,45 @@ PanelWindow {
 						UiState.editMode = !UiState.editMode
 						UiState.quickSettingsOpen = false
 					}
+				}
+			}
+
+			Rectangle {
+				width: parent.width
+				height: 1
+				color: Theme.border
+			}
+
+			Row {
+				id: opacityRow
+				width: parent.width
+				spacing: Theme.spacingSm
+
+				Text {
+					width: opacityRow.width - decreaseOpacity.width
+						- increaseOpacity.width - opacityRow.spacing * 2
+					height: 34
+					text: "Opacity  " + Math.round(LayoutState.componentOpacity * 100) + "%"
+					color: Theme.text
+					verticalAlignment: Text.AlignVCenter
+					font.family: Theme.textFontFamily
+					font.pixelSize: 12
+				}
+
+				ActionButton {
+					id: decreaseOpacity
+					compact: true
+					text: "−"
+					enabled: LayoutState.componentOpacity > 0
+					onClicked: root.changeComponentOpacity(-0.1)
+				}
+
+				ActionButton {
+					id: increaseOpacity
+					compact: true
+					text: "+"
+					enabled: LayoutState.componentOpacity < 1
+					onClicked: root.changeComponentOpacity(0.1)
 				}
 			}
 		}
