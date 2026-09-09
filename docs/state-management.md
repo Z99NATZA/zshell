@@ -5,8 +5,8 @@ a process restart.
 
 | Owner | Lifetime | Values |
 | --- | --- | --- |
-| `UiState.qml` | Current process | Panel visibility, selected connection mode, and edit mode |
-| `LayoutState.qml` | Across restarts | Card positions, theme, component opacity, and language indicator visibility |
+| `UiState.qml` | Current process | Modal visibility, Dock animation target, selected connection mode, and edit mode |
+| `LayoutState.qml` | Across restarts | Card and Quick Settings positions, theme, component opacity, and language indicator visibility |
 
 `LayoutState` uses Quickshell `FileView` with `JsonAdapter`. Updates are written
 atomically to `~/.local/state/zshell/layout.json`; external file changes are
@@ -15,6 +15,10 @@ reloaded.
 Default positions remain in code and are used until the state file supplies a
 saved value. Components clamp positions to the current screen bounds before
 rendering.
+
+`quickSettingsX` and `quickSettingsY` store the last committed modal position.
+They default to the lower-right placement above the Dock. The Dock animation
+target remains ephemeral because it is recalculated from the invoking control.
 
 `componentOpacity` defaults to `1` and is clamped to the `0`–`1` range by the
 theme. Quick Settings changes it in 10% steps; the value controls component

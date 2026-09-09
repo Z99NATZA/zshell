@@ -10,6 +10,8 @@ Singleton {
 	property alias clockY: adapter.clockY
 	property alias musicX: adapter.musicX
 	property alias musicY: adapter.musicY
+	property alias quickSettingsX: adapter.quickSettingsX
+	property alias quickSettingsY: adapter.quickSettingsY
 	property alias themeName: adapter.themeName
 	property alias componentOpacity: adapter.componentOpacity
 	property alias showLanguageLeft: adapter.showLanguageLeft
@@ -28,6 +30,8 @@ Singleton {
 			property int clockY: 72
 			property int musicX: 48
 			property int musicY: 720
+			property int quickSettingsX: -1
+			property int quickSettingsY: -1
 			property string themeName: "one-half-gray"
 			property real componentOpacity: 1
 			property bool showLanguageLeft: true

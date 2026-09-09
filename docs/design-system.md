@@ -9,6 +9,8 @@ color, and motion rather than decoration or repeated labels.
 | --- | --- |
 | Corner radius | `6px` |
 | Interaction duration | `180ms` |
+| Modal open duration | `280ms` |
+| Modal close duration | `220ms` |
 | Motion easing | `Easing.OutCubic` |
 | Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |
@@ -39,12 +41,13 @@ does not own the icon value.
 - Avoid large-area blur. The MVP uses no blur.
 - Hide absent content instead of rendering an empty placeholder card.
 - Expose drag affordances only while layout edit mode is active.
-- Reveal transient panels with a short fade and vertical settle, both using the
-  shared interaction duration.
+- Expand Quick Settings from its invoking Dock control and collapse it back to
+  the same target. Opening uses `Easing.OutCubic`; closing uses `Easing.InCubic`.
 
 ## Motion and performance
 
 - Animate opacity, color, position, and bounded progress changes.
-- Do not animate large translucent surfaces or continuously sample idle data.
+- Limit large translucent surface animation to bounded open and close motion;
+  never animate one continuously or continuously sample idle data.
 - Use Quickshell service bindings for system changes. The clock and active media
   progress are the only time-based updates in the MVP.

@@ -19,6 +19,12 @@
 - Visual components consume semantic theme roles; they do not define palettes.
 - Quick Settings presents Wi-Fi networks or Bluetooth devices around a central
   radio control. Its bottom switch changes modes without closing the panel.
+- Quick Settings is modal while open. Clicking outside it or pressing Escape
+  dismisses it; clicks inside it never fall through to another window.
+- Drag the Quick Settings header to move the panel. Its committed position is
+  restored across restarts and clamped to the current screen.
+- Quick Settings expands from the Dock control that opened it and collapses
+  back to that control when dismissed. It has no dedicated close button.
 - Quick Settings adjusts every component surface from fully transparent to
   opaque in 10% steps. Text, icons, and media artwork remain opaque.
 - `ActionButton` owns reusable control feedback. Feature components own layout.

@@ -9,19 +9,101 @@ PanelWindow {
 	id: root
 
 	anchors {
+		left: true
 		right: true
+		top: true
 		bottom: true
 	}
 
-	implicitWidth: 760
-	implicitHeight: 520
-	margins.right: 24
-	margins.bottom: 108
+	implicitWidth: screen.width
+	implicitHeight: screen.height
 	color: "transparent"
-	visible: UiState.quickSettingsOpen || panelSurface.opacity > 0
-	focusable: UiState.quickSettingsOpen
+	visible: modalVisible
+	focusable: modalVisible
 	aboveWindows: true
 	exclusionMode: ExclusionMode.Ignore
+
+	property bool modalVisible: false
+	property bool closing: false
+	property real settledX: 0
+	property real settledY: 0
+
+	function clampedX(value) {
+		return Math.max(12, Math.min(screen.width - panelSurface.width - 12, value))
+	}
+
+	function clampedY(value) {
+		return Math.max(12, Math.min(screen.height - panelSurface.height - 72, value))
+	}
+
+	function storedX() {
+		return clampedX(LayoutState.quickSettingsX < 0
+			? screen.width - panelSurface.width - 24
+			: LayoutState.quickSettingsX)
+	}
+
+	function storedY() {
+		return clampedY(LayoutState.quickSettingsY < 0
+			? screen.height - panelSurface.height - 108
+			: LayoutState.quickSettingsY)
+	}
+
+	function scheduleOpen() {
+		modalVisible = true
+		openTimer.restart()
+	}
+
+	function dockTargetX() {
+		const centerX = UiState.quickSettingsTargetX < 0
+			? screen.width - 160 : UiState.quickSettingsTargetX
+		return centerX - panelSurface.width / 2
+	}
+
+	function dockTargetY() {
+		const centerY = UiState.quickSettingsTargetY < 0
+			? screen.height - 76 : UiState.quickSettingsTargetY
+		return centerY - panelSurface.height / 2
+	}
+
+	function commitPosition(panelX, panelY) {
+		settledX = clampedX(panelX)
+		settledY = clampedY(panelY)
+		panelSurface.x = settledX
+		panelSurface.y = settledY
+		LayoutState.quickSettingsX = Math.round(settledX)
+		LayoutState.quickSettingsY = Math.round(settledY)
+	}
+
+	function openPanel() {
+		closeAnimation.stop()
+		closing = false
+		modalVisible = true
+		settledX = storedX()
+		settledY = storedY()
+		panelSurface.x = dockTargetX()
+		panelSurface.y = dockTargetY()
+		panelSurface.scale = 0.12
+		panelSurface.opacity = 0
+		openAnimation.restart()
+		focusTimer.restart()
+	}
+
+	function beginClose() {
+		if (!modalVisible || closing) return
+
+		closing = true
+		openAnimation.stop()
+		LayoutState.quickSettingsX = Math.round(settledX)
+		LayoutState.quickSettingsY = Math.round(settledY)
+		closeAnimation.restart()
+	}
+
+	function requestClose() {
+		if (!modalVisible || closing) return
+
+		if (UiState.quickSettingsOpen) UiState.quickSettingsOpen = false
+		else beginClose()
+	}
 
 	function changeComponentOpacity(delta) {
 		const nextValue = Math.round((LayoutState.componentOpacity + delta) * 10) / 10
@@ -65,29 +147,145 @@ PanelWindow {
 		? bluetoothAdapter.devices.values.slice(0, 6)
 		: []
 
-	ShellSurface {
-		id: panelSurface
-		anchors.fill: parent
-		raised: true
-		radius: Theme.radius * 3
-		opacity: UiState.quickSettingsOpen ? 1 : 0
+	Component.onCompleted: {
+		if (UiState.quickSettingsOpen) scheduleOpen()
+	}
 
-		transform: Translate {
-			y: UiState.quickSettingsOpen ? 0 : 12
+	onClosed: UiState.quickSettingsOpen = false
 
-			Behavior on y {
-				NumberAnimation {
-					duration: Theme.motionDuration
-					easing.type: Easing.OutCubic
-				}
-			}
+	Connections {
+		target: UiState
+
+		function onQuickSettingsOpenChanged() {
+			if (UiState.quickSettingsOpen) root.scheduleOpen()
+			else root.beginClose()
+		}
+	}
+
+	Timer {
+		id: openTimer
+		interval: 0
+		onTriggered: root.openPanel()
+	}
+
+	Timer {
+		id: focusTimer
+		interval: 0
+		onTriggered: modalInput.forceActiveFocus()
+	}
+
+	ParallelAnimation {
+		id: openAnimation
+
+		NumberAnimation {
+			target: panelSurface
+			property: "x"
+			to: root.settledX
+			duration: Theme.modalOpenDuration
+			easing.type: Easing.OutCubic
 		}
 
-		Behavior on opacity {
-			NumberAnimation {
-				duration: Theme.motionDuration
-				easing.type: Easing.OutCubic
-			}
+		NumberAnimation {
+			target: panelSurface
+			property: "y"
+			to: root.settledY
+			duration: Theme.modalOpenDuration
+			easing.type: Easing.OutCubic
+		}
+
+		NumberAnimation {
+			target: panelSurface
+			property: "scale"
+			to: 1
+			duration: Theme.modalOpenDuration
+			easing.type: Easing.OutCubic
+		}
+
+		NumberAnimation {
+			target: panelSurface
+			property: "opacity"
+			to: 1
+			duration: Theme.modalCloseDuration
+			easing.type: Easing.OutCubic
+		}
+	}
+
+	ParallelAnimation {
+		id: closeAnimation
+
+		NumberAnimation {
+			target: panelSurface
+			property: "x"
+			to: root.dockTargetX()
+			duration: Theme.modalCloseDuration
+			easing.type: Easing.InCubic
+		}
+
+		NumberAnimation {
+			target: panelSurface
+			property: "y"
+			to: root.dockTargetY()
+			duration: Theme.modalCloseDuration
+			easing.type: Easing.InCubic
+		}
+
+		NumberAnimation {
+			target: panelSurface
+			property: "scale"
+			to: 0.12
+			duration: Theme.modalCloseDuration
+			easing.type: Easing.InCubic
+		}
+
+		NumberAnimation {
+			target: panelSurface
+			property: "opacity"
+			to: 0
+			duration: Theme.motionDuration
+			easing.type: Easing.InCubic
+		}
+
+		onFinished: {
+			root.modalVisible = false
+			root.closing = false
+			panelSurface.x = root.settledX
+			panelSurface.y = root.settledY
+			panelSurface.scale = 1
+			panelSurface.opacity = 1
+
+			if (UiState.quickSettingsOpen) root.openPanel()
+		}
+	}
+
+	Item {
+		id: modalInput
+		width: root.screen.width
+		height: root.screen.height
+		focus: root.modalVisible
+		Keys.priority: Keys.BeforeItem
+		Keys.onEscapePressed: event => {
+			root.requestClose()
+			event.accepted = true
+		}
+
+		MouseArea {
+			anchors.fill: parent
+			enabled: !root.closing
+			onClicked: root.requestClose()
+		}
+	}
+
+	ShellSurface {
+		id: panelSurface
+		width: 760
+		height: 520
+		raised: true
+		radius: Theme.radius * 3
+		transformOrigin: Item.Center
+
+		MouseArea {
+			anchors.fill: parent
+			onClicked: mouse => mouse.accepted = true
 		}
 
 		Item {
@@ -102,36 +300,50 @@ PanelWindow {
 				anchors.top: parent.top
 				height: 34
 
-				Text {
+				Item {
+					id: dragArea
 					anchors.left: parent.left
-					anchors.verticalCenter: parent.verticalCenter
-					text: UiState.quickSettingsPage === "bluetooth"
-						? "Bluetooth devices"
-						: "Wi-Fi networks"
-					color: Theme.text
-					font.family: Theme.textFontFamily
-					font.pixelSize: 14
-					font.weight: Font.Medium
-				}
+					anchors.right: opacityControl.left
+					anchors.rightMargin: Theme.spacingMd
+					anchors.top: parent.top
+					anchors.bottom: parent.bottom
 
-				ActionButton {
-					id: closeButton
-					anchors.right: parent.right
-					compact: true
-					icon: "󰅖"
-					onClicked: UiState.quickSettingsOpen = false
+					Text {
+						anchors.left: parent.left
+						anchors.verticalCenter: parent.verticalCenter
+						text: UiState.quickSettingsPage === "bluetooth"
+							? "Bluetooth devices"
+							: "Wi-Fi networks"
+						color: Theme.text
+						font.family: Theme.textFontFamily
+						font.pixelSize: 14
+						font.weight: Font.Medium
+					}
+
+					DragHandler {
+						id: panelDrag
+						enabled: root.modalVisible && !root.closing
+							&& !openAnimation.running
+						target: panelSurface
+						xAxis.minimum: 12
+						xAxis.maximum: root.screen.width - panelSurface.width - 12
+						yAxis.minimum: 12
+						yAxis.maximum: root.screen.height - panelSurface.height - 72
+						onActiveChanged: {
+							if (!active) root.commitPosition(panelSurface.x, panelSurface.y)
+						}
+					}
 				}
 
 				ActionButton {
 					id: arrangeButton
-					anchors.right: closeButton.left
-					anchors.rightMargin: Theme.spacingXs
+					anchors.right: parent.right
 					compact: true
 					icon: "󰆾"
 					active: UiState.editMode
 					onClicked: {
 						UiState.editMode = !UiState.editMode
-						UiState.quickSettingsOpen = false
+						root.requestClose()
 					}
 				}
 
@@ -458,7 +670,10 @@ PanelWindow {
 					anchors.verticalCenter: parent.verticalCenter
 					compact: true
 					icon: "󰐥"
-					onClicked: Quickshell.execDetached(["hypr-power-menu"])
+					onClicked: {
+						root.requestClose()
+						Quickshell.execDetached(["hypr-power-menu"])
+					}
 				}
 			}
 		}

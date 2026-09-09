@@ -36,6 +36,16 @@ PanelWindow {
 		return label.slice(0, available - 1) + "…" + ending
 	}
 
+	function toggleQuickSettings(page, sourceItem) {
+		const localCenter = sourceItem.mapToItem(root.contentItem,
+			sourceItem.width / 2, sourceItem.height / 2)
+		UiState.quickSettingsTargetX = root.margins.left + localCenter.x
+		UiState.quickSettingsTargetY = root.screen.height - root.margins.bottom
+			- root.height + localCenter.y
+		UiState.quickSettingsPage = page
+		UiState.quickSettingsOpen = !UiState.quickSettingsOpen
+	}
+
 	readonly property var wifiDevice: {
 		const devices = Networking.devices.values
 		for (let index = 0; index < devices.length; index++) {
@@ -207,28 +217,25 @@ PanelWindow {
 			}
 
 			ActionButton {
+				id: wifiButton
 				compact: root.connectedNetwork === null
 				icon: root.connectedNetwork ? "󰖩" : "󰖪"
 				text: root.wifiLabel
-				onClicked: {
-					UiState.quickSettingsPage = "wifi"
-					UiState.quickSettingsOpen = !UiState.quickSettingsOpen
-				}
+				onClicked: root.toggleQuickSettings("wifi", wifiButton)
 			}
 
 			ActionButton {
+				id: bluetoothButton
 				compact: root.connectedBluetoothDevices.length === 0
 				icon: root.bluetoothAdapter && root.bluetoothAdapter.enabled ? "󰂯" : "󰂲"
 				text: root.bluetoothLabel
-				onClicked: {
-					UiState.quickSettingsPage = "bluetooth"
-					UiState.quickSettingsOpen = !UiState.quickSettingsOpen
-				}
+				onClicked: root.toggleQuickSettings("bluetooth", bluetoothButton)
 			}
 
 			ActionButton {
+				id: timeButton
 				text: Qt.formatDateTime(clock.date, "HH:mm:ss")
-				onClicked: UiState.quickSettingsOpen = !UiState.quickSettingsOpen
+				onClicked: root.toggleQuickSettings(UiState.quickSettingsPage, timeButton)
 			}
 
 			LanguageIndicator {
