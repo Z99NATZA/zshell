@@ -19,12 +19,13 @@
 ## Boundaries
 
 - Visual components consume semantic theme roles; they do not define palettes.
-- Quick Settings presents Wi-Fi networks or Bluetooth devices as persistent
-  cards around a circular radar and central radio control. Its bottom switch
-  changes modes without closing the panel.
+- Quick Settings uses a `960x680` modal and presents Wi-Fi networks or
+  Bluetooth devices as persistent bubbles over their targets on a circular
+  radar. Its bottom switch changes modes without closing the panel.
 - Every visible connection has a stable pseudo-random radar blip derived from
-  its identity. The sweep briefly raises the matching card but never hides or
-  moves it; cards use stable shuffled positions around the radar.
+  its identity. Collision-safe angular slots keep bubbles apart, and a short
+  accent connector ties each bubble to its blip. The sweep briefly raises the
+  matching bubble but never hides or moves it.
 - The central radio control responds to hover and press, and gently pulses only
   while its radio is active and its Quick Settings page is visible. Bluetooth
   discovery adds a small orbiting activity marker.

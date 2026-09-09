@@ -27,7 +27,6 @@ PanelWindow {
 	property bool closing: false
 	property real settledX: 0
 	property real settledY: 0
-	readonly property var radarCardAngles: [-140, -40, 0, 40, 140, 180]
 
 	function clampedX(value) {
 		return Math.max(12, Math.min(screen.width - panelSurface.width - 12, value))
@@ -129,10 +128,6 @@ PanelWindow {
 		return Math.abs(hash)
 	}
 
-	function stableUnit(key, salt) {
-		return stableHash(String(key) + ":" + salt) / 2147483648
-	}
-
 	function radarItems(items, kind) {
 		const copy = items.slice()
 		copy.sort((first, second) => stableHash(connectionKey(first, kind))
@@ -145,33 +140,6 @@ PanelWindow {
 			key: connectionKey(item, kind),
 			active: !!item.connected
 		}))
-	}
-
-	function cardSlot(index, items, kind) {
-		const occupied = []
-		let resolvedSlot = 0
-
-		for (let itemIndex = 0; itemIndex <= index; itemIndex++) {
-			const key = connectionKey(items[itemIndex], kind)
-			let slot = Math.floor(stableUnit(key, "card-slot")
-				* radarCardAngles.length)
-
-			while (occupied[slot]) slot = (slot + 1) % radarCardAngles.length
-			occupied[slot] = true
-			resolvedSlot = slot
-		}
-
-		return resolvedSlot
-	}
-
-	function cardAngle(index, items, kind, key) {
-		return radarCardAngles[cardSlot(index, items, kind)]
-			+ (stableUnit(key, "card-angle") - 0.5) * 12
-	}
-
-	function cardRadius(key, axis) {
-		const base = axis === "x" ? 240 : 134
-		return base + (stableUnit(key, "card-" + axis) - 0.5) * 16
 	}
 
 	function toggleBluetoothScan() {
@@ -333,8 +301,8 @@ PanelWindow {
 
 	ShellSurface {
 		id: panelSurface
-		width: 760
-		height: 520
+		width: 960
+		height: 680
 		raised: true
 		radius: Theme.radius * 3
 		transformOrigin: Item.Center
@@ -491,17 +459,15 @@ PanelWindow {
 
 						ConnectionCard {
 							required property var modelData
-							required property int index
 							readonly property string radarKey: root.connectionKey(modelData,
 								"bluetooth")
-							readonly property real angle: root.cardAngle(index,
-								root.radarBluetoothDevices, "bluetooth", radarKey)
-								* Math.PI / 180
 
-							x: bluetoothPage.width / 2 + Math.cos(angle)
-								* root.cardRadius(radarKey, "x") - width / 2
-							y: bluetoothPage.height / 2 + Math.sin(angle)
-								* root.cardRadius(radarKey, "y") - height / 2
+							x: (bluetoothPage.width - bluetoothRadar.width) / 2
+								+ bluetoothRadar.targetX(radarKey) - width / 2
+							y: (bluetoothPage.height - bluetoothRadar.height) / 2
+								+ bluetoothRadar.targetY(radarKey) - height
+								- Theme.spacingLg
+							z: 1
 							icon: "󰂯"
 							title: modelData.name || modelData.address
 							subtitle: modelData.connected
@@ -512,6 +478,7 @@ PanelWindow {
 									: (modelData.paired ? "Connect" : "Pair"))
 							active: modelData.connected
 							radarHighlight: bluetoothRadar.targetIlluminated(radarKey)
+							radarBubble: true
 							enabled: UiState.quickSettingsPage === "bluetooth"
 								&& root.bluetoothAdapter && root.bluetoothAdapter.enabled
 								&& !modelData.blocked
@@ -566,16 +533,15 @@ PanelWindow {
 
 						ConnectionCard {
 							required property var modelData
-							required property int index
 							readonly property string radarKey: root.connectionKey(modelData,
 								"wifi")
-							readonly property real angle: root.cardAngle(index,
-								root.radarWifiNetworks, "wifi", radarKey) * Math.PI / 180
 
-							x: wifiPage.width / 2 + Math.cos(angle)
-								* root.cardRadius(radarKey, "x") - width / 2
-							y: wifiPage.height / 2 + Math.sin(angle)
-								* root.cardRadius(radarKey, "y") - height / 2
+							x: (wifiPage.width - wifiRadar.width) / 2
+								+ wifiRadar.targetX(radarKey) - width / 2
+							y: (wifiPage.height - wifiRadar.height) / 2
+								+ wifiRadar.targetY(radarKey) - height
+								- Theme.spacingLg
+							z: 1
 							icon: modelData.connected ? "󰖩" : "󰖪"
 							title: modelData.name
 							subtitle: modelData.connected ? "Connected"
@@ -583,6 +549,7 @@ PanelWindow {
 									: (modelData.known ? "Connect" : "Credentials required"))
 							active: modelData.connected
 							radarHighlight: wifiRadar.targetIlluminated(radarKey)
+							radarBubble: true
 							enabled: UiState.quickSettingsPage === "wifi"
 								&& Networking.wifiEnabled
 								&& (modelData.connected || modelData.known)

@@ -54,8 +54,10 @@ does not own the icon value.
   never animate one continuously or continuously sample idle data.
 - Small radio rings may pulse while their matching Quick Settings page is
   visible. They stop with the modal and never sample system state on a timer.
-- Connection radar sweeps use small cached Canvas surfaces and run only while their
-  radio and matching Quick Settings page are active. Target positions are
-  deterministic so service refreshes do not make cards or blips jump.
+- Connection radar sweeps use small cached Canvas surfaces and run only while
+  their radio and matching Quick Settings page are active. Target positions
+  are deterministic so service refreshes do not make cards or blips jump.
+- Radar blips and their bubble connectors always use `Theme.accent`; connection
+  state remains visible through each bubble's text and surface treatment.
 - Use Quickshell service bindings for system changes. Aside from bounded visual
   feedback, the clock and active media progress are the only time-based updates.

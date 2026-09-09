@@ -9,6 +9,7 @@ ShellSurface {
 	property string subtitle: ""
 	property bool active: false
 	property bool radarHighlight: false
+	property bool radarBubble: false
 	signal clicked
 
 	implicitWidth: 176
@@ -32,6 +33,19 @@ ShellSurface {
 
 	Behavior on scale {
 		NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
+	}
+
+	Rectangle {
+		anchors.horizontalCenter: parent.horizontalCenter
+		anchors.top: parent.bottom
+		width: 1
+		height: Theme.spacingLg
+		color: Theme.accent
+		opacity: root.radarBubble ? 0.58 : 0
+
+		Behavior on opacity {
+			NumberAnimation { duration: Theme.motionDuration }
+		}
 	}
 
 	Row {

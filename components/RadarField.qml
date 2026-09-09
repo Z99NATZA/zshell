@@ -4,8 +4,8 @@ import qs.theme
 Item {
 	id: root
 
-	implicitWidth: 330
-	implicitHeight: 330
+	implicitWidth: 480
+	implicitHeight: 480
 
 	property var targets: []
 	property bool active: false
@@ -14,6 +14,7 @@ Item {
 
 	readonly property bool scanning: motionEnabled && active
 	readonly property real sweepAngle: sweepLayer.rotation
+	readonly property var targetSlotAngles: [-150, -90, -30, 30, 90, 150]
 
 	function stableHash(value) {
 		let hash = 0
@@ -31,11 +32,39 @@ Item {
 	}
 
 	function targetAngle(key) {
-		return stableUnit(key, "angle") * 360 - 180
+		return targetSlotAngles[targetSlot(key)]
+			+ (stableUnit(key, "angle-jitter") - 0.5) * 8
 	}
 
 	function targetRadius(key) {
-		return 92 + stableUnit(key, "radius") * 54
+		return width * (0.38 + stableUnit(key, "radius") * 0.025)
+	}
+
+	function targetSlot(key) {
+		const occupied = []
+
+		for (let index = 0; index < targets.length; index++) {
+			const targetKey = targets[index].key
+			let slot = Math.floor(stableUnit(targetKey, "slot")
+				* targetSlotAngles.length)
+
+			while (occupied[slot]) slot = (slot + 1) % targetSlotAngles.length
+			occupied[slot] = true
+
+			if (targetKey === key) return slot
+		}
+
+		return 0
+	}
+
+	function targetX(key) {
+		const angle = targetAngle(key) * Math.PI / 180
+		return width / 2 + Math.cos(angle) * targetRadius(key)
+	}
+
+	function targetY(key) {
+		const angle = targetAngle(key) * Math.PI / 180
+		return height / 2 + Math.sin(angle) * targetRadius(key)
 	}
 
 	function angularDistance(first, second) {
@@ -166,12 +195,10 @@ Item {
 		Item {
 			required property var modelData
 			readonly property string targetKey: modelData.key
-			readonly property real angle: root.targetAngle(targetKey) * Math.PI / 180
-			readonly property real distance: root.targetRadius(targetKey)
 			readonly property bool illuminated: root.targetIlluminated(targetKey)
 
-			x: root.width / 2 + Math.cos(angle) * distance - width / 2
-			y: root.height / 2 + Math.sin(angle) * distance - height / 2
+			x: root.targetX(targetKey) - width / 2
+			y: root.targetY(targetKey) - height / 2
 			width: 14
 			height: width
 
@@ -182,7 +209,7 @@ Item {
 				radius: width / 2
 				color: "transparent"
 				border.width: 1
-				border.color: modelData.active ? Theme.success : Theme.accent
+				border.color: Theme.accent
 				opacity: illuminated ? 0.72 : 0
 				scale: illuminated ? 1.7 : 0.5
 
@@ -203,7 +230,7 @@ Item {
 				width: modelData.active ? 7 : 5
 				height: width
 				radius: width / 2
-				color: modelData.active ? Theme.success : Theme.accent
+				color: Theme.accent
 				opacity: root.active ? 0.9 : 0.48
 				scale: illuminated ? 1.5 : 1
 
