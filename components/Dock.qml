@@ -210,14 +210,20 @@ PanelWindow {
 				compact: root.connectedNetwork === null
 				icon: root.connectedNetwork ? "󰖩" : "󰖪"
 				text: root.wifiLabel
-				onClicked: UiState.quickSettingsOpen = !UiState.quickSettingsOpen
+				onClicked: {
+					UiState.quickSettingsPage = "wifi"
+					UiState.quickSettingsOpen = !UiState.quickSettingsOpen
+				}
 			}
 
 			ActionButton {
 				compact: root.connectedBluetoothDevices.length === 0
 				icon: root.bluetoothAdapter && root.bluetoothAdapter.enabled ? "󰂯" : "󰂲"
 				text: root.bluetoothLabel
-				onClicked: UiState.quickSettingsOpen = !UiState.quickSettingsOpen
+				onClicked: {
+					UiState.quickSettingsPage = "bluetooth"
+					UiState.quickSettingsOpen = !UiState.quickSettingsOpen
+				}
 			}
 
 			ActionButton {

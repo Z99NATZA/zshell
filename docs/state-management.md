@@ -5,7 +5,7 @@ a process restart.
 
 | Owner | Lifetime | Values |
 | --- | --- | --- |
-| `UiState.qml` | Current process | Panel visibility and edit mode |
+| `UiState.qml` | Current process | Panel visibility, selected connection mode, and edit mode |
 | `LayoutState.qml` | Across restarts | Card positions, theme, component opacity, and language indicator visibility |
 
 `LayoutState` uses Quickshell `FileView` with `JsonAdapter`. Updates are written
