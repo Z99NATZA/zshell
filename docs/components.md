@@ -7,6 +7,7 @@
 | `Dock` | Workspace actions, edit mode, audio, time, language, and power |
 | `QuickSettingsPanel` | Wi-Fi, Bluetooth, theme, and layout controls |
 | `ConnectionCard` | Shared network and Bluetooth device action card |
+| `RadioOrb` | Shared animated Wi-Fi and Bluetooth radio control |
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
 | `ClockCard` | Reactive time and persisted drag position |
 | `MusicCard` | Current MPRIS metadata, progress, and transport controls |
@@ -19,6 +20,9 @@
 - Visual components consume semantic theme roles; they do not define palettes.
 - Quick Settings presents Wi-Fi networks or Bluetooth devices around a central
   radio control. Its bottom switch changes modes without closing the panel.
+- The central radio control responds to hover and press, and gently pulses only
+  while its radio is active and its Quick Settings page is visible. Bluetooth
+  discovery adds a small orbiting activity marker.
 - Quick Settings is modal while open. Clicking outside it or pressing Escape
   dismisses it; clicks inside it never fall through to another window.
 - Drag the Quick Settings header, including its surrounding padding and gaps,

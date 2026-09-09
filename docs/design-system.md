@@ -11,6 +11,7 @@ color, and motion rather than decoration or repeated labels.
 | Interaction duration | `180ms` |
 | Modal open duration | `280ms` |
 | Modal close duration | `220ms` |
+| Radio pulse duration | `1800ms` |
 | Motion easing | `Easing.OutCubic` |
 | Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |
@@ -49,5 +50,7 @@ does not own the icon value.
 - Animate opacity, color, position, and bounded progress changes.
 - Limit large translucent surface animation to bounded open and close motion;
   never animate one continuously or continuously sample idle data.
-- Use Quickshell service bindings for system changes. The clock and active media
-  progress are the only time-based updates in the MVP.
+- Small radio rings may pulse while their matching Quick Settings page is
+  visible. They stop with the modal and never sample system state on a timer.
+- Use Quickshell service bindings for system changes. Aside from bounded visual
+  feedback, the clock and active media progress are the only time-based updates.

@@ -452,71 +452,20 @@ PanelWindow {
 						}
 					}
 
-					Item {
+					RadioOrb {
 						anchors.centerIn: parent
-						width: 156
-						height: 156
-
-						Rectangle {
-							anchors.centerIn: parent
-							width: 156
-							height: width
-							radius: width / 2
-							color: "transparent"
-							border.width: 1
-							border.color: Theme.border
-						}
-
-						Rectangle {
-							anchors.centerIn: parent
-							width: 132
-							height: width
-							radius: width / 2
-							color: "transparent"
-							border.width: 1
-							border.color: Theme.borderStrong
-						}
-
-						Rectangle {
-							anchors.centerIn: parent
-							width: 106
-							height: width
-							radius: width / 2
-							color: Theme.surfaceSoft
-							border.width: 1
-							border.color: Theme.borderStrong
-
-							Text {
-								anchors.centerIn: parent
-								text: root.bluetoothAdapter && root.bluetoothAdapter.enabled
-									? "󰂯" : "󰂲"
-								color: root.bluetoothAdapter && root.bluetoothAdapter.discovering
-									? Theme.accent : Theme.text
-								font.family: Theme.fontFamily
-								font.pixelSize: 34
-							}
-
-							MouseArea {
-								anchors.fill: parent
-								hoverEnabled: true
-								cursorShape: root.bluetoothAdapter
-									? Qt.PointingHandCursor : Qt.ArrowCursor
-								onClicked: root.toggleBluetoothScan()
-							}
-						}
-					}
-
-					Text {
-						anchors.horizontalCenter: parent.horizontalCenter
-						anchors.verticalCenter: parent.verticalCenter
-						anchors.verticalCenterOffset: 96
-						text: !root.bluetoothAdapter ? "No adapter"
+						icon: root.bluetoothAdapter && root.bluetoothAdapter.enabled
+							? "󰂯" : "󰂲"
+						status: !root.bluetoothAdapter ? "No adapter"
 							: (!root.bluetoothAdapter.enabled ? "Bluetooth off"
 								: (root.bluetoothAdapter.discovering ? "Scanning…"
 									: "Click to scan"))
-						color: Theme.textMuted
-						font.family: Theme.textFontFamily
-						font.pixelSize: 10
+						active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
+						busy: root.bluetoothAdapter && root.bluetoothAdapter.discovering
+						motionEnabled: root.modalVisible && !root.closing
+							&& UiState.quickSettingsPage === "bluetooth"
+						enabled: root.bluetoothAdapter !== null
+						onClicked: root.toggleBluetoothScan()
 					}
 				}
 
@@ -557,65 +506,14 @@ PanelWindow {
 						}
 					}
 
-					Item {
+					RadioOrb {
 						anchors.centerIn: parent
-						width: 156
-						height: 156
-
-						Rectangle {
-							anchors.centerIn: parent
-							width: 156
-							height: width
-							radius: width / 2
-							color: "transparent"
-							border.width: 1
-							border.color: Theme.border
-						}
-
-						Rectangle {
-							anchors.centerIn: parent
-							width: 132
-							height: width
-							radius: width / 2
-							color: "transparent"
-							border.width: 1
-							border.color: Theme.borderStrong
-						}
-
-						Rectangle {
-							anchors.centerIn: parent
-							width: 106
-							height: width
-							radius: width / 2
-							color: Theme.surfaceSoft
-							border.width: 1
-							border.color: Theme.borderStrong
-
-							Text {
-								anchors.centerIn: parent
-								text: Networking.wifiEnabled ? "󰖩" : "󰖪"
-								color: Networking.wifiEnabled ? Theme.accent : Theme.text
-								font.family: Theme.fontFamily
-								font.pixelSize: 34
-							}
-
-							MouseArea {
-								anchors.fill: parent
-								hoverEnabled: true
-								cursorShape: Qt.PointingHandCursor
-								onClicked: Networking.wifiEnabled = !Networking.wifiEnabled
-							}
-						}
-					}
-
-					Text {
-						anchors.horizontalCenter: parent.horizontalCenter
-						anchors.verticalCenter: parent.verticalCenter
-						anchors.verticalCenterOffset: 96
-						text: Networking.wifiEnabled ? "Wi-Fi on" : "Wi-Fi off"
-						color: Theme.textMuted
-						font.family: Theme.textFontFamily
-						font.pixelSize: 10
+						icon: Networking.wifiEnabled ? "󰖩" : "󰖪"
+						status: Networking.wifiEnabled ? "Wi-Fi on" : "Wi-Fi off"
+						active: Networking.wifiEnabled
+						motionEnabled: root.modalVisible && !root.closing
+							&& UiState.quickSettingsPage === "wifi"
+						onClicked: Networking.wifiEnabled = !Networking.wifiEnabled
 					}
 				}
 			}
