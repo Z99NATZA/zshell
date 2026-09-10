@@ -75,6 +75,10 @@
   panel expanded when focus moves or the user clicks outside, while preserving
   drag, resize, and normal stack activation. Close and Escape override Pin,
   collapse the panel, and reset Pin.
+- Expanded Clock and Music use the same uninterrupted translucent surface and
+  `Theme.radius * 3` corner radius as Quick Settings. Title, Pin, and Close sit
+  inside the surface padding without a separate header fill or divider; the
+  surrounding top region remains the drag target.
 - `FloatingPanel` provides an optional header-action row and right-side
   inspector loader. Clock and Music do not populate the inspector yet, so
   property interfaces can be added without changing drag, focus, or resize

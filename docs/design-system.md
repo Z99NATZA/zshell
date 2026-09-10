@@ -49,9 +49,10 @@ does not own the icon value.
   their drag and resize affordances.
 - Resize handles remain visually transparent and communicate direction only
   through the platform horizontal, vertical, or diagonal cursor.
-- Expanded desktop panels add a compact title bar with Pin and Close controls.
-  Their body layout reflows from actual width and height; panel resize never
-  scales a rendered snapshot.
+- Expanded desktop panels place Title, Pin, and Close within the modal padding,
+  without a separate header strip or divider. They share the Quick Settings
+  modal radius. Body layout reflows from actual width and height; panel resize
+  never scales a rendered snapshot.
 - Expand Quick Settings from its invoking Dock control and collapse it back to
   the same target. Opening uses `Easing.OutCubic`; closing uses `Easing.InCubic`.
 

@@ -22,7 +22,7 @@ ShellSurface {
 	property real edgeMargin: 12
 	property real bottomMargin: 72
 	property real inspectorWidth: 260
-	readonly property real headerHeight: expanded ? 44 : 0
+	readonly property real headerHeight: expanded ? 58 : 0
 	readonly property bool inspectorVisible: expanded && inspectorComponent !== null
 	readonly property real effectiveMinimumWidth: Math.min(minimumPanelWidth,
 		Math.max(1, boundsWidth - edgeMargin * 2))
@@ -41,6 +41,7 @@ ShellSurface {
 
 	raised: true
 	color: expanded ? Theme.surfaceModal : Theme.surfaceRaised
+	radius: expanded ? Theme.radius * 3 : Theme.radius
 	interactive: active || dragArea.containsMouse || resizing
 	clip: true
 	onExpandedChanged: if (!expanded) pinned = false
@@ -124,13 +125,14 @@ ShellSurface {
 		anchors.left: parent.left
 		anchors.right: parent.right
 		anchors.top: parent.top
-		height: root.headerHeight
+		anchors.topMargin: Theme.spacingLg
+		height: 34
 		visible: root.expanded
 		z: 4
 
 		Row {
 			anchors.left: parent.left
-			anchors.leftMargin: Theme.spacingMd
+			anchors.leftMargin: Theme.spacingLg + Theme.spacingSm
 			anchors.verticalCenter: parent.verticalCenter
 			spacing: Theme.spacingSm
 
@@ -176,7 +178,7 @@ ShellSurface {
 		ActionButton {
 			id: compactButton
 			anchors.right: parent.right
-			anchors.rightMargin: Theme.spacingSm
+			anchors.rightMargin: Theme.spacingLg
 			anchors.verticalCenter: parent.verticalCenter
 			compact: true
 			icon: "󰅖"
@@ -186,13 +188,12 @@ ShellSurface {
 				root.modeToggleRequested()
 			}
 		}
+	}
 
-		Rectangle {
-			anchors.left: parent.left
-			anchors.right: parent.right
-			anchors.bottom: parent.bottom
-			height: 1
-			color: Theme.border
+	Behavior on radius {
+		NumberAnimation {
+			duration: Theme.motionDuration
+			easing.type: Easing.OutCubic
 		}
 	}
 
