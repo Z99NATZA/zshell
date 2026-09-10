@@ -52,8 +52,9 @@ does not own the icon value.
 - Animate opacity, color, position, and bounded progress changes.
 - Limit large translucent surface animation to bounded open and close motion;
   never animate one continuously or continuously sample idle data.
-- Small radio rings may pulse while their matching Quick Settings page is
-  visible. They stop with the modal and never sample system state on a timer.
+- The central radio pulse travels from the core to the radar's second grid ring
+  while its matching Quick Settings page is visible. It scales with the radar,
+  stops with the modal, and never samples system state on a timer.
 - Connection radar sweeps use small cached Canvas surfaces and run only while
   their radio and matching Quick Settings page are active. Target positions
   are deterministic so service refreshes do not make cards or blips jump.

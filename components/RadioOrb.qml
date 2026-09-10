@@ -12,14 +12,16 @@ Item {
 	property bool active: false
 	property bool busy: false
 	property bool motionEnabled: false
+	property real pulseTargetDiameter: 176
 	signal clicked
 
 	readonly property bool lively: motionEnabled && active
+	readonly property real coreDiameter: 106
 
 	Rectangle {
 		id: pulseRing
 		anchors.centerIn: parent
-		width: 120
+		width: root.coreDiameter
 		height: width
 		radius: width / 2
 		color: "transparent"
@@ -27,11 +29,11 @@ Item {
 		border.color: Theme.accent
 		visible: root.lively
 		opacity: 0
-		scale: 0.9
+		scale: 1
 
 		NumberAnimation on scale {
-			from: 0.9
-			to: 1.32
+			from: 1
+			to: Math.max(1, root.pulseTargetDiameter / root.coreDiameter)
 			duration: Theme.radioPulseDuration
 			easing.type: Easing.OutCubic
 			loops: Animation.Infinite
@@ -77,7 +79,7 @@ Item {
 	Rectangle {
 		id: core
 		anchors.centerIn: parent
-		width: 106
+		width: root.coreDiameter
 		height: width
 		radius: width / 2
 		color: pointer.containsMouse ? Theme.surfaceRaised : Theme.surfaceSoft

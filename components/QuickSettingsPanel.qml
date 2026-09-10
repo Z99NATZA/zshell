@@ -692,6 +692,7 @@ PanelWindow {
 						busy: root.bluetoothAdapter && root.bluetoothAdapter.discovering
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "bluetooth"
+						pulseTargetDiameter: bluetoothRadar.width * 0.4
 						enabled: root.bluetoothAdapter !== null
 						onClicked: root.toggleBluetoothScan()
 					}
@@ -766,6 +767,7 @@ PanelWindow {
 						active: Networking.wifiEnabled
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "wifi"
+						pulseTargetDiameter: wifiRadar.width * 0.4
 						onClicked: Networking.wifiEnabled = !Networking.wifiEnabled
 					}
 				}
