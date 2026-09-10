@@ -352,6 +352,7 @@ PanelWindow {
 
 					Text {
 						anchors.left: parent.left
+						anchors.leftMargin: Theme.spacingSm
 						anchors.verticalCenter: parent.verticalCenter
 						text: UiState.quickSettingsPage === "bluetooth"
 							? "Bluetooth devices"
@@ -386,7 +387,7 @@ PanelWindow {
 						: "one-half-light"
 				}
 
-				ShellSurface {
+				Item {
 					id: opacityControl
 					anchors.right: themeButton.left
 					anchors.rightMargin: Theme.spacingSm
@@ -634,6 +635,7 @@ PanelWindow {
 
 				Text {
 					anchors.left: parent.left
+					anchors.leftMargin: Theme.spacingSm
 					anchors.verticalCenter: parent.verticalCenter
 					text: UiState.quickSettingsPage === "bluetooth"
 						? root.bluetoothDevices.length + " devices"
