@@ -679,7 +679,8 @@ PanelWindow {
 					}
 
 					RadioOrb {
-						anchors.centerIn: parent
+						x: bluetoothRadar.x + (bluetoothRadar.width - width) / 2
+						anchors.verticalCenter: parent.verticalCenter
 						z: 2
 						icon: root.bluetoothAdapter && root.bluetoothAdapter.enabled
 							? "󰂯" : "󰂲"
@@ -757,7 +758,8 @@ PanelWindow {
 					}
 
 					RadioOrb {
-						anchors.centerIn: parent
+						x: wifiRadar.x + (wifiRadar.width - width) / 2
+						anchors.verticalCenter: parent.verticalCenter
 						z: 2
 						icon: Networking.wifiEnabled ? "󰖩" : "󰖪"
 						status: Networking.wifiEnabled ? "Wi-Fi on" : "Wi-Fi off"

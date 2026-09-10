@@ -19,7 +19,7 @@ Item {
 	Rectangle {
 		id: pulseRing
 		anchors.centerIn: parent
-		width: 132
+		width: 120
 		height: width
 		radius: width / 2
 		color: "transparent"
@@ -27,11 +27,11 @@ Item {
 		border.color: Theme.accent
 		visible: root.lively
 		opacity: 0
-		scale: 0.82
+		scale: 0.9
 
 		NumberAnimation on scale {
-			from: 0.82
-			to: 1.18
+			from: 0.9
+			to: 1.32
 			duration: Theme.radioPulseDuration
 			easing.type: Easing.OutCubic
 			loops: Animation.Infinite
@@ -39,67 +39,12 @@ Item {
 		}
 
 		NumberAnimation on opacity {
-			from: 0.5
+			from: 0.36
 			to: 0
 			duration: Theme.radioPulseDuration
 			easing.type: Easing.OutCubic
 			loops: Animation.Infinite
 			running: root.lively
-		}
-	}
-
-	Rectangle {
-		id: outerRing
-		anchors.centerIn: parent
-		width: 156
-		height: width
-		radius: width / 2
-		color: "transparent"
-		border.width: 1
-		border.color: root.active ? Theme.accent : Theme.border
-		opacity: root.active ? 0.38 : 0.72
-		scale: pointer.containsMouse ? 1.06 : 1
-
-		Behavior on border.color {
-			ColorAnimation { duration: Theme.motionDuration }
-		}
-
-		Behavior on opacity {
-			NumberAnimation { duration: Theme.motionDuration }
-		}
-
-		Behavior on scale {
-			NumberAnimation {
-				duration: Theme.motionDuration
-				easing.type: Easing.OutCubic
-			}
-		}
-	}
-
-	Rectangle {
-		anchors.centerIn: parent
-		width: 132
-		height: width
-		radius: width / 2
-		color: "transparent"
-		border.width: 1
-		border.color: root.active ? Theme.accent : Theme.borderStrong
-		opacity: root.active ? 0.58 : 0.8
-		scale: pointer.containsMouse ? 1.04 : 1
-
-		Behavior on border.color {
-			ColorAnimation { duration: Theme.motionDuration }
-		}
-
-		Behavior on opacity {
-			NumberAnimation { duration: Theme.motionDuration }
-		}
-
-		Behavior on scale {
-			NumberAnimation {
-				duration: Theme.motionDuration
-				easing.type: Easing.OutCubic
-			}
 		}
 	}
 
