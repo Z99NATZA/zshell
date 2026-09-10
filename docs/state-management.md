@@ -24,6 +24,10 @@ target remains ephemeral because it is recalculated from the invoking control.
 theme. Quick Settings changes it in 10% steps; the value controls component
 surfaces and borders without fading foreground content.
 
+`QuickSettingsPanel` owns its transient Pin state. Pin changes only the current
+open panel's click-through mask and resets whenever the panel closes, so it is
+not stored in `UiState` or `LayoutState`.
+
 `showLanguageLeft` and `showLanguageRight` default to true. They are persisted
 now so a future settings UI can control each side without changing dock layout.
 

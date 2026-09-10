@@ -38,8 +38,11 @@
 - The central radio control responds to hover and press, and gently pulses only
   while its radio is active and its Quick Settings page is visible. Bluetooth
   discovery adds a small orbiting activity marker.
-- Quick Settings is modal while open. Clicking outside it or pressing Escape
-  dismisses it; clicks inside it never fall through to another window.
+- Quick Settings opens unpinned as a modal. Clicking outside dismisses it. The
+  header Pin control keeps it open and restricts its input region to the panel,
+  allowing outside clicks to reach other windows. Pin remains temporary: the
+  explicit Close control or Escape closes the panel and resets Pin. When the
+  connection inspector is open, the first Escape closes only the inspector.
 - Drag the Quick Settings header, including its surrounding padding and gaps,
   to move the panel. Header controls keep their own click targets. The committed
   position is restored across restarts and clamped to the current screen.

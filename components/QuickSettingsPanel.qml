@@ -25,6 +25,7 @@ PanelWindow {
 
 	property bool modalVisible: false
 	property bool closing: false
+	property bool pinned: false
 	property real settledX: 0
 	property real settledY: 0
 	property string selectedConnectionKind: ""
@@ -35,6 +36,11 @@ PanelWindow {
 		selectedConnectionKind, selectedConnectionKey)
 	readonly property bool connectionInspectorOpen: selectedConnection !== null
 		&& selectedConnectionKind === UiState.quickSettingsPage
+
+	mask: Region {
+		item: root.pinned ? panelSurface : modalInput
+		radius: root.pinned ? panelSurface.radius : 0
+	}
 
 	function clampedX(value) {
 		return Math.max(12, Math.min(screen.width - panelSurface.width - 12, value))
@@ -85,6 +91,7 @@ PanelWindow {
 	function openPanel() {
 		closeAnimation.stop()
 		closing = false
+		pinned = false
 		clearConnectionSelection()
 		modalVisible = true
 		settledX = storedX()
@@ -101,6 +108,7 @@ PanelWindow {
 		if (!modalVisible || closing) return
 
 		closing = true
+		pinned = false
 		openAnimation.stop()
 		LayoutState.quickSettingsX = Math.round(settledX)
 		LayoutState.quickSettingsY = Math.round(settledY)
@@ -416,7 +424,7 @@ PanelWindow {
 
 		MouseArea {
 			anchors.fill: parent
-			enabled: !root.closing
+			enabled: !root.closing && !root.pinned
 			onClicked: root.requestClose()
 		}
 	}
@@ -487,8 +495,27 @@ PanelWindow {
 				}
 
 				ActionButton {
-					id: arrangeButton
+					id: closeButton
 					anchors.right: parent.right
+					compact: true
+					icon: "󰅖"
+					onClicked: root.requestClose()
+				}
+
+				ActionButton {
+					id: pinButton
+					anchors.right: closeButton.left
+					anchors.rightMargin: Theme.spacingXs
+					compact: true
+					icon: "󰐃"
+					active: root.pinned
+					onClicked: root.pinned = !root.pinned
+				}
+
+				ActionButton {
+					id: arrangeButton
+					anchors.right: pinButton.left
+					anchors.rightMargin: Theme.spacingXs
 					compact: true
 					icon: "󰆾"
 					active: UiState.editMode
