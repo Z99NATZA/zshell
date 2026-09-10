@@ -61,11 +61,12 @@ FloatingPanel {
 		}
 	}
 
-	function setExpanded(nextExpanded) {
+	function setExpanded(nextExpanded, activatePanel) {
 		if (expanded === nextExpanded || modeTransition.running) return
+		if (activatePanel === undefined) activatePanel = true
 
 		storeGeometry()
-		UiState.activateComponent("clock")
+		if (activatePanel) UiState.activateComponent("clock")
 
 		const nextWidth = clampedWidth(nextExpanded
 			? LayoutState.clockExpandedWidth : LayoutState.clockWidth,
@@ -84,7 +85,7 @@ FloatingPanel {
 		transitionHeight = nextHeight
 		expanded = nextExpanded
 		modeTransition.restart()
-		focusTimer.restart()
+		if (activatePanel) focusTimer.restart()
 	}
 
 	function restoreMinimalGeometry() {

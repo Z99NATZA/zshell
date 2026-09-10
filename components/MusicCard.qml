@@ -64,11 +64,12 @@ FloatingPanel {
 		}
 	}
 
-	function setExpanded(nextExpanded) {
+	function setExpanded(nextExpanded, activatePanel) {
 		if (expanded === nextExpanded || modeTransition.running) return
+		if (activatePanel === undefined) activatePanel = true
 
 		storeGeometry()
-		UiState.activateComponent("music")
+		if (activatePanel) UiState.activateComponent("music")
 
 		const nextWidth = clampedWidth(nextExpanded
 			? LayoutState.musicExpandedWidth : LayoutState.musicWidth,
@@ -87,7 +88,7 @@ FloatingPanel {
 		transitionHeight = nextHeight
 		expanded = nextExpanded
 		modeTransition.restart()
-		focusTimer.restart()
+		if (activatePanel) focusTimer.restart()
 	}
 
 	function restoreMinimalGeometry() {

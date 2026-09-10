@@ -4,7 +4,7 @@
 
 | Component | Responsibility |
 | --- | --- |
-| `Dock` | Workspace actions, edit mode, audio, time, language, and power |
+| `Dock` | Workspace actions, audio, time, language, and power |
 | `QuickSettingsPanel` | Wi-Fi, Bluetooth, theme, and layout controls |
 | `ConnectionCard` | Shared selectable network and Bluetooth target bubble |
 | `ConnectionInspector` | On-demand connection details and explicit primary action |
@@ -67,9 +67,14 @@
   `hypr-power-menu`; it never runs a session or machine power action directly.
 - Clock and Music start as minimal desktop widgets. A single click activates the
   widget and raises its stack order. Double-clicking empty widget space expands
-  it into a floating panel; double-clicking again, the header Close control, or
-  Escape returns it to minimal mode. Music transport controls retain their
-  single-click actions and do not toggle panel mode.
+  it into a floating panel. When unpinned, double-clicking again, clicking the
+  transparent outside region, the header Close control, or Escape returns it to
+  minimal mode. Music transport controls retain their single-click actions and
+  do not toggle panel mode.
+- Expanded Clock and Music panels expose a transient Pin control. Pin keeps the
+  panel expanded when focus moves or the user clicks outside, while preserving
+  drag, resize, and normal stack activation. Close and Escape override Pin,
+  collapse the panel, and reset Pin.
 - `FloatingPanel` provides an optional header-action row and right-side
   inspector loader. Clock and Music do not populate the inspector yet, so
   property interfaces can be added without changing drag, focus, or resize
@@ -91,10 +96,11 @@
 
 ## Input behavior
 
-The desktop surface accepts pointer input only over visible Clock and Music
-panels. Every other pixel is click through. Minimal widgets stay on the desktop
-layer. Activating an expanded desktop panel temporarily raises their shared
-surface above normal windows; it remains raised while either desktop panel is
-expanded. Activating Quick Settings raises its own window instead. Within the
-desktop surface, the last activated Clock or Music panel has the highest item
-stack value.
+The desktop surface normally accepts pointer input only over visible Clock and
+Music panels. An unpinned expanded panel temporarily adds a transparent
+full-screen input region so the first outside click can collapse it. Pin removes
+that outside region, allowing unrelated clicks through while the panel stays
+expanded. Minimal widgets stay on the desktop layer. The shared surface remains
+above normal windows while either desktop panel is expanded, unless Quick
+Settings is active. Within the desktop surface, the last activated Clock or
+Music panel has the highest item stack value.

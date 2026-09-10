@@ -27,6 +27,8 @@ not allowed outside the theme owner.
 
 The persisted component opacity applies to all surface and border roles. It
 does not reduce the opacity of foreground text, icons, or media artwork.
+`surfaceModal` applies an additional opacity reduction to large Clock and Music
+panels so their footprint remains as light as the compact Dock surfaces.
 
 The default variant is One Half Gray. One Half Light demonstrates that visual
 components remain independent from a specific palette. Theme selection is
@@ -47,9 +49,9 @@ does not own the icon value.
   their drag and resize affordances.
 - Resize handles remain visually transparent and communicate direction only
   through the platform horizontal, vertical, or diagonal cursor.
-- Expanded desktop panels add a compact title bar and Close control. Their body
-  layout reflows from actual width and height; panel resize never scales a
-  rendered snapshot.
+- Expanded desktop panels add a compact title bar with Pin and Close controls.
+  Their body layout reflows from actual width and height; panel resize never
+  scales a rendered snapshot.
 - Expand Quick Settings from its invoking Dock control and collapse it back to
   the same target. Opening uses `Easing.OutCubic`; closing uses `Easing.InCubic`.
 

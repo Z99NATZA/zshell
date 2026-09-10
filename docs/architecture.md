@@ -30,9 +30,11 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 - `Dock` is an above-window layer surface offset above the existing Waybar.
 - `QuickSettingsPanel` is created per screen and shown on demand.
 - `DesktopSurface` is below normal application windows and uses a click-through
-  mask so transparent areas never block desktop input. It temporarily moves
-  above normal windows while Clock or Music is expanded, except while Quick
-  Settings owns focus.
+  mask so transparent areas normally never block desktop input. An unpinned
+  expanded card temporarily owns a transparent full-screen dismiss region;
+  pinning it restores outside click-through. The surface moves above normal
+  windows while Clock or Music is expanded, except while Quick Settings owns
+  focus.
 - Clock and Music share `DesktopSurface`, so their QML stack values provide
   deterministic last-activated ordering. Quick Settings remains a separate
   window; `UiState.activeComponent` switches which shell window occupies the

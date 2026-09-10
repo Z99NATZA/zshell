@@ -10,6 +10,7 @@ ShellSurface {
 	property string title: ""
 	property string icon: ""
 	property bool expanded: false
+	property bool pinned: false
 	property bool active: false
 	property bool dragEnabled: true
 	property bool resizeEnabled: true
@@ -39,8 +40,10 @@ ShellSurface {
 		real panelHeight)
 
 	raised: true
+	color: expanded ? Theme.surfaceModal : Theme.surfaceRaised
 	interactive: active || dragArea.containsMouse || resizing
 	clip: true
+	onExpandedChanged: if (!expanded) pinned = false
 
 	MouseArea {
 		id: activationArea
@@ -48,7 +51,9 @@ ShellSurface {
 		z: 0
 		hoverEnabled: true
 		onPressed: root.activated()
-		onDoubleClicked: root.modeToggleRequested()
+		onDoubleClicked: {
+			if (!root.expanded || !root.pinned) root.modeToggleRequested()
+		}
 	}
 
 	MouseArea {
@@ -68,7 +73,9 @@ ShellSurface {
 		drag.maximumY: root.maximumPanelY
 		drag.smoothed: true
 		onPressed: root.activated()
-		onDoubleClicked: root.modeToggleRequested()
+		onDoubleClicked: {
+			if (!root.expanded || !root.pinned) root.modeToggleRequested()
+		}
 		onReleased: root.geometryCommitted(root.x, root.y, root.width, root.height)
 	}
 
@@ -146,10 +153,24 @@ ShellSurface {
 
 		Row {
 			id: headerActionHost
-			anchors.right: compactButton.left
+			anchors.right: pinButton.left
 			anchors.rightMargin: Theme.spacingXs
 			anchors.verticalCenter: parent.verticalCenter
 			spacing: Theme.spacingXs
+		}
+
+		ActionButton {
+			id: pinButton
+			anchors.right: compactButton.left
+			anchors.rightMargin: Theme.spacingXs
+			anchors.verticalCenter: parent.verticalCenter
+			compact: true
+			icon: "󰐃"
+			active: root.pinned
+			onClicked: {
+				root.activated()
+				root.pinned = !root.pinned
+			}
 		}
 
 		ActionButton {
@@ -161,6 +182,7 @@ ShellSurface {
 			icon: "󰅖"
 			onClicked: {
 				root.activated()
+				root.pinned = false
 				root.modeToggleRequested()
 			}
 		}

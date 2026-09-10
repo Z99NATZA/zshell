@@ -519,21 +519,8 @@ PanelWindow {
 				}
 
 				ActionButton {
-					id: arrangeButton
-					anchors.right: pinButton.left
-					anchors.rightMargin: Theme.spacingXs
-					compact: true
-					icon: "󰆾"
-					active: UiState.editMode
-					onClicked: {
-						UiState.editMode = !UiState.editMode
-						root.requestClose()
-					}
-				}
-
-				ActionButton {
 					id: themeButton
-					anchors.right: arrangeButton.left
+					anchors.right: pinButton.left
 					anchors.rightMargin: Theme.spacingXs
 					compact: true
 					icon: Theme.light ? "󰖔" : "󰖙"

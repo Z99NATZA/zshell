@@ -99,36 +99,26 @@ PanelWindow {
 	}
 
 	mask: Region {
-		Region { item: editIsland }
+		Region { item: leftLanguageIsland }
 		Region { item: workspaceIsland }
 		Region { item: statusIsland }
 	}
 
 	ShellSurface {
-		id: editIsland
+		id: leftLanguageIsland
 		anchors.left: parent.left
 		anchors.verticalCenter: parent.verticalCenter
-		width: editRow.width + Theme.spacingSm * 2
+		width: leftLanguageRow.width + Theme.spacingSm * 2
 		height: parent.height
 		raised: true
 
 		Row {
-			id: editRow
+			id: leftLanguageRow
 			anchors.centerIn: parent
-			spacing: 2
 
 			LanguageIndicator {
 				code: KeyboardLayout.code
 				shown: LayoutState.showLanguageLeft
-			}
-
-			ActionButton {
-				id: editButton
-				compact: !UiState.editMode
-				icon: "󰆾"
-				text: UiState.editMode ? "Done" : ""
-				active: UiState.editMode
-				onClicked: UiState.editMode = !UiState.editMode
 			}
 		}
 	}

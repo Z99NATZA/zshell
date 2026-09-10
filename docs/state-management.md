@@ -5,7 +5,7 @@ a process restart.
 
 | Owner | Lifetime | Values |
 | --- | --- | --- |
-| `UiState.qml` | Current process | Modal visibility, active component and stack order, Dock animation target, selected connection mode, and edit mode |
+| `UiState.qml` | Current process | Modal visibility, active component and stack order, Dock animation target, and selected connection mode |
 | `LayoutState.qml` | Across restarts | Minimal and expanded card geometry, Quick Settings position, theme, component opacity, and language indicator visibility |
 
 `LayoutState` uses Quickshell `FileView` with `JsonAdapter`. Updates are written
@@ -32,6 +32,10 @@ surfaces and borders without fading foreground content.
 `QuickSettingsPanel` owns its transient Pin state. Pin changes only the current
 open panel's click-through mask and resets whenever the panel closes, so it is
 not stored in `UiState` or `LayoutState`.
+
+Each expanded `FloatingPanel` also owns transient Pin state. Pin prevents an
+outside click or focus change from restoring minimal mode, but it does not alter
+the persisted geometry or stack counters. Explicit Close and Escape reset it.
 
 `UiState.activeComponent` and the three component stack counters coordinate
 focus across Clock, Music, and Quick Settings. Activating a component advances
