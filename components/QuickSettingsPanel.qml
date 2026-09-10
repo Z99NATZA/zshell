@@ -27,6 +27,14 @@ PanelWindow {
 	property bool closing: false
 	property real settledX: 0
 	property real settledY: 0
+	property string selectedConnectionKind: ""
+	property string selectedConnectionKey: ""
+	readonly property var selectedConnection: connectionForKey(
+		selectedConnectionKind === "bluetooth"
+			? radarBluetoothDevices : radarWifiNetworks,
+		selectedConnectionKind, selectedConnectionKey)
+	readonly property bool connectionInspectorOpen: selectedConnection !== null
+		&& selectedConnectionKind === UiState.quickSettingsPage
 
 	function clampedX(value) {
 		return Math.max(12, Math.min(screen.width - panelSurface.width - 12, value))
@@ -77,6 +85,7 @@ PanelWindow {
 	function openPanel() {
 		closeAnimation.stop()
 		closing = false
+		clearConnectionSelection()
 		modalVisible = true
 		settledX = storedX()
 		settledY = storedY()
@@ -110,6 +119,113 @@ PanelWindow {
 		LayoutState.componentOpacity = Math.max(0, Math.min(1, steppedValue))
 	}
 
+	function connectionForKey(items, kind, key) {
+		if (!key) return null
+
+		for (let index = 0; index < items.length; index++) {
+			if (connectionKey(items[index], kind) === key) return items[index]
+		}
+
+		return null
+	}
+
+	function selectConnection(item, kind) {
+		const key = connectionKey(item, kind)
+		if (selectedConnectionKind === kind && selectedConnectionKey === key) {
+			clearConnectionSelection()
+			return
+		}
+
+		selectedConnectionKind = kind
+		selectedConnectionKey = key
+	}
+
+	function clearConnectionSelection() {
+		selectedConnectionKind = ""
+		selectedConnectionKey = ""
+	}
+
+	function connectionSelected(item, kind) {
+		return selectedConnectionKind === kind
+			&& selectedConnectionKey === connectionKey(item, kind)
+	}
+
+	function wifiSecurityLabel(security) {
+		switch (security) {
+		case WifiSecurityType.Open: return "Open"
+		case WifiSecurityType.WpaPsk: return "WPA Personal"
+		case WifiSecurityType.Wpa2Psk: return "WPA2 Personal"
+		case WifiSecurityType.Sae: return "WPA3 Personal"
+		case WifiSecurityType.WpaEap: return "WPA Enterprise"
+		case WifiSecurityType.Wpa2Eap: return "WPA2 Enterprise"
+		case WifiSecurityType.Wpa3SuiteB192: return "WPA3 Enterprise"
+		case WifiSecurityType.StaticWep:
+		case WifiSecurityType.DynamicWep: return "WEP"
+		case WifiSecurityType.Owe: return "Enhanced Open"
+		default: return "Unknown"
+		}
+	}
+
+	function selectedConnectionStatus() {
+		const item = selectedConnection
+		if (!item) return ""
+
+		if (selectedConnectionKind === "wifi") {
+			if (item.connected) return "Connected to this network"
+			if (item.stateChanging) return "Connection in progress…"
+			if (item.known) return "Saved network · Ready to connect"
+			return "Credentials are required to connect"
+		}
+
+		if (item.blocked) return "Blocked by the Bluetooth service"
+		if (item.connected) return "Connected to this device"
+		if (item.pairing) return "Pairing in progress…"
+		if (item.paired) return "Paired device · Ready to connect"
+		return "Available to pair"
+	}
+
+	function selectedActionText() {
+		const item = selectedConnection
+		if (!item) return ""
+		if (selectedConnectionKind === "bluetooth" && item.blocked) return "Blocked"
+		if (item.connected) return "Disconnect"
+
+		if (selectedConnectionKind === "wifi") {
+			if (item.stateChanging) return "Working…"
+			return item.known ? "Connect" : "Credentials required"
+		}
+
+		if (item.pairing) return "Cancel pairing"
+		return item.paired ? "Connect" : "Pair device"
+	}
+
+	function selectedActionEnabled() {
+		const item = selectedConnection
+		if (!item) return false
+
+		if (selectedConnectionKind === "wifi") {
+			return Networking.wifiEnabled && !item.stateChanging
+				&& (item.connected || item.known)
+		}
+
+		return bluetoothAdapter && bluetoothAdapter.enabled && !item.blocked
+	}
+
+	function performSelectedConnectionAction() {
+		const item = selectedConnection
+		if (!item || !selectedActionEnabled()) return
+
+		if (item.connected) {
+			item.disconnect()
+			return
+		}
+
+		if (selectedConnectionKind === "wifi") item.connect()
+		else if (item.pairing) item.cancelPair()
+		else if (item.paired) item.connect()
+		else item.pair()
+	}
+
 	function connectionKey(item, kind) {
 		const identity = kind === "bluetooth"
 			? (item.address || item.name)
@@ -138,7 +254,8 @@ PanelWindow {
 	function radarTargets(items, kind) {
 		return items.map(item => ({
 			key: connectionKey(item, kind),
-			active: !!item.connected
+			active: !!item.connected,
+			selected: connectionSelected(item, kind)
 		}))
 	}
 
@@ -183,6 +300,10 @@ PanelWindow {
 		function onQuickSettingsOpenChanged() {
 			if (UiState.quickSettingsOpen) root.scheduleOpen()
 			else root.beginClose()
+		}
+
+		function onQuickSettingsPageChanged() {
+			root.clearConnectionSelection()
 		}
 	}
 
@@ -288,7 +409,8 @@ PanelWindow {
 		focus: root.modalVisible
 		Keys.priority: Keys.BeforeItem
 		Keys.onEscapePressed: event => {
-			root.requestClose()
+			if (root.connectionInspectorOpen) root.clearConnectionSelection()
+			else root.requestClose()
 			event.accepted = true
 		}
 
@@ -486,6 +608,10 @@ PanelWindow {
 				anchors.topMargin: Theme.spacingSm
 				anchors.bottom: footer.top
 				anchors.bottomMargin: Theme.spacingSm
+				readonly property real inspectorWidth: 248
+				readonly property real inspectorGap: Theme.spacingLg
+				readonly property real radarCenterX: root.connectionInspectorOpen
+					? (width - inspectorWidth - inspectorGap) / 2 : width / 2
 
 				Item {
 					id: bluetoothPage
@@ -497,14 +623,27 @@ PanelWindow {
 						NumberAnimation { duration: Theme.motionDuration }
 					}
 
+					MouseArea {
+						anchors.fill: parent
+						onClicked: root.clearConnectionSelection()
+					}
+
 					RadarField {
 						id: bluetoothRadar
-						anchors.centerIn: parent
+						x: connectionArea.radarCenterX - width / 2
+						anchors.verticalCenter: parent.verticalCenter
 						targets: root.radarTargets(root.radarBluetoothDevices, "bluetooth")
 						active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
 						busy: root.bluetoothAdapter && root.bluetoothAdapter.discovering
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "bluetooth"
+
+						Behavior on x {
+							NumberAnimation {
+								duration: Theme.modalOpenDuration
+								easing.type: Easing.OutCubic
+							}
+						}
 					}
 
 					Repeater {
@@ -515,32 +654,27 @@ PanelWindow {
 							readonly property string radarKey: root.connectionKey(modelData,
 								"bluetooth")
 
-							x: (bluetoothPage.width - bluetoothRadar.width) / 2
-								+ bluetoothRadar.targetX(radarKey) - width / 2
+							x: bluetoothRadar.x + bluetoothRadar.targetX(radarKey)
+								- width / 2
 							y: (bluetoothPage.height - bluetoothRadar.height) / 2
 								+ bluetoothRadar.targetY(radarKey) - height
 								- Theme.spacingLg
-							z: 1
+							z: selected ? 3 : 1
 							icon: "󰂯"
 							title: modelData.name || modelData.address
-							subtitle: modelData.connected
+							subtitle: modelData.blocked ? "Blocked" : (modelData.connected
 								? "Connected" + (modelData.batteryAvailable
 									? " · " + Math.round(modelData.battery * 100) + "%"
 									: "")
 								: (modelData.pairing ? "Pairing…"
-									: (modelData.paired ? "Connect" : "Pair"))
+									: (modelData.paired ? "Paired" : "Not paired")))
 							active: modelData.connected
+							selected: root.connectionSelected(modelData, "bluetooth")
 							radarHighlight: bluetoothRadar.targetIlluminated(radarKey)
 							radarBubble: true
 							enabled: UiState.quickSettingsPage === "bluetooth"
 								&& root.bluetoothAdapter && root.bluetoothAdapter.enabled
-								&& !modelData.blocked
-							onClicked: {
-								if (modelData.connected) modelData.disconnect()
-								else if (modelData.pairing) modelData.cancelPair()
-								else if (modelData.paired) modelData.connect()
-								else modelData.pair()
-							}
+							onClicked: root.selectConnection(modelData, "bluetooth")
 						}
 					}
 
@@ -572,13 +706,26 @@ PanelWindow {
 						NumberAnimation { duration: Theme.motionDuration }
 					}
 
+					MouseArea {
+						anchors.fill: parent
+						onClicked: root.clearConnectionSelection()
+					}
+
 					RadarField {
 						id: wifiRadar
-						anchors.centerIn: parent
+						x: connectionArea.radarCenterX - width / 2
+						anchors.verticalCenter: parent.verticalCenter
 						targets: root.radarTargets(root.radarWifiNetworks, "wifi")
 						active: Networking.wifiEnabled
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "wifi"
+
+						Behavior on x {
+							NumberAnimation {
+								duration: Theme.modalOpenDuration
+								easing.type: Easing.OutCubic
+							}
+						}
 					}
 
 					Repeater {
@@ -589,27 +736,23 @@ PanelWindow {
 							readonly property string radarKey: root.connectionKey(modelData,
 								"wifi")
 
-							x: (wifiPage.width - wifiRadar.width) / 2
-								+ wifiRadar.targetX(radarKey) - width / 2
+							x: wifiRadar.x + wifiRadar.targetX(radarKey) - width / 2
 							y: (wifiPage.height - wifiRadar.height) / 2
 								+ wifiRadar.targetY(radarKey) - height
 								- Theme.spacingLg
-							z: 1
+							z: selected ? 3 : 1
 							icon: modelData.connected ? "󰖩" : "󰖪"
 							title: modelData.name
 							subtitle: modelData.connected ? "Connected"
 								: (modelData.stateChanging ? "Connecting…"
-									: (modelData.known ? "Connect" : "Credentials required"))
+									: (modelData.known ? "Saved" : "Credentials required"))
 							active: modelData.connected
+							selected: root.connectionSelected(modelData, "wifi")
 							radarHighlight: wifiRadar.targetIlluminated(radarKey)
 							radarBubble: true
 							enabled: UiState.quickSettingsPage === "wifi"
 								&& Networking.wifiEnabled
-								&& (modelData.connected || modelData.known)
-							onClicked: {
-								if (modelData.connected) modelData.disconnect()
-								else modelData.connect()
-							}
+							onClicked: root.selectConnection(modelData, "wifi")
 						}
 					}
 
@@ -623,6 +766,46 @@ PanelWindow {
 							&& UiState.quickSettingsPage === "wifi"
 						onClicked: Networking.wifiEnabled = !Networking.wifiEnabled
 					}
+				}
+
+				ConnectionInspector {
+					id: connectionInspector
+					anchors.right: parent.right
+					anchors.verticalCenter: parent.verticalCenter
+					width: connectionArea.inspectorWidth
+					height: Math.min(320, parent.height - Theme.spacingLg * 2)
+					z: 5
+					open: root.connectionInspectorOpen
+					kind: root.selectedConnectionKind === "bluetooth"
+						? "Bluetooth target" : "Wi-Fi target"
+					icon: root.selectedConnectionKind === "bluetooth" ? "󰂯" : "󰖩"
+					title: root.selectedConnection
+						? (root.selectedConnection.name
+							|| root.selectedConnection.address) : ""
+					status: root.selectedConnectionStatus()
+					primaryLabel: root.selectedConnectionKind === "bluetooth"
+						? "Address" : "Signal"
+					primaryValue: !root.selectedConnection ? ""
+						: (root.selectedConnectionKind === "bluetooth"
+							? root.selectedConnection.address
+							: Math.round(root.selectedConnection.signalStrength * 100) + "%")
+					secondaryLabel: root.selectedConnectionKind === "bluetooth"
+						? (root.selectedConnection && root.selectedConnection.batteryAvailable
+							? "Battery" : "Trust") : "Security"
+					secondaryValue: !root.selectedConnection ? ""
+						: (root.selectedConnectionKind === "bluetooth"
+							? (root.selectedConnection.batteryAvailable
+								? Math.round(root.selectedConnection.battery * 100) + "%"
+								: (root.selectedConnection.trusted ? "Trusted" : "Standard"))
+							: root.wifiSecurityLabel(root.selectedConnection.security))
+					actionIcon: root.selectedConnection && root.selectedConnection.connected
+						? "󰌙" : (root.selectedConnectionKind === "bluetooth" ? "󰂯" : "󰖩")
+					actionText: root.selectedActionText()
+					actionEnabled: root.selectedActionEnabled()
+					actionActive: root.selectedConnection
+						? root.selectedConnection.connected : false
+					onCloseRequested: root.clearConnectionSelection()
+					onActionRequested: root.performSelectedConnectionAction()
 				}
 			}
 

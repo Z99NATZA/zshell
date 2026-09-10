@@ -195,6 +195,7 @@ Item {
 		Item {
 			required property var modelData
 			readonly property string targetKey: modelData.key
+			readonly property bool selected: !!modelData.selected
 			readonly property bool illuminated: root.targetIlluminated(targetKey)
 
 			x: root.targetX(targetKey) - width / 2
@@ -210,8 +211,8 @@ Item {
 				color: "transparent"
 				border.width: 1
 				border.color: Theme.accent
-				opacity: illuminated ? 0.72 : 0
-				scale: illuminated ? 1.7 : 0.5
+				opacity: selected ? 1 : (illuminated ? 0.72 : 0)
+				scale: selected ? 2 : (illuminated ? 1.7 : 0.5)
 
 				Behavior on opacity {
 					NumberAnimation { duration: Theme.motionDuration }
@@ -227,12 +228,12 @@ Item {
 
 			Rectangle {
 				anchors.centerIn: parent
-				width: modelData.active ? 7 : 5
+				width: selected ? 8 : (modelData.active ? 7 : 5)
 				height: width
 				radius: width / 2
 				color: Theme.accent
 				opacity: root.active ? 0.9 : 0.48
-				scale: illuminated ? 1.5 : 1
+				scale: selected ? 1.6 : (illuminated ? 1.5 : 1)
 
 				Behavior on opacity {
 					NumberAnimation { duration: Theme.motionDuration }

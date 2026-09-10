@@ -8,16 +8,17 @@ ShellSurface {
 	property string title: ""
 	property string subtitle: ""
 	property bool active: false
+	property bool selected: false
 	property bool radarHighlight: false
 	property bool radarBubble: false
 	signal clicked
 
 	implicitWidth: 176
 	implicitHeight: 58
-	raised: active || radarHighlight
-	interactive: active || radarHighlight || pointer.containsMouse
+	raised: active || selected || radarHighlight
+	interactive: active || selected || radarHighlight || pointer.containsMouse
 	opacity: enabled ? 1 : 0.42
-	scale: radarHighlight ? 1.04 : 1
+	scale: selected ? 1.06 : (radarHighlight ? 1.04 : 1)
 
 	Behavior on opacity {
 		NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
@@ -38,13 +39,31 @@ ShellSurface {
 	Rectangle {
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.top: parent.bottom
-		width: 1
+		width: root.selected ? 2 : 1
 		height: Theme.spacingLg
 		color: Theme.accent
-		opacity: root.radarBubble ? 0.58 : 0
+		opacity: root.radarBubble ? (root.selected ? 1 : 0.58) : 0
 
 		Behavior on opacity {
 			NumberAnimation { duration: Theme.motionDuration }
+		}
+	}
+
+	Rectangle {
+		anchors.fill: parent
+		radius: parent.radius
+		color: "transparent"
+		border.width: 1
+		border.color: Theme.accent
+		opacity: root.selected ? 1 : 0
+		scale: root.selected ? 1 : 0.96
+
+		Behavior on opacity {
+			NumberAnimation { duration: Theme.motionDuration }
+		}
+
+		Behavior on scale {
+			NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
 		}
 	}
 

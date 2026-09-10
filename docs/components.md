@@ -6,7 +6,8 @@
 | --- | --- |
 | `Dock` | Workspace actions, edit mode, audio, time, language, and power |
 | `QuickSettingsPanel` | Wi-Fi, Bluetooth, theme, and layout controls |
-| `ConnectionCard` | Shared network and Bluetooth device action card |
+| `ConnectionCard` | Shared selectable network and Bluetooth target bubble |
+| `ConnectionInspector` | On-demand connection details and explicit primary action |
 | `RadarField` | Theme-native connection grid, sweep, and target blips |
 | `RadioOrb` | Shared animated Wi-Fi and Bluetooth radio control |
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
@@ -26,6 +27,14 @@
   its identity. Collision-safe angular slots keep bubbles apart, and a short
   accent connector ties each bubble to its blip. The sweep briefly raises the
   matching bubble but never hides or moves it.
+- Clicking a connection bubble selects its radar target and opens the detail
+  inspector; it never changes connection state directly. The radar shifts left
+  while the inspector slides in from the right. A second click, the close
+  control, an empty radar click, or Escape clears the selection.
+- The inspector exposes signal and security for Wi-Fi or address, trust, and
+  available battery data for Bluetooth. Connect, disconnect, pair, and cancel
+  pairing are explicit inspector actions. Wi-Fi profiles requiring credentials
+  remain selectable for detail but cannot connect in this first version.
 - The central radio control responds to hover and press, and gently pulses only
   while its radio is active and its Quick Settings page is visible. Bluetooth
   discovery adds a small orbiting activity marker.
@@ -53,10 +62,11 @@
   `hypr-power-menu`; it never runs a session or machine power action directly.
 - Desktop cards report committed positions. `LayoutState` owns persistence.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
-  require new credentials are visible but disabled.
+  require new credentials remain selectable, but their inspector action is
+  disabled.
 - The central Bluetooth control enables the default adapter or toggles
-  discovery. Device cards pair unpaired devices, connect paired devices, cancel
-  pairing in progress, and disconnect connected devices.
+  discovery. The selected device inspector pairs unpaired devices, connects
+  paired devices, cancels pairing in progress, or disconnects connected devices.
 - Quick Settings shows at most six Wi-Fi networks or Bluetooth devices at once.
   Bluetooth cards include battery percentage when the device reports it.
 
