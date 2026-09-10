@@ -14,15 +14,22 @@ PanelWindow {
 	}
 
 	color: "transparent"
-	aboveWindows: (clockCard.expanded || musicCard.expanded)
+	aboveWindows: ((clockCard.visible && clockCard.expanded)
+		|| (musicCard.visible && musicCard.expanded))
 		&& UiState.activeComponent !== "quickSettings"
 	focusable: aboveWindows
 	exclusionMode: ExclusionMode.Ignore
 
 	readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
 	readonly property bool unpinnedModalOpen:
-		(clockCard.expanded && !clockCard.pinned)
-		|| (musicCard.expanded && !musicCard.pinned)
+		(clockCard.visible && clockCard.expanded && !clockCard.pinned)
+		|| (musicCard.visible && musicCard.expanded && !musicCard.pinned)
+
+	function hidePanel(panel, component) {
+		panel.pinned = false
+		if (panel.expanded) panel.setExpanded(false, false)
+		UiState.releaseComponent(component)
+	}
 
 	function collapseUnpinnedPanels(exceptComponent) {
 		if (exceptComponent !== "clock" && clockCard.expanded
@@ -42,8 +49,8 @@ PanelWindow {
 		Region {
 			x: clockCard.x
 			y: clockCard.y
-			width: clockCard.width
-			height: clockCard.height
+			width: clockCard.visible ? clockCard.width : 0
+			height: clockCard.visible ? clockCard.height : 0
 			radius: clockCard.radius
 		}
 
@@ -75,8 +82,21 @@ PanelWindow {
 		}
 	}
 
+	Connections {
+		target: LayoutState
+
+		function onShowClockChanged() {
+			if (!LayoutState.showClock) root.hidePanel(clockCard, "clock")
+		}
+
+		function onShowMusicChanged() {
+			if (!LayoutState.showMusic) root.hidePanel(musicCard, "music")
+		}
+	}
+
 	ClockCard {
 		id: clockCard
+		visible: LayoutState.showClock
 		availableWidth: root.width
 		availableHeight: root.height
 	}
@@ -84,6 +104,7 @@ PanelWindow {
 	MusicCard {
 		id: musicCard
 		player: root.player
+		userVisible: LayoutState.showMusic
 		availableWidth: root.width
 		availableHeight: root.height
 	}

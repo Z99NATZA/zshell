@@ -5,12 +5,13 @@
 | Component | Responsibility |
 | --- | --- |
 | `Dock` | Workspace actions, audio, time, language, and power |
-| `QuickSettingsPanel` | Wi-Fi, Bluetooth, theme, and layout controls |
+| `QuickSettingsPanel` | Wi-Fi, Bluetooth, theme, and desktop widget controls |
 | `ConnectionCard` | Shared selectable network and Bluetooth target bubble |
 | `ConnectionInspector` | On-demand connection details and explicit primary action |
 | `RadarField` | Theme-native connection grid, sweep, and target blips |
 | `RadioOrb` | Shared animated Wi-Fi and Bluetooth radio control |
 | `FloatingPanel` | Shared focus, chrome, drag, resize, and inspector slots for desktop widgets |
+| `WidgetVisibilityCard` | Shared Clock and Music visibility switch row |
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
 | `ClockCard` | Minimal clock and expanded floating time panel |
 | `MusicCard` | Minimal MPRIS controls and expanded now-playing panel |
@@ -52,6 +53,9 @@
   the same close path.
 - Quick Settings adjusts every component surface from fully transparent to
   opaque in 10% steps. Text, icons, and media artwork remain opaque.
+- The Quick Settings footer includes a `Widgets` page beside Wi-Fi and
+  Bluetooth. It toggles persisted Clock visibility and whether Music may appear
+  when media is available. The Dock time control opens this page directly.
 - `ActionButton` owns reusable control feedback. Feature components own layout.
 - The workspace switcher starts with the configurable `Theme.workspaceIcon`.
   Its numbers have no shared container, and the active workspace uses a
@@ -90,6 +94,9 @@
   Dragging and resizing commit the geometry for the current mode.
 - Desktop cards report committed geometry. `LayoutState` owns persistence and
   stores minimal and expanded rectangles separately.
+- Hiding an expanded or pinned desktop card first clears Pin and restores its
+  minimal geometry. Showing it again restores the last committed minimal
+  rectangle; Music still requires an available MPRIS player.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
   require new credentials remain selectable, but their inspector action is
   disabled.

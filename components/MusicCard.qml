@@ -7,6 +7,7 @@ FloatingPanel {
 	id: root
 
 	property var player: null
+	property bool userVisible: true
 	property real transitionX: 0
 	property real transitionY: 0
 	property real transitionWidth: 0
@@ -27,7 +28,7 @@ FloatingPanel {
 	z: UiState.musicStack
 	focus: active && expanded
 	opacity: player && geometryInitialized ? 1 : 0
-	visible: player !== null || opacity > 0
+	visible: userVisible && (player !== null || opacity > 0)
 
 	function clampedWidth(value, minimum) {
 		const available = Math.max(1, availableWidth - edgeMargin * 2)

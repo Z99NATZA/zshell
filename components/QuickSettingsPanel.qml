@@ -128,6 +128,11 @@ PanelWindow {
 		LayoutState.componentOpacity = Math.max(0, Math.min(1, steppedValue))
 	}
 
+	function setWidgetVisible(widget, visible) {
+		if (widget === "clock") LayoutState.showClock = visible
+		else if (widget === "music") LayoutState.showMusic = visible
+	}
+
 	function connectionForKey(items, kind, key) {
 		if (!key) return null
 
@@ -492,7 +497,8 @@ PanelWindow {
 						anchors.verticalCenter: parent.verticalCenter
 						text: UiState.quickSettingsPage === "bluetooth"
 							? "Bluetooth devices"
-							: "Wi-Fi networks"
+							: (UiState.quickSettingsPage === "wifi"
+								? "Wi-Fi networks" : "Desktop widgets")
 						color: Theme.text
 						font.family: Theme.textFontFamily
 						font.pixelSize: 14
@@ -792,6 +798,65 @@ PanelWindow {
 					}
 				}
 
+				Item {
+					id: widgetsPage
+					anchors.fill: parent
+					visible: UiState.quickSettingsPage === "widgets" || opacity > 0
+					opacity: UiState.quickSettingsPage === "widgets" ? 1 : 0
+
+					Behavior on opacity {
+						NumberAnimation { duration: Theme.motionDuration }
+					}
+
+					Column {
+						anchors.centerIn: parent
+						width: Math.min(560, parent.width - Theme.spacingLg * 2)
+						spacing: Theme.spacingMd
+
+						Text {
+							width: parent.width
+							text: "Visible components"
+							color: Theme.text
+							font.family: Theme.textFontFamily
+							font.pixelSize: 16
+							font.weight: Font.Medium
+						}
+
+						Text {
+							width: parent.width
+							text: "Choose which widgets remain on the desktop."
+							color: Theme.textMuted
+							font.family: Theme.textFontFamily
+							font.pixelSize: 11
+							wrapMode: Text.WordWrap
+						}
+
+						Item { width: 1; height: Theme.spacingXs }
+
+						WidgetVisibilityCard {
+							width: parent.width
+							icon: "󰥔"
+							title: "Clock"
+							description: checked ? "Visible on the desktop"
+								: "Hidden from the desktop"
+							checked: LayoutState.showClock
+							enabled: UiState.quickSettingsPage === "widgets"
+							onToggled: root.setWidgetVisible("clock", !checked)
+						}
+
+						WidgetVisibilityCard {
+							width: parent.width
+							icon: "󰎈"
+							title: "Music"
+							description: checked ? "Shown while media is available"
+								: "Hidden from the desktop"
+							checked: LayoutState.showMusic
+							enabled: UiState.quickSettingsPage === "widgets"
+							onToggled: root.setWidgetVisible("music", !checked)
+						}
+					}
+				}
+
 				ConnectionInspector {
 					id: connectionInspector
 					anchors.right: parent.right
@@ -846,7 +911,10 @@ PanelWindow {
 					anchors.verticalCenter: parent.verticalCenter
 					text: UiState.quickSettingsPage === "bluetooth"
 						? root.bluetoothDevices.length + " devices"
-						: root.wifiNetworks.length + " networks"
+						: (UiState.quickSettingsPage === "wifi"
+							? root.wifiNetworks.length + " networks"
+							: ((LayoutState.showClock ? 1 : 0)
+								+ (LayoutState.showMusic ? 1 : 0)) + " of 2 visible")
 					color: Theme.textMuted
 					font.family: Theme.textFontFamily
 					font.pixelSize: 10
@@ -855,7 +923,7 @@ PanelWindow {
 				ShellSurface {
 					id: modeSwitch
 					anchors.horizontalCenter: parent.horizontalCenter
-					width: 280
+					width: 420
 					height: 42
 
 					Row {
@@ -864,7 +932,7 @@ PanelWindow {
 						spacing: 4
 
 						ActionButton {
-							width: (parent.width - parent.spacing) / 2
+							width: (parent.width - parent.spacing * 2) / 3
 							height: parent.height
 							icon: "󰖩"
 							text: "Wi-Fi"
@@ -873,12 +941,21 @@ PanelWindow {
 						}
 
 						ActionButton {
-							width: (parent.width - parent.spacing) / 2
+							width: (parent.width - parent.spacing * 2) / 3
 							height: parent.height
 							icon: "󰂯"
 							text: "Bluetooth"
 							active: UiState.quickSettingsPage === "bluetooth"
 							onClicked: UiState.quickSettingsPage = "bluetooth"
+						}
+
+						ActionButton {
+							width: (parent.width - parent.spacing * 2) / 3
+							height: parent.height
+							icon: "󰖲"
+							text: "Widgets"
+							active: UiState.quickSettingsPage === "widgets"
+							onClicked: UiState.quickSettingsPage = "widgets"
 						}
 					}
 				}

@@ -233,7 +233,7 @@ PanelWindow {
 			ActionButton {
 				id: timeButton
 				text: Qt.formatDateTime(clock.date, "HH:mm:ss")
-				onClicked: root.toggleQuickSettings(UiState.quickSettingsPage, timeButton)
+				onClicked: root.toggleQuickSettings("widgets", timeButton)
 			}
 
 			LanguageIndicator {
