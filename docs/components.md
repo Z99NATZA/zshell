@@ -10,6 +10,7 @@
 | `ConnectionInspector` | On-demand connection details and explicit primary action |
 | `RadarField` | Theme-native connection grid, sweep, and target blips |
 | `RadioOrb` | Shared animated Wi-Fi and Bluetooth radio control |
+| `ResizeHandle` | Invisible edge and corner geometry-resize input |
 | `FloatingPanel` | Shared focus, chrome, drag, resize, and inspector slots for desktop widgets |
 | `WidgetVisibilityCard` | Shared Clock and Music visibility switch row |
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
@@ -37,9 +38,11 @@
   available battery data for Bluetooth. Connect, disconnect, pair, and cancel
   pairing are explicit inspector actions. Wi-Fi profiles requiring credentials
   remain selectable for detail but cannot connect in this first version.
-- The central radio control responds to hover and press, and gently pulses only
-  while its radio is active and its Quick Settings page is visible. Bluetooth
-  discovery adds a small orbiting activity marker.
+- The central radio control responds to hover and press, starts a scan, and
+  gently pulses only while its radio is active and its Quick Settings page is
+  visible. A page-specific header control owns radio power so scan clicks do
+  not accidentally disable Wi-Fi or Bluetooth. Scan state remains visible in
+  the center status and radar sweep without orbiting activity decoration.
 - Quick Settings opens unpinned as a modal. Clicking outside dismisses it. The
   header Pin control keeps it open and restricts its input region to the panel,
   allowing outside clicks to reach other windows. Pin remains temporary: the
@@ -48,6 +51,10 @@
 - Drag the Quick Settings header, including its surrounding padding and gaps,
   to move the panel. Header controls keep their own click targets. The committed
   position is restored across restarts and clamped to the current screen.
+- Resize Quick Settings from any edge or corner. Invisible handles expose only
+  directional cursors, enforce an `860x620` minimum when the screen permits,
+  and persist committed size with position. The radar responds between `400px`
+  and `620px` while the header and footer retain their fixed heights.
 - Quick Settings expands from the Dock control that opened it and collapses
   back to that control when dismissed. Its header Close control and Escape use
   the same close path.
@@ -100,11 +107,19 @@
 - The system panel connects only to remembered Wi-Fi networks. Networks that
   require new credentials remain selectable, but their inspector action is
   disabled.
-- The central Bluetooth control enables the default adapter or toggles
-  discovery. The selected device inspector pairs unpaired devices, connects
-  paired devices, cancels pairing in progress, or disconnects connected devices.
+- Opening the Wi-Fi page enables Quickshell's live scanner so available access
+  points populate the radar. The scanner stops when the page or panel closes;
+  saved and connected networks remain available through NetworkManager.
+- Opening the Bluetooth page starts a 15-second BlueZ discovery session. The
+  central control starts or extends discovery, and discovery started elsewhere
+  is never stopped by Quick Settings. The selected device inspector pairs
+  unpaired devices, connects paired devices, cancels pairing in progress, or
+  disconnects connected devices.
 - Quick Settings shows at most six Wi-Fi networks or Bluetooth devices at once.
-  Bluetooth cards include battery percentage when the device reports it.
+  Connected entries rank first, followed by saved Wi-Fi or paired Bluetooth
+  entries; remaining Wi-Fi entries rank by signal. The footer reports the full
+  discovered count when the radar is capped. Bluetooth cards include battery
+  percentage when the device reports it.
 
 ## Input behavior
 

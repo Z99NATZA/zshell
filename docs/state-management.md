@@ -6,7 +6,7 @@ a process restart.
 | Owner | Lifetime | Values |
 | --- | --- | --- |
 | `UiState.qml` | Current process | Modal visibility, active component and stack order, Dock animation target, and selected connection mode |
-| `LayoutState.qml` | Across restarts | Minimal and expanded card geometry, card visibility, Quick Settings position, theme, component opacity, and language indicator visibility |
+| `LayoutState.qml` | Across restarts | Minimal and expanded card geometry, card visibility, Quick Settings geometry, theme, component opacity, and language indicator visibility |
 
 `LayoutState` uses Quickshell `FileView` with `JsonAdapter`. Updates are written
 atomically to `~/.local/state/zshell/layout.json`; external file changes are
@@ -26,9 +26,11 @@ Settings Widgets page. Disabling either value hides the card across restarts.
 Music visibility remains conditional on an available MPRIS player even when
 `showMusic` is enabled.
 
-`quickSettingsX` and `quickSettingsY` store the last committed modal position.
-They default to the lower-right placement above the Dock. The Dock animation
-target remains ephemeral because it is recalculated from the invoking control.
+`quickSettingsX`, `quickSettingsY`, `quickSettingsWidth`, and
+`quickSettingsHeight` store the last committed modal geometry. Size defaults to
+`960x680`; position defaults to the lower-right placement above the Dock. The
+Dock animation target remains ephemeral because it is recalculated from the
+invoking control.
 
 `componentOpacity` defaults to `1` and is clamped to the `0`–`1` range by the
 theme. Quick Settings changes it in 10% steps; the value controls component

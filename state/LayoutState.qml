@@ -24,6 +24,8 @@ Singleton {
 	property alias musicExpandedHeight: adapter.musicExpandedHeight
 	property alias quickSettingsX: adapter.quickSettingsX
 	property alias quickSettingsY: adapter.quickSettingsY
+	property alias quickSettingsWidth: adapter.quickSettingsWidth
+	property alias quickSettingsHeight: adapter.quickSettingsHeight
 	property alias themeName: adapter.themeName
 	property alias componentOpacity: adapter.componentOpacity
 	property alias showClock: adapter.showClock
@@ -58,6 +60,8 @@ Singleton {
 			property int musicExpandedHeight: 420
 			property int quickSettingsX: -1
 			property int quickSettingsY: -1
+			property int quickSettingsWidth: 960
+			property int quickSettingsHeight: 680
 			property string themeName: "one-half-gray"
 			property real componentOpacity: 1
 			property bool showClock: true

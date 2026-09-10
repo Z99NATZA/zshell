@@ -50,32 +50,6 @@ Item {
 		}
 	}
 
-	Item {
-		id: busyOrbit
-		anchors.centerIn: parent
-		width: 150
-		height: width
-		visible: root.motionEnabled && root.busy
-
-		Rectangle {
-			anchors.horizontalCenter: parent.horizontalCenter
-			anchors.top: parent.top
-			width: 5
-			height: width
-			radius: width / 2
-			color: Theme.accent
-		}
-
-		RotationAnimation on rotation {
-			from: 0
-			to: 360
-			duration: 1400
-			easing.type: Easing.Linear
-			loops: Animation.Infinite
-			running: busyOrbit.visible
-		}
-	}
-
 	Rectangle {
 		id: core
 		anchors.centerIn: parent

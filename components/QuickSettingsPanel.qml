@@ -28,8 +28,25 @@ PanelWindow {
 	property bool pinned: false
 	property real settledX: 0
 	property real settledY: 0
+	property real settledWidth: 960
+	property real settledHeight: 680
+	readonly property real minimumPanelWidth: 860
+	readonly property real minimumPanelHeight: 620
+	readonly property real resizeEdgeSize: 12
+	readonly property real resizeCornerSize: 24
+	readonly property real effectiveMinimumPanelWidth: Math.min(minimumPanelWidth,
+		screen.width - 24)
+	readonly property real effectiveMinimumPanelHeight: Math.min(minimumPanelHeight,
+		screen.height - 84)
+	readonly property bool canResize: modalVisible && !closing
+		&& !openAnimation.running && !closeAnimation.running
 	property string selectedConnectionKind: ""
 	property string selectedConnectionKey: ""
+	property bool wifiScanPending: false
+	property bool bluetoothScanPending: false
+	property bool wifiScanOwned: false
+	property bool bluetoothScanOwned: false
+	readonly property int bluetoothDiscoveryDuration: 15000
 	readonly property var selectedConnection: connectionForKey(
 		selectedConnectionKind === "bluetooth"
 			? radarBluetoothDevices : radarWifiNetworks,
@@ -40,6 +57,16 @@ PanelWindow {
 	mask: Region {
 		item: root.pinned ? panelSurface : modalInput
 		radius: root.pinned ? panelSurface.radius : 0
+	}
+
+	function clampedWidth(value) {
+		const availableWidth = screen.width - 24
+		return Math.min(availableWidth, Math.max(effectiveMinimumPanelWidth, value))
+	}
+
+	function clampedHeight(value) {
+		const availableHeight = screen.height - 84
+		return Math.min(availableHeight, Math.max(effectiveMinimumPanelHeight, value))
 	}
 
 	function clampedX(value) {
@@ -62,6 +89,14 @@ PanelWindow {
 			: LayoutState.quickSettingsY)
 	}
 
+	function storedWidth() {
+		return clampedWidth(LayoutState.quickSettingsWidth)
+	}
+
+	function storedHeight() {
+		return clampedHeight(LayoutState.quickSettingsHeight)
+	}
+
 	function scheduleOpen() {
 		modalVisible = true
 		openTimer.restart()
@@ -80,12 +115,22 @@ PanelWindow {
 	}
 
 	function commitPosition(panelX, panelY) {
+		commitGeometry(panelX, panelY, panelSurface.width, panelSurface.height)
+	}
+
+	function commitGeometry(panelX, panelY, panelWidth, panelHeight) {
+		settledWidth = clampedWidth(panelWidth)
+		settledHeight = clampedHeight(panelHeight)
+		panelSurface.width = settledWidth
+		panelSurface.height = settledHeight
 		settledX = clampedX(panelX)
 		settledY = clampedY(panelY)
 		panelSurface.x = settledX
 		panelSurface.y = settledY
 		LayoutState.quickSettingsX = Math.round(settledX)
 		LayoutState.quickSettingsY = Math.round(settledY)
+		LayoutState.quickSettingsWidth = Math.round(settledWidth)
+		LayoutState.quickSettingsHeight = Math.round(settledHeight)
 	}
 
 	function openPanel() {
@@ -95,6 +140,10 @@ PanelWindow {
 		UiState.activateComponent("quickSettings")
 		clearConnectionSelection()
 		modalVisible = true
+		settledWidth = storedWidth()
+		settledHeight = storedHeight()
+		panelSurface.width = settledWidth
+		panelSurface.height = settledHeight
 		settledX = storedX()
 		settledY = storedY()
 		panelSurface.x = dockTargetX()
@@ -103,16 +152,21 @@ PanelWindow {
 		panelSurface.opacity = 0
 		openAnimation.restart()
 		focusTimer.restart()
+		pageScanTimer.restart()
 	}
 
 	function beginClose() {
 		if (!modalVisible || closing) return
 
 		closing = true
+		stopWifiScan()
+		stopBluetoothScan()
 		pinned = false
 		openAnimation.stop()
 		LayoutState.quickSettingsX = Math.round(settledX)
 		LayoutState.quickSettingsY = Math.round(settledY)
+		LayoutState.quickSettingsWidth = Math.round(settledWidth)
+		LayoutState.quickSettingsHeight = Math.round(settledHeight)
 		closeAnimation.restart()
 	}
 
@@ -273,15 +327,104 @@ PanelWindow {
 		}))
 	}
 
-	function toggleBluetoothScan() {
-		if (!bluetoothAdapter) return
+	function prioritizedItems(items, kind) {
+		const copy = items.slice()
+		copy.sort((first, second) => {
+			if (!!first.connected !== !!second.connected) return first.connected ? -1 : 1
 
-		if (!bluetoothAdapter.enabled) {
-			bluetoothAdapter.enabled = true
+			if (kind === "wifi") {
+				if (!!first.known !== !!second.known) return first.known ? -1 : 1
+
+				const signalDifference = (second.signalStrength || 0)
+					- (first.signalStrength || 0)
+				if (signalDifference !== 0) return signalDifference
+			} else if (!!first.paired !== !!second.paired) {
+				return first.paired ? -1 : 1
+			}
+
+			return stableHash(connectionKey(first, kind))
+				- stableHash(connectionKey(second, kind))
+		})
+		return copy.slice(0, 6)
+	}
+
+	function startWifiScan() {
+		if (!wifiDevice) return
+
+		if (!Networking.wifiEnabled) {
+			wifiScanPending = true
+			Networking.wifiEnabled = true
 			return
 		}
 
-		bluetoothAdapter.discovering = !bluetoothAdapter.discovering
+		wifiScanPending = false
+		if (!wifiDevice.scannerEnabled) {
+			wifiScanOwned = true
+			wifiDevice.scannerEnabled = true
+		}
+	}
+
+	function stopWifiScan() {
+		wifiScanPending = false
+		if (wifiScanOwned && wifiDevice && wifiDevice.scannerEnabled) {
+			wifiDevice.scannerEnabled = false
+		}
+		wifiScanOwned = false
+	}
+
+	function startBluetoothScan() {
+		if (!bluetoothAdapter) return
+
+		if (!bluetoothAdapter.enabled
+				|| bluetoothAdapter.state !== BluetoothAdapterState.Enabled) {
+			bluetoothScanPending = true
+			if (!bluetoothAdapter.enabled) bluetoothAdapter.enabled = true
+			return
+		}
+
+		bluetoothScanPending = false
+		if (!bluetoothAdapter.discovering) {
+			bluetoothScanOwned = true
+			bluetoothAdapter.discovering = true
+		}
+		if (bluetoothScanOwned) bluetoothScanStopTimer.restart()
+	}
+
+	function stopBluetoothScan() {
+		bluetoothScanPending = false
+		bluetoothScanStopTimer.stop()
+		if (bluetoothScanOwned && bluetoothAdapter && bluetoothAdapter.discovering) {
+			bluetoothAdapter.discovering = false
+		}
+		bluetoothScanOwned = false
+	}
+
+	function scanActivePage() {
+		if (!modalVisible || closing) return
+
+		if (UiState.quickSettingsPage === "wifi") startWifiScan()
+		else if (UiState.quickSettingsPage === "bluetooth") startBluetoothScan()
+	}
+
+	function toggleActiveRadio() {
+		if (UiState.quickSettingsPage === "wifi") {
+			if (Networking.wifiEnabled) {
+				stopWifiScan()
+				Networking.wifiEnabled = false
+			} else {
+				startWifiScan()
+			}
+			return
+		}
+
+		if (UiState.quickSettingsPage !== "bluetooth" || !bluetoothAdapter) return
+
+		if (bluetoothAdapter.enabled) {
+			stopBluetoothScan()
+			bluetoothAdapter.enabled = false
+		} else {
+			startBluetoothScan()
+		}
 	}
 
 	readonly property var wifiDevice: {
@@ -291,14 +434,17 @@ PanelWindow {
 		}
 		return null
 	}
-	readonly property var wifiNetworks: wifiDevice
-		? wifiDevice.networks.values.slice(0, 6)
+	readonly property var allWifiNetworks: wifiDevice
+		? wifiDevice.networks.values
 		: []
+	readonly property var wifiNetworks: prioritizedItems(allWifiNetworks, "wifi")
 	readonly property var radarWifiNetworks: radarItems(wifiNetworks, "wifi")
 	readonly property var bluetoothAdapter: Bluetooth.defaultAdapter
-	readonly property var bluetoothDevices: bluetoothAdapter
-		? bluetoothAdapter.devices.values.slice(0, 6)
+	readonly property var allBluetoothDevices: bluetoothAdapter
+		? bluetoothAdapter.devices.values
 		: []
+	readonly property var bluetoothDevices: prioritizedItems(allBluetoothDevices,
+		"bluetooth")
 	readonly property var radarBluetoothDevices: radarItems(bluetoothDevices,
 		"bluetooth")
 
@@ -318,6 +464,39 @@ PanelWindow {
 
 		function onQuickSettingsPageChanged() {
 			root.clearConnectionSelection()
+			root.stopWifiScan()
+			root.stopBluetoothScan()
+			if (root.modalVisible && !root.closing) pageScanTimer.restart()
+		}
+	}
+
+	Connections {
+		target: Networking
+
+		function onWifiEnabledChanged() {
+			if (Networking.wifiEnabled && root.wifiScanPending) {
+				pageScanTimer.restart()
+			} else if (!Networking.wifiEnabled) {
+				root.stopWifiScan()
+			}
+		}
+	}
+
+	Connections {
+		target: root.bluetoothAdapter
+
+		function onEnabledChanged() {
+			if (!root.bluetoothAdapter.enabled) root.stopBluetoothScan()
+		}
+
+		function onStateChanged() {
+			if (root.bluetoothAdapter.state === BluetoothAdapterState.Enabled
+					&& root.bluetoothScanPending) {
+				pageScanTimer.restart()
+			} else if (root.bluetoothAdapter.state === BluetoothAdapterState.Disabled
+					|| root.bluetoothAdapter.state === BluetoothAdapterState.Blocked) {
+				root.stopBluetoothScan()
+			}
 		}
 	}
 
@@ -331,6 +510,24 @@ PanelWindow {
 		id: focusTimer
 		interval: 0
 		onTriggered: modalInput.forceActiveFocus()
+	}
+
+	Timer {
+		id: pageScanTimer
+		interval: 0
+		onTriggered: root.scanActivePage()
+	}
+
+	Timer {
+		id: bluetoothScanStopTimer
+		interval: root.bluetoothDiscoveryDuration
+		onTriggered: {
+			if (root.bluetoothScanOwned && root.bluetoothAdapter
+					&& root.bluetoothAdapter.discovering) {
+				root.bluetoothAdapter.discovering = false
+			}
+			root.bluetoothScanOwned = false
+		}
 	}
 
 	ParallelAnimation {
@@ -535,9 +732,29 @@ PanelWindow {
 						: "one-half-light"
 				}
 
+				ActionButton {
+					id: radioPowerButton
+					anchors.right: themeButton.left
+					anchors.rightMargin: visible ? Theme.spacingXs : 0
+					width: visible ? implicitWidth : 0
+					compact: true
+					visible: UiState.quickSettingsPage === "wifi"
+						|| UiState.quickSettingsPage === "bluetooth"
+					icon: UiState.quickSettingsPage === "wifi"
+						? (Networking.wifiEnabled ? "󰖩" : "󰖪")
+						: (root.bluetoothAdapter && root.bluetoothAdapter.enabled
+							? "󰂯" : "󰂲")
+					active: UiState.quickSettingsPage === "wifi"
+						? Networking.wifiEnabled
+						: !!(root.bluetoothAdapter && root.bluetoothAdapter.enabled)
+					enabled: UiState.quickSettingsPage === "wifi"
+						? root.wifiDevice !== null : root.bluetoothAdapter !== null
+					onClicked: root.toggleActiveRadio()
+				}
+
 				Item {
 					id: opacityControl
-					anchors.right: themeButton.left
+					anchors.right: radioPowerButton.left
 					anchors.rightMargin: Theme.spacingSm
 					width: 164
 					height: 34
@@ -638,6 +855,8 @@ PanelWindow {
 				readonly property real inspectorGap: Theme.spacingLg
 				readonly property real radarCenterX: root.connectionInspectorOpen
 					? (width - inspectorWidth - inspectorGap) / 2 : width / 2
+				readonly property real radarDiameter: Math.max(400,
+					Math.min(620, width - 360, height - 76))
 
 				Item {
 					id: bluetoothPage
@@ -658,6 +877,8 @@ PanelWindow {
 						id: bluetoothRadar
 						x: connectionArea.radarCenterX - width / 2
 						anchors.verticalCenter: parent.verticalCenter
+						width: connectionArea.radarDiameter
+						height: width
 						targets: root.radarTargets(root.radarBluetoothDevices, "bluetooth")
 						active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
 						busy: root.bluetoothAdapter && root.bluetoothAdapter.discovering
@@ -713,14 +934,14 @@ PanelWindow {
 						status: !root.bluetoothAdapter ? "No adapter"
 							: (!root.bluetoothAdapter.enabled ? "Bluetooth off"
 								: (root.bluetoothAdapter.discovering ? "Scanning…"
-									: "Click to scan"))
+									: "Scan again"))
 						active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
 						busy: root.bluetoothAdapter && root.bluetoothAdapter.discovering
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "bluetooth"
 						pulseTargetDiameter: bluetoothRadar.width * 0.4
 						enabled: root.bluetoothAdapter !== null
-						onClicked: root.toggleBluetoothScan()
+						onClicked: root.startBluetoothScan()
 					}
 				}
 
@@ -743,6 +964,8 @@ PanelWindow {
 						id: wifiRadar
 						x: connectionArea.radarCenterX - width / 2
 						anchors.verticalCenter: parent.verticalCenter
+						width: connectionArea.radarDiameter
+						height: width
 						targets: root.radarTargets(root.radarWifiNetworks, "wifi")
 						active: Networking.wifiEnabled
 						motionEnabled: root.modalVisible && !root.closing
@@ -789,12 +1012,17 @@ PanelWindow {
 						anchors.verticalCenter: parent.verticalCenter
 						z: 2
 						icon: Networking.wifiEnabled ? "󰖩" : "󰖪"
-						status: Networking.wifiEnabled ? "Wi-Fi on" : "Wi-Fi off"
+						status: !root.wifiDevice ? "No adapter"
+							: (!Networking.wifiEnabled ? "Wi-Fi off"
+								: (root.wifiDevice.scannerEnabled ? "Scanning…"
+									: "Scan again"))
 						active: Networking.wifiEnabled
+						busy: !!(root.wifiDevice && root.wifiDevice.scannerEnabled)
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "wifi"
 						pulseTargetDiameter: wifiRadar.width * 0.4
-						onClicked: Networking.wifiEnabled = !Networking.wifiEnabled
+						enabled: root.wifiDevice !== null
+						onClicked: root.startWifiScan()
 					}
 				}
 
@@ -910,9 +1138,11 @@ PanelWindow {
 					anchors.leftMargin: Theme.spacingSm
 					anchors.verticalCenter: parent.verticalCenter
 					text: UiState.quickSettingsPage === "bluetooth"
-						? root.bluetoothDevices.length + " devices"
+						? root.allBluetoothDevices.length + " devices"
+							+ (root.allBluetoothDevices.length > 6 ? " · 6 shown" : "")
 						: (UiState.quickSettingsPage === "wifi"
-							? root.wifiNetworks.length + " networks"
+							? root.allWifiNetworks.length + " networks"
+								+ (root.allWifiNetworks.length > 6 ? " · 6 shown" : "")
 							: ((LayoutState.showClock ? 1 : 0)
 								+ (LayoutState.showMusic ? 1 : 0)) + " of 2 visible")
 					color: Theme.textMuted
@@ -961,6 +1191,174 @@ PanelWindow {
 				}
 
 			}
+		}
+
+		ResizeHandle {
+			anchors.left: parent.left
+			anchors.right: parent.right
+			anchors.top: parent.top
+			anchors.leftMargin: root.resizeCornerSize
+			anchors.rightMargin: root.resizeCornerSize
+			height: root.resizeEdgeSize
+			z: 10
+			targetItem: panelSurface
+			coordinateItem: modalInput
+			resizeTop: true
+			resizeEnabled: root.canResize
+			minimumHeight: root.effectiveMinimumPanelHeight
+			minimumY: 12
+			maximumBottom: root.screen.height - 72
+			cursorShape: Qt.SizeVerCursor
+			onResizeFinished: root.commitGeometry(panelSurface.x, panelSurface.y,
+				panelSurface.width, panelSurface.height)
+		}
+
+		ResizeHandle {
+			anchors.left: parent.left
+			anchors.right: parent.right
+			anchors.bottom: parent.bottom
+			anchors.leftMargin: root.resizeCornerSize
+			anchors.rightMargin: root.resizeCornerSize
+			height: root.resizeEdgeSize
+			z: 10
+			targetItem: panelSurface
+			coordinateItem: modalInput
+			resizeBottom: true
+			resizeEnabled: root.canResize
+			minimumHeight: root.effectiveMinimumPanelHeight
+			minimumY: 12
+			maximumBottom: root.screen.height - 72
+			cursorShape: Qt.SizeVerCursor
+			onResizeFinished: root.commitGeometry(panelSurface.x, panelSurface.y,
+				panelSurface.width, panelSurface.height)
+		}
+
+		ResizeHandle {
+			anchors.left: parent.left
+			anchors.top: parent.top
+			anchors.bottom: parent.bottom
+			anchors.topMargin: root.resizeCornerSize
+			anchors.bottomMargin: root.resizeCornerSize
+			width: root.resizeEdgeSize
+			z: 10
+			targetItem: panelSurface
+			coordinateItem: modalInput
+			resizeLeft: true
+			resizeEnabled: root.canResize
+			minimumWidth: root.effectiveMinimumPanelWidth
+			minimumX: 12
+			maximumRight: root.screen.width - 12
+			cursorShape: Qt.SizeHorCursor
+			onResizeFinished: root.commitGeometry(panelSurface.x, panelSurface.y,
+				panelSurface.width, panelSurface.height)
+		}
+
+		ResizeHandle {
+			anchors.right: parent.right
+			anchors.top: parent.top
+			anchors.bottom: parent.bottom
+			anchors.topMargin: root.resizeCornerSize
+			anchors.bottomMargin: root.resizeCornerSize
+			width: root.resizeEdgeSize
+			z: 10
+			targetItem: panelSurface
+			coordinateItem: modalInput
+			resizeRight: true
+			resizeEnabled: root.canResize
+			minimumWidth: root.effectiveMinimumPanelWidth
+			minimumX: 12
+			maximumRight: root.screen.width - 12
+			cursorShape: Qt.SizeHorCursor
+			onResizeFinished: root.commitGeometry(panelSurface.x, panelSurface.y,
+				panelSurface.width, panelSurface.height)
+		}
+
+		ResizeHandle {
+			anchors.left: parent.left
+			anchors.top: parent.top
+			width: root.resizeCornerSize
+			height: width
+			z: 11
+			targetItem: panelSurface
+			coordinateItem: modalInput
+			resizeLeft: true
+			resizeTop: true
+			resizeEnabled: root.canResize
+			minimumWidth: root.effectiveMinimumPanelWidth
+			minimumHeight: root.effectiveMinimumPanelHeight
+			minimumX: 12
+			minimumY: 12
+			maximumRight: root.screen.width - 12
+			maximumBottom: root.screen.height - 72
+			cursorShape: Qt.SizeFDiagCursor
+			onResizeFinished: root.commitGeometry(panelSurface.x, panelSurface.y,
+				panelSurface.width, panelSurface.height)
+		}
+
+		ResizeHandle {
+			anchors.right: parent.right
+			anchors.top: parent.top
+			width: root.resizeCornerSize
+			height: width
+			z: 11
+			targetItem: panelSurface
+			coordinateItem: modalInput
+			resizeRight: true
+			resizeTop: true
+			resizeEnabled: root.canResize
+			minimumWidth: root.effectiveMinimumPanelWidth
+			minimumHeight: root.effectiveMinimumPanelHeight
+			minimumX: 12
+			minimumY: 12
+			maximumRight: root.screen.width - 12
+			maximumBottom: root.screen.height - 72
+			cursorShape: Qt.SizeBDiagCursor
+			onResizeFinished: root.commitGeometry(panelSurface.x, panelSurface.y,
+				panelSurface.width, panelSurface.height)
+		}
+
+		ResizeHandle {
+			anchors.left: parent.left
+			anchors.bottom: parent.bottom
+			width: root.resizeCornerSize
+			height: width
+			z: 11
+			targetItem: panelSurface
+			coordinateItem: modalInput
+			resizeLeft: true
+			resizeBottom: true
+			resizeEnabled: root.canResize
+			minimumWidth: root.effectiveMinimumPanelWidth
+			minimumHeight: root.effectiveMinimumPanelHeight
+			minimumX: 12
+			minimumY: 12
+			maximumRight: root.screen.width - 12
+			maximumBottom: root.screen.height - 72
+			cursorShape: Qt.SizeBDiagCursor
+			onResizeFinished: root.commitGeometry(panelSurface.x, panelSurface.y,
+				panelSurface.width, panelSurface.height)
+		}
+
+		ResizeHandle {
+			anchors.right: parent.right
+			anchors.bottom: parent.bottom
+			width: root.resizeCornerSize
+			height: width
+			z: 11
+			targetItem: panelSurface
+			coordinateItem: modalInput
+			resizeRight: true
+			resizeBottom: true
+			resizeEnabled: root.canResize
+			minimumWidth: root.effectiveMinimumPanelWidth
+			minimumHeight: root.effectiveMinimumPanelHeight
+			minimumX: 12
+			minimumY: 12
+			maximumRight: root.screen.width - 12
+			maximumBottom: root.screen.height - 72
+			cursorShape: Qt.SizeFDiagCursor
+			onResizeFinished: root.commitGeometry(panelSurface.x, panelSurface.y,
+				panelSurface.width, panelSurface.height)
 		}
 	}
 }
