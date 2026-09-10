@@ -48,11 +48,12 @@ does not own the icon value.
 - Minimal widgets stay visually quiet; hover cursors and the active border are
   their drag and resize affordances.
 - Resize handles remain visually transparent and communicate direction only
-  through the platform horizontal, vertical, or diagonal cursor.
+  through the platform horizontal, vertical, or diagonal cursor. Their `12px`
+  edge and `24px` corner targets make floating desktop panels easier to grab.
 - Expanded desktop panels place Title, Pin, and Close within the modal padding,
-  without a separate header strip or divider. They share the Quick Settings
-  modal radius. Body layout reflows from actual width and height; panel resize
-  never scales a rendered snapshot.
+  without a separate header strip or divider. Minimal and expanded panels share
+  the Quick Settings modal radius. Body layout reflows from actual width and
+  height; panel resize never scales a rendered snapshot.
 - Expand Quick Settings from its invoking Dock control and collapse it back to
   the same target. Opening uses `Easing.OutCubic`; closing uses `Easing.InCubic`.
 

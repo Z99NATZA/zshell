@@ -41,7 +41,7 @@ ShellSurface {
 
 	raised: true
 	color: expanded ? Theme.surfaceModal : Theme.surfaceRaised
-	radius: expanded ? Theme.radius * 3 : Theme.radius
+	radius: Theme.radius * 3
 	interactive: active || dragArea.containsMouse || resizing
 	clip: true
 	onExpandedChanged: if (!expanded) pinned = false
@@ -190,13 +190,6 @@ ShellSurface {
 		}
 	}
 
-	Behavior on radius {
-		NumberAnimation {
-			duration: Theme.motionDuration
-			easing.type: Easing.OutCubic
-		}
-	}
-
 	Repeater {
 		id: resizeRepeater
 
@@ -232,8 +225,8 @@ ShellSurface {
 			property real pressPanelY: 0
 			property real pressPanelWidth: 0
 			property real pressPanelHeight: 0
-			readonly property real handleEdge: 10
-			readonly property real handleCorner: 16
+			readonly property real handleEdge: 12
+			readonly property real handleCorner: 24
 
 			x: modelData.left ? 0 : (modelData.right ? root.width - width
 				: handleCorner)

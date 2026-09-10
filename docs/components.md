@@ -75,18 +75,19 @@
   panel expanded when focus moves or the user clicks outside, while preserving
   drag, resize, and normal stack activation. Close and Escape override Pin,
   collapse the panel, and reset Pin.
-- Expanded Clock and Music use the same uninterrupted translucent surface and
-  `Theme.radius * 3` corner radius as Quick Settings. Title, Pin, and Close sit
-  inside the surface padding without a separate header fill or divider; the
-  surrounding top region remains the drag target.
+- Clock and Music use the same `Theme.radius * 3` corner radius as Quick
+  Settings in both modes. Their expanded mode is one uninterrupted translucent
+  surface: Title, Pin, and Close sit inside its padding without a separate
+  header fill or divider, and the surrounding top region remains the drag
+  target.
 - `FloatingPanel` provides an optional header-action row and right-side
   inspector loader. Clock and Music do not populate the inspector yet, so
   property interfaces can be added without changing drag, focus, or resize
   ownership.
 - Minimal and expanded Clock and Music panels both use true geometry resize
-  from every edge and corner. Handles are input-only and become available after
-  the panel is activated. Dragging and resizing commit the geometry for the
-  current mode.
+  from every edge and corner. Input-only handles use a `12px` edge area and a
+  larger `24px` corner area, and become available after the panel is activated.
+  Dragging and resizing commit the geometry for the current mode.
 - Desktop cards report committed geometry. `LayoutState` owns persistence and
   stores minimal and expanded rectangles separately.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
