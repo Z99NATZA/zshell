@@ -20,7 +20,7 @@ PanelWindow {
 	color: "transparent"
 	visible: modalVisible
 	focusable: modalVisible
-	aboveWindows: true
+	aboveWindows: UiState.activeComponent === "quickSettings"
 	exclusionMode: ExclusionMode.Ignore
 
 	property bool modalVisible: false
@@ -92,6 +92,7 @@ PanelWindow {
 		closeAnimation.stop()
 		closing = false
 		pinned = false
+		UiState.activateComponent("quickSettings")
 		clearConnectionSelection()
 		modalVisible = true
 		settledX = storedX()
@@ -407,6 +408,7 @@ PanelWindow {
 			panelSurface.opacity = 1
 
 			if (UiState.quickSettingsOpen) root.openPanel()
+			else UiState.releaseComponent("quickSettings")
 		}
 	}
 
@@ -434,11 +436,14 @@ PanelWindow {
 		width: 960
 		height: 680
 		raised: true
+		interactive: UiState.activeComponent === "quickSettings"
+			|| panelDragArea.pressed
 		radius: Theme.radius * 3
 		transformOrigin: Item.Center
 
 		MouseArea {
 			anchors.fill: parent
+			onPressed: UiState.activateComponent("quickSettings")
 			onClicked: mouse => mouse.accepted = true
 		}
 
@@ -457,6 +462,7 @@ PanelWindow {
 			drag.minimumY: 12
 			drag.maximumY: root.screen.height - panelSurface.height - 72
 			drag.smoothed: true
+			onPressed: UiState.activateComponent("quickSettings")
 			onReleased: root.commitPosition(panelSurface.x, panelSurface.y)
 		}
 

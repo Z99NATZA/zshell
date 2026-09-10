@@ -43,7 +43,15 @@ PanelWindow {
 		UiState.quickSettingsTargetY = root.screen.height - root.margins.bottom
 			- root.height + localCenter.y
 		UiState.quickSettingsPage = page
+
+		if (UiState.quickSettingsOpen
+				&& UiState.activeComponent !== "quickSettings") {
+			UiState.activateComponent("quickSettings")
+			return
+		}
+
 		UiState.quickSettingsOpen = !UiState.quickSettingsOpen
+		if (UiState.quickSettingsOpen) UiState.activateComponent("quickSettings")
 	}
 
 	readonly property var wifiDevice: {

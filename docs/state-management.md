@@ -5,8 +5,8 @@ a process restart.
 
 | Owner | Lifetime | Values |
 | --- | --- | --- |
-| `UiState.qml` | Current process | Modal visibility, Dock animation target, selected connection mode, and edit mode |
-| `LayoutState.qml` | Across restarts | Card and Quick Settings positions, theme, component opacity, and language indicator visibility |
+| `UiState.qml` | Current process | Modal visibility, active component and stack order, Dock animation target, selected connection mode, and edit mode |
+| `LayoutState.qml` | Across restarts | Minimal and expanded card geometry, Quick Settings position, theme, component opacity, and language indicator visibility |
 
 `LayoutState` uses Quickshell `FileView` with `JsonAdapter`. Updates are written
 atomically to `~/.local/state/zshell/layout.json`; external file changes are
@@ -15,6 +15,11 @@ reloaded.
 Default positions remain in code and are used until the state file supplies a
 saved value. Components clamp positions to the current screen bounds before
 rendering.
+
+`clockX`, `clockY`, `clockWidth`, and `clockHeight` store the minimal Clock
+rectangle. The matching `clockExpanded*` values store its expanded rectangle.
+Music uses the same split through `music*` and `musicExpanded*`. Panels always
+start minimal after a process restart; only their two geometry sets persist.
 
 `quickSettingsX` and `quickSettingsY` store the last committed modal position.
 They default to the lower-right placement above the Dock. The Dock animation
@@ -27,6 +32,11 @@ surfaces and borders without fading foreground content.
 `QuickSettingsPanel` owns its transient Pin state. Pin changes only the current
 open panel's click-through mask and resets whenever the panel closes, so it is
 not stored in `UiState` or `LayoutState`.
+
+`UiState.activeComponent` and the three component stack counters coordinate
+focus across Clock, Music, and Quick Settings. Activating a component advances
+the process-local serial and assigns it the newest stack value. Stack order is
+intentionally not persisted, so each session starts from a deterministic base.
 
 `showLanguageLeft` and `showLanguageRight` default to true. They are persisted
 now so a future settings UI can control each side without changing dock layout.

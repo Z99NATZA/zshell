@@ -1,6 +1,6 @@
 # Architecture
 
-zshell is a Quickshell configuration that renders a desktop widget layer, a
+zshell is a Quickshell configuration that renders a desktop widget workspace, a
 floating dock, and an on-demand system panel. Quickshell integrations provide
 reactive system state; QML components own presentation and interaction.
 
@@ -30,7 +30,16 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 - `Dock` is an above-window layer surface offset above the existing Waybar.
 - `QuickSettingsPanel` is created per screen and shown on demand.
 - `DesktopSurface` is below normal application windows and uses a click-through
-  mask so transparent areas never block desktop input.
+  mask so transparent areas never block desktop input. It temporarily moves
+  above normal windows while Clock or Music is expanded, except while Quick
+  Settings owns focus.
+- Clock and Music share `DesktopSurface`, so their QML stack values provide
+  deterministic last-activated ordering. Quick Settings remains a separate
+  window; `UiState.activeComponent` switches which shell window occupies the
+  above-window layer when their visible regions overlap.
+- `FloatingPanel` owns reusable desktop-panel chrome, optional property slots,
+  drag interaction, and edge/corner geometry resize. Content components own
+  responsive body layout and mode-specific persistence.
 - The MVP persists one shared card layout. Per-monitor layouts are outside the
   current behavior.
 

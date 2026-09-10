@@ -43,13 +43,21 @@ does not own the icon value.
 - Reserve fully round shapes for indicators and progress details.
 - Avoid large-area blur. The MVP uses no blur.
 - Hide absent content instead of rendering an empty placeholder card.
-- Expose drag affordances only while layout edit mode is active.
+- Minimal widgets stay visually quiet; hover cursors and the active border are
+  their drag and resize affordances.
+- Resize handles remain visually transparent and communicate direction only
+  through the platform horizontal, vertical, or diagonal cursor.
+- Expanded desktop panels add a compact title bar and Close control. Their body
+  layout reflows from actual width and height; panel resize never scales a
+  rendered snapshot.
 - Expand Quick Settings from its invoking Dock control and collapse it back to
   the same target. Opening uses `Easing.OutCubic`; closing uses `Easing.InCubic`.
 
 ## Motion and performance
 
 - Animate opacity, color, position, and bounded progress changes.
+- Animate minimal-to-expanded geometry from the widget's current center and
+  restore the separately persisted minimal rectangle on collapse.
 - Limit large translucent surface animation to bounded open and close motion;
   never animate one continuously or continuously sample idle data.
 - The central radio pulse travels from the core to the radar's second grid ring

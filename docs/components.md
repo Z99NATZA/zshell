@@ -10,9 +10,10 @@
 | `ConnectionInspector` | On-demand connection details and explicit primary action |
 | `RadarField` | Theme-native connection grid, sweep, and target blips |
 | `RadioOrb` | Shared animated Wi-Fi and Bluetooth radio control |
+| `FloatingPanel` | Shared focus, chrome, drag, resize, and inspector slots for desktop widgets |
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
-| `ClockCard` | Reactive time and persisted drag position |
-| `MusicCard` | Current MPRIS metadata, progress, and transport controls |
+| `ClockCard` | Minimal clock and expanded floating time panel |
+| `MusicCard` | Minimal MPRIS controls and expanded now-playing panel |
 | `LanguageIndicator` | Fixed-width current keyboard label |
 | `ActionButton` | Shared compact hover, active, and disabled behavior |
 | `ShellSurface` | Shared surface, border, radius, and color transitions |
@@ -47,7 +48,8 @@
   to move the panel. Header controls keep their own click targets. The committed
   position is restored across restarts and clamped to the current screen.
 - Quick Settings expands from the Dock control that opened it and collapses
-  back to that control when dismissed. It has no dedicated close button.
+  back to that control when dismissed. Its header Close control and Escape use
+  the same close path.
 - Quick Settings adjusts every component surface from fully transparent to
   opaque in 10% steps. Text, icons, and media artwork remain opaque.
 - `ActionButton` owns reusable control feedback. Feature components own layout.
@@ -63,7 +65,21 @@
   Quick Settings keeps the full names.
 - The Dock is the sole Power entry point. Its button delegates to
   `hypr-power-menu`; it never runs a session or machine power action directly.
-- Desktop cards report committed positions. `LayoutState` owns persistence.
+- Clock and Music start as minimal desktop widgets. A single click activates the
+  widget and raises its stack order. Double-clicking empty widget space expands
+  it into a floating panel; double-clicking again, the header Close control, or
+  Escape returns it to minimal mode. Music transport controls retain their
+  single-click actions and do not toggle panel mode.
+- `FloatingPanel` provides an optional header-action row and right-side
+  inspector loader. Clock and Music do not populate the inspector yet, so
+  property interfaces can be added without changing drag, focus, or resize
+  ownership.
+- Minimal and expanded Clock and Music panels both use true geometry resize
+  from every edge and corner. Handles are input-only and become available after
+  the panel is activated. Dragging and resizing commit the geometry for the
+  current mode.
+- Desktop cards report committed geometry. `LayoutState` owns persistence and
+  stores minimal and expanded rectangles separately.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
   require new credentials remain selectable, but their inspector action is
   disabled.
@@ -75,7 +91,10 @@
 
 ## Input behavior
 
-The desktop surface accepts pointer input only over the active media card or,
-while edit mode is enabled, the draggable cards. Every other pixel is click
-through. This prevents an invisible full-screen shell surface from blocking
-desktop and application input.
+The desktop surface accepts pointer input only over visible Clock and Music
+panels. Every other pixel is click through. Minimal widgets stay on the desktop
+layer. Activating an expanded desktop panel temporarily raises their shared
+surface above normal windows; it remains raised while either desktop panel is
+expanded. Activating Quick Settings raises its own window instead. Within the
+desktop surface, the last activated Clock or Music panel has the highest item
+stack value.

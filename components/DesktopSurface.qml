@@ -14,7 +14,9 @@ PanelWindow {
 	}
 
 	color: "transparent"
-	aboveWindows: false
+	aboveWindows: (clockCard.expanded || musicCard.expanded)
+		&& UiState.activeComponent !== "quickSettings"
+	focusable: aboveWindows
 	exclusionMode: ExclusionMode.Ignore
 
 	readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
@@ -23,8 +25,8 @@ PanelWindow {
 		Region {
 			x: clockCard.x
 			y: clockCard.y
-			width: UiState.editMode ? clockCard.width : 0
-			height: UiState.editMode ? clockCard.height : 0
+			width: clockCard.width
+			height: clockCard.height
 			radius: clockCard.radius
 		}
 
@@ -39,29 +41,14 @@ PanelWindow {
 
 	ClockCard {
 		id: clockCard
-		x: Math.max(12, Math.min(root.width - width - 12,
-			LayoutState.clockX < 0 ? root.width - width - 48 : LayoutState.clockX))
-		y: Math.max(12, Math.min(root.height - height - 72, LayoutState.clockY))
-		dragEnabled: UiState.editMode
-		maximumX: root.width - width - 12
-		maximumY: root.height - height - 72
-		onPositionCommitted: (cardX, cardY) => {
-			LayoutState.clockX = Math.round(cardX)
-			LayoutState.clockY = Math.round(cardY)
-		}
+		availableWidth: root.width
+		availableHeight: root.height
 	}
 
 	MusicCard {
 		id: musicCard
-		x: Math.max(12, Math.min(root.width - width - 12, LayoutState.musicX))
-		y: Math.max(12, Math.min(root.height - height - 72, LayoutState.musicY))
 		player: root.player
-		dragEnabled: UiState.editMode
-		maximumX: root.width - width - 12
-		maximumY: root.height - height - 72
-		onPositionCommitted: (cardX, cardY) => {
-			LayoutState.musicX = Math.round(cardX)
-			LayoutState.musicY = Math.round(cardY)
-		}
+		availableWidth: root.width
+		availableHeight: root.height
 	}
 }
