@@ -105,9 +105,9 @@ PanelWindow {
 		else beginClose()
 	}
 
-	function changeComponentOpacity(delta) {
-		const nextValue = Math.round((LayoutState.componentOpacity + delta) * 10) / 10
-		LayoutState.componentOpacity = Math.max(0, Math.min(1, nextValue))
+	function setComponentOpacity(value) {
+		const steppedValue = Math.round(value * 10) / 10
+		LayoutState.componentOpacity = Math.max(0, Math.min(1, steppedValue))
 	}
 
 	function connectionKey(item, kind) {
@@ -393,34 +393,86 @@ PanelWindow {
 					width: 164
 					height: 34
 
-					Row {
-						anchors.fill: parent
+					Text {
+						id: opacityLabel
+						anchors.left: parent.left
+						anchors.leftMargin: Theme.spacingSm
+						anchors.verticalCenter: parent.verticalCenter
+						text: "Opacity"
+						color: Theme.text
+						font.family: Theme.textFontFamily
+						font.pixelSize: 11
+					}
 
-						ActionButton {
-							compact: true
-							text: "−"
-							enabled: LayoutState.componentOpacity > 0
-							onClicked: root.changeComponentOpacity(-0.1)
+					Item {
+						id: opacityInput
+						anchors.left: opacityLabel.right
+						anchors.leftMargin: Theme.spacingXs
+						anchors.right: opacityValue.left
+						anchors.rightMargin: Theme.spacingXs
+						anchors.top: parent.top
+						anchors.bottom: parent.bottom
+
+						Rectangle {
+							id: opacityTrack
+							anchors.left: parent.left
+							anchors.right: parent.right
+							anchors.verticalCenter: parent.verticalCenter
+							height: 4
+							radius: height / 2
+							color: Theme.textMuted
+							opacity: 0.45
+
+							Rectangle {
+								width: LayoutState.componentOpacity * parent.width
+								height: parent.height
+								radius: parent.radius
+								color: Theme.accent
+							}
 						}
 
-						Text {
-							width: opacityControl.width - 68
-							height: parent.height
-							text: "Opacity "
-								+ Math.round(LayoutState.componentOpacity * 100) + "%"
-							color: Theme.text
-							horizontalAlignment: Text.AlignHCenter
-							verticalAlignment: Text.AlignVCenter
-							font.family: Theme.textFontFamily
-							font.pixelSize: 11
+						Rectangle {
+							id: opacityHandle
+							x: LayoutState.componentOpacity * (opacityInput.width - width)
+							anchors.verticalCenter: parent.verticalCenter
+							width: 12
+							height: 12
+							radius: width / 2
+							color: opacityPointer.pressed ? Theme.accent : Theme.text
+							border.width: 1
+							border.color: Theme.accent
 						}
 
-						ActionButton {
-							compact: true
-							text: "+"
-							enabled: LayoutState.componentOpacity < 1
-							onClicked: root.changeComponentOpacity(0.1)
+						MouseArea {
+							id: opacityPointer
+							anchors.fill: parent
+							hoverEnabled: true
+							cursorShape: Qt.PointingHandCursor
+							onPressed: mouse => root.setComponentOpacity(mouse.x / width)
+							onPositionChanged: mouse => {
+								if (pressed) root.setComponentOpacity(mouse.x / width)
+							}
+							onWheel: wheel => {
+								if (wheel.angleDelta.y === 0) return
+
+								root.setComponentOpacity(LayoutState.componentOpacity
+									+ (wheel.angleDelta.y > 0 ? 0.1 : -0.1))
+								wheel.accepted = true
+							}
 						}
+					}
+
+					Text {
+						id: opacityValue
+						anchors.right: parent.right
+						anchors.rightMargin: Theme.spacingSm
+						anchors.verticalCenter: parent.verticalCenter
+						width: 28
+						text: Math.round(LayoutState.componentOpacity * 100) + "%"
+						color: Theme.text
+						horizontalAlignment: Text.AlignRight
+						font.family: Theme.textFontFamily
+						font.pixelSize: 11
 					}
 				}
 			}
