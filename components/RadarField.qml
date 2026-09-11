@@ -198,10 +198,86 @@ Item {
 			readonly property bool selected: !!modelData.selected
 			readonly property bool illuminated: root.targetIlluminated(targetKey)
 
+			function triggerRipple() {
+				primaryRipple.restart()
+				echoRipple.restart()
+			}
+
 			x: root.targetX(targetKey) - width / 2
 			y: root.targetY(targetKey) - height / 2
 			width: 14
 			height: width
+			onIlluminatedChanged: if (illuminated) triggerRipple()
+			onSelectedChanged: if (selected) triggerRipple()
+
+			Rectangle {
+				id: primaryRippleRing
+				anchors.centerIn: parent
+				width: parent.width
+				height: width
+				radius: width / 2
+				color: "transparent"
+				border.width: 1
+				border.color: Theme.accent
+				opacity: 0
+			}
+
+			ParallelAnimation {
+				id: primaryRipple
+
+				NumberAnimation {
+					target: primaryRippleRing
+					property: "scale"
+					from: 0.7
+					to: 3.8
+					duration: 920
+					easing.type: Easing.OutCubic
+				}
+				NumberAnimation {
+					target: primaryRippleRing
+					property: "opacity"
+					from: 0.5
+					to: 0
+					duration: 920
+					easing.type: Easing.OutCubic
+				}
+			}
+
+			Rectangle {
+				id: echoRippleRing
+				anchors.centerIn: parent
+				width: parent.width
+				height: width
+				radius: width / 2
+				color: "transparent"
+				border.width: 1
+				border.color: Theme.accent
+				opacity: 0
+			}
+
+			SequentialAnimation {
+				id: echoRipple
+
+				PauseAnimation { duration: 170 }
+				ParallelAnimation {
+					NumberAnimation {
+						target: echoRippleRing
+						property: "scale"
+						from: 0.7
+						to: 3.2
+						duration: 780
+						easing.type: Easing.OutCubic
+					}
+					NumberAnimation {
+						target: echoRippleRing
+						property: "opacity"
+						from: 0.3
+						to: 0
+						duration: 780
+						easing.type: Easing.OutCubic
+					}
+				}
+			}
 
 			Rectangle {
 				anchors.centerIn: parent

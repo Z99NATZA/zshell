@@ -920,7 +920,7 @@ PanelWindow {
 							y: (bluetoothPage.height - bluetoothRadar.height) / 2
 								+ bluetoothRadar.targetY(radarKey) - height
 								- Theme.spacingLg
-							z: selected ? 3 : 1
+							z: selected ? 4 : 3
 							icon: "󰂯"
 							title: modelData.name || modelData.address
 							subtitle: modelData.blocked ? "Blocked" : (modelData.connected
@@ -933,6 +933,15 @@ PanelWindow {
 							selected: root.connectionSelected(modelData, "bluetooth")
 							radarHighlight: bluetoothRadar.targetIlluminated(radarKey)
 							radarBubble: true
+							ambientMotion: root.modalVisible && !root.closing
+								&& UiState.quickSettingsPage === "bluetooth"
+							connectorBend: (bluetoothRadar.stableUnit(radarKey,
+								"connector-direction") < 0.5 ? -1 : 1)
+								* (8 + bluetoothRadar.stableUnit(radarKey,
+									"connector-bend") * 6)
+							connectorDuration: Math.round(1900
+								+ bluetoothRadar.stableUnit(radarKey,
+									"connector-duration") * 1400)
 							enabled: UiState.quickSettingsPage === "bluetooth"
 								&& root.bluetoothAdapter && root.bluetoothAdapter.enabled
 							onClicked: root.selectConnection(modelData, "bluetooth")
@@ -1001,7 +1010,7 @@ PanelWindow {
 							y: (wifiPage.height - wifiRadar.height) / 2
 								+ wifiRadar.targetY(radarKey) - height
 								- Theme.spacingLg
-							z: selected ? 3 : 1
+							z: selected ? 4 : 3
 							icon: modelData.connected ? "󰖩" : "󰖪"
 							title: modelData.name
 							subtitle: modelData.connected ? "Connected"
@@ -1011,6 +1020,15 @@ PanelWindow {
 							selected: root.connectionSelected(modelData, "wifi")
 							radarHighlight: wifiRadar.targetIlluminated(radarKey)
 							radarBubble: true
+							ambientMotion: root.modalVisible && !root.closing
+								&& UiState.quickSettingsPage === "wifi"
+							connectorBend: (wifiRadar.stableUnit(radarKey,
+								"connector-direction") < 0.5 ? -1 : 1)
+								* (8 + wifiRadar.stableUnit(radarKey,
+									"connector-bend") * 6)
+							connectorDuration: Math.round(1900
+								+ wifiRadar.stableUnit(radarKey,
+									"connector-duration") * 1400)
 							enabled: UiState.quickSettingsPage === "wifi"
 								&& Networking.wifiEnabled
 							onClicked: root.selectConnection(modelData, "wifi")
@@ -1022,17 +1040,13 @@ PanelWindow {
 						anchors.verticalCenter: parent.verticalCenter
 						z: 2
 						icon: Networking.wifiEnabled ? "󰖩" : "󰖪"
-						status: !root.wifiDevice ? "No adapter"
-							: (!Networking.wifiEnabled ? "Wi-Fi off"
-								: (root.wifiDevice.scannerEnabled ? "Scanning…"
-									: "Scan again"))
 						active: Networking.wifiEnabled
-						busy: !!(root.wifiDevice && root.wifiDevice.scannerEnabled)
+						interactive: false
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "wifi"
 						pulseTargetDiameter: wifiRadar.width * 0.4
+						statusVisible: false
 						enabled: root.wifiDevice !== null
-						onClicked: root.startWifiScan()
 					}
 				}
 

@@ -27,11 +27,12 @@
   Bluetooth devices as persistent bubbles over their targets on a circular
   radar. Its bottom switch changes modes without closing the panel.
 - Every visible connection has a stable pseudo-random radar blip derived from
-  its identity. Collision-safe angular slots keep bubbles apart, and a short
-  accent connector ties each bubble to its blip. Bubbles track their blips
-  directly while the radar shifts for the inspector, without a second position
-  animation. The sweep briefly raises the matching bubble but never hides or
-  moves it.
+  its identity. Collision-safe angular slots keep bubbles apart. Every bubble
+  overlays the radar and moves through random waypoints within `10px` of its
+  stable base position. A curved animated tether compensates for that movement
+  so its endpoint remains attached to the blip. The sweep briefly raises the
+  matching bubble and launches two fading ripples from its blip without
+  changing the underlying target position.
 - Clicking a connection bubble selects its radar target and opens the detail
   inspector; it never changes connection state directly. The radar shifts left
   while the inspector slides in from the right. A second click, the close
@@ -40,12 +41,10 @@
   available battery data for Bluetooth. Connect, disconnect, pair, and cancel
   pairing are explicit inspector actions. Wi-Fi profiles requiring credentials
   remain selectable for detail but cannot connect in this first version.
-- The central radio control starts a Wi-Fi scan on press and gently pulses only
-  while its radio is active and its Quick Settings page is visible. The
-  Bluetooth center is a passive indicator with no status row or scan action.
-  A page-specific header control owns radio power so the center never toggles
-  Wi-Fi or Bluetooth. Wi-Fi scan state remains visible in the center status;
-  Bluetooth discovery is represented only by the radar motion.
+- The central Wi-Fi and Bluetooth controls are passive indicators with no
+  status row or scan action. They gently pulse only while their radio is active
+  and matching Quick Settings page is visible. A page-specific header control
+  owns radio power, while background discovery is represented by radar motion.
 - Quick Settings opens unpinned as a modal. Clicking outside dismisses it. The
   header Pin control keeps it open and restricts its input region to the panel,
   allowing outside clicks to reach other windows. Pin remains temporary: the
