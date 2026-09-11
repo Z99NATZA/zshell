@@ -28,8 +28,10 @@
   radar. Its bottom switch changes modes without closing the panel.
 - Every visible connection has a stable pseudo-random radar blip derived from
   its identity. Collision-safe angular slots keep bubbles apart, and a short
-  accent connector ties each bubble to its blip. The sweep briefly raises the
-  matching bubble but never hides or moves it.
+  accent connector ties each bubble to its blip. Bubbles track their blips
+  directly while the radar shifts for the inspector, without a second position
+  animation. The sweep briefly raises the matching bubble but never hides or
+  moves it.
 - Clicking a connection bubble selects its radar target and opens the detail
   inspector; it never changes connection state directly. The radar shifts left
   while the inspector slides in from the right. A second click, the close

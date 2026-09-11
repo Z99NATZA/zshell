@@ -25,10 +25,12 @@ ShellSurface {
 	}
 
 	Behavior on x {
+		enabled: !root.radarBubble
 		NumberAnimation { duration: Theme.modalOpenDuration; easing.type: Easing.OutCubic }
 	}
 
 	Behavior on y {
+		enabled: !root.radarBubble
 		NumberAnimation { duration: Theme.modalOpenDuration; easing.type: Easing.OutCubic }
 	}
 
