@@ -13,6 +13,9 @@ ShellSurface {
 	property bool radarBubble: false
 	property bool ambientMotion: false
 	property bool motionReady: false
+	property bool entranceActive: false
+	property real entranceScale: 1
+	property real entranceOpacity: 1
 	property real floatRadius: 10
 	property int floatTransitionDuration: 2400
 	property real floatOffsetX: 0
@@ -28,9 +31,10 @@ ShellSurface {
 	radius: Theme.radius * 2
 	raised: active || selected || radarHighlight
 	interactive: active || selected || radarHighlight || pointer.containsMouse
-	opacity: enabled ? 1 : 0.42
-	scale: selected ? 1.05
-		: (radarHighlight ? 1.035 : (pointer.containsMouse ? 1.018 : 1))
+	opacity: (enabled ? 1 : 0.42) * entranceOpacity
+	scale: (selected ? 1.05
+		: (radarHighlight ? 1.035 : (pointer.containsMouse ? 1.018 : 1)))
+		* entranceScale
 	transform: Translate {
 		x: root.floatOffsetX
 		y: root.floatOffsetY
@@ -57,6 +61,18 @@ ShellSurface {
 		}
 	}
 
+	function playEntrance(delay) {
+		entranceDelay.stop()
+		entranceAnimation.stop()
+		entranceActive = true
+		entranceScale = 0.65
+		entranceOpacity = 0
+		entranceDelay.interval = Math.max(0, delay)
+
+		if (entranceDelay.interval > 0) entranceDelay.start()
+		else entranceAnimation.start()
+	}
+
 	onAmbientMotionChanged: if (motionReady) syncAmbientMotion()
 	Component.onCompleted: {
 		motionReady = true
@@ -67,6 +83,56 @@ ShellSurface {
 		id: floatTimer
 		interval: root.floatTransitionDuration
 		onTriggered: root.chooseFloatTarget()
+	}
+
+	Timer {
+		id: entranceDelay
+		onTriggered: entranceAnimation.start()
+	}
+
+	SequentialAnimation {
+		id: entranceAnimation
+
+		ParallelAnimation {
+			NumberAnimation {
+				target: root
+				property: "entranceScale"
+				from: 0.65
+				to: 1.10
+				duration: 220
+				easing.type: Easing.OutCubic
+			}
+			NumberAnimation {
+				target: root
+				property: "entranceOpacity"
+				from: 0
+				to: 1
+				duration: 160
+				easing.type: Easing.OutCubic
+			}
+		}
+		NumberAnimation {
+			target: root
+			property: "entranceScale"
+			from: 1.10
+			to: 0.96
+			duration: 120
+			easing.type: Easing.InOutQuad
+		}
+		NumberAnimation {
+			target: root
+			property: "entranceScale"
+			from: 0.96
+			to: 1
+			duration: 130
+			easing.type: Easing.OutCubic
+		}
+
+		onFinished: {
+			root.entranceScale = 1
+			root.entranceOpacity = 1
+			root.entranceActive = false
+		}
 	}
 
 	Behavior on floatOffsetX {
@@ -86,6 +152,7 @@ ShellSurface {
 	}
 
 	Behavior on opacity {
+		enabled: !root.entranceActive
 		NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
 	}
 
@@ -100,6 +167,7 @@ ShellSurface {
 	}
 
 	Behavior on scale {
+		enabled: !root.entranceActive
 		NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
 	}
 
@@ -269,8 +337,9 @@ ShellSurface {
 	MouseArea {
 		id: pointer
 		anchors.fill: parent
+		enabled: root.enabled && !root.entranceActive
 		hoverEnabled: true
-		cursorShape: root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+		cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
 		onClicked: if (root.enabled) root.clicked()
 	}
 }

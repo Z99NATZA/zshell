@@ -46,6 +46,16 @@ PanelWindow {
 	property bool bluetoothScanPending: false
 	property bool wifiScanOwned: false
 	property bool bluetoothScanOwned: false
+	property int wifiEntranceEpoch: 0
+	property int bluetoothEntranceEpoch: 0
+	property var wifiEntranceSeen: ({})
+	property var bluetoothEntranceSeen: ({})
+	property int wifiEntranceOrder: 0
+	property int bluetoothEntranceOrder: 0
+	property double wifiEntranceStartedAt: 0
+	property double bluetoothEntranceStartedAt: 0
+	readonly property int connectionEntranceLeadDelay: 360
+	readonly property int connectionEntranceStagger: 55
 	readonly property int bluetoothDiscoveryDuration: 15000
 	readonly property int bluetoothDiscoveryCooldown: 30000
 	readonly property bool bluetoothAutoScanActive: modalVisible && !closing
@@ -332,6 +342,39 @@ PanelWindow {
 		}))
 	}
 
+	function beginConnectionEntrance(kind) {
+		if (kind === "wifi") {
+			wifiEntranceSeen = ({})
+			wifiEntranceOrder = 0
+			wifiEntranceStartedAt = Date.now()
+			wifiEntranceEpoch++
+		} else if (kind === "bluetooth") {
+			bluetoothEntranceSeen = ({})
+			bluetoothEntranceOrder = 0
+			bluetoothEntranceStartedAt = Date.now()
+			bluetoothEntranceEpoch++
+		}
+	}
+
+	function claimConnectionEntrance(kind, key) {
+		if (!modalVisible || closing || UiState.quickSettingsPage !== kind) return -1
+
+		const seen = kind === "wifi" ? wifiEntranceSeen : bluetoothEntranceSeen
+		const token = "$" + key
+		if (seen[token]) return -1
+		seen[token] = true
+
+		const order = kind === "wifi" ? wifiEntranceOrder++ : bluetoothEntranceOrder++
+		const startedAt = kind === "wifi"
+			? wifiEntranceStartedAt : bluetoothEntranceStartedAt
+		const elapsed = Math.max(0, Date.now() - startedAt)
+		const leadDelay = Math.max(0, connectionEntranceLeadDelay - elapsed)
+		const staggerDelay = elapsed < connectionEntranceLeadDelay + 360
+			? Math.min(order, 5) * connectionEntranceStagger : 0
+
+		return Math.round(leadDelay + staggerDelay)
+	}
+
 	function prioritizedItems(items, kind) {
 		const copy = items.slice()
 		copy.sort((first, second) => {
@@ -471,7 +514,12 @@ PanelWindow {
 			root.clearConnectionSelection()
 			root.stopWifiScan()
 			root.stopBluetoothScan()
-			if (root.modalVisible && !root.closing) pageScanTimer.restart()
+			if (root.modalVisible && !root.closing) {
+				pageScanTimer.restart()
+				if (!openAnimation.running) {
+					root.beginConnectionEntrance(UiState.quickSettingsPage)
+				}
+			}
 		}
 	}
 
@@ -577,6 +625,8 @@ PanelWindow {
 			duration: Theme.modalCloseDuration
 			easing.type: Easing.OutCubic
 		}
+
+		onFinished: root.beginConnectionEntrance(UiState.quickSettingsPage)
 	}
 
 	ParallelAnimation {
@@ -896,6 +946,7 @@ PanelWindow {
 						targets: root.radarTargets(root.radarBluetoothDevices, "bluetooth")
 						active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
 						busy: root.bluetoothAdapter && root.bluetoothAdapter.discovering
+						entranceEpoch: root.bluetoothEntranceEpoch
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "bluetooth"
 
@@ -912,6 +963,8 @@ PanelWindow {
 
 						ConnectionCard {
 							required property var modelData
+							property int cardEntranceEpoch: root.bluetoothEntranceEpoch
+							property bool cardEntranceReady: false
 							readonly property string radarKey: root.connectionKey(modelData,
 								"bluetooth")
 							readonly property real radarLocalX:
@@ -951,6 +1004,19 @@ PanelWindow {
 								+ bubbleDirectionX * bubbleCenterDistance - width / 2
 							readonly property real preferredY: radarTargetY
 								+ bubbleDirectionY * bubbleCenterDistance - height / 2
+
+							function syncEntranceAnimation() {
+								if (!cardEntranceReady || cardEntranceEpoch <= 0) return
+
+								const delay = root.claimConnectionEntrance("bluetooth", radarKey)
+								if (delay >= 0) playEntrance(delay)
+							}
+
+							onCardEntranceEpochChanged: syncEntranceAnimation()
+							Component.onCompleted: {
+								cardEntranceReady = true
+								syncEntranceAnimation()
+							}
 
 							x: Math.max(0, Math.min(bluetoothPage.width - width,
 								preferredX))
@@ -994,6 +1060,8 @@ PanelWindow {
 							? "󰂯" : "󰂲"
 						active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
 						interactive: false
+						opacity: bluetoothRadar.entranceOpacity
+						scale: bluetoothRadar.entranceScale
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "bluetooth"
 						pulseTargetDiameter: bluetoothRadar.width * 0.4
@@ -1025,6 +1093,7 @@ PanelWindow {
 						height: width
 						targets: root.radarTargets(root.radarWifiNetworks, "wifi")
 						active: Networking.wifiEnabled
+						entranceEpoch: root.wifiEntranceEpoch
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "wifi"
 
@@ -1041,6 +1110,8 @@ PanelWindow {
 
 						ConnectionCard {
 							required property var modelData
+							property int cardEntranceEpoch: root.wifiEntranceEpoch
+							property bool cardEntranceReady: false
 							readonly property string radarKey: root.connectionKey(modelData,
 								"wifi")
 							readonly property real radarLocalX: wifiRadar.targetX(radarKey)
@@ -1079,6 +1150,19 @@ PanelWindow {
 							readonly property real preferredY: radarTargetY
 								+ bubbleDirectionY * bubbleCenterDistance - height / 2
 
+							function syncEntranceAnimation() {
+								if (!cardEntranceReady || cardEntranceEpoch <= 0) return
+
+								const delay = root.claimConnectionEntrance("wifi", radarKey)
+								if (delay >= 0) playEntrance(delay)
+							}
+
+							onCardEntranceEpochChanged: syncEntranceAnimation()
+							Component.onCompleted: {
+								cardEntranceReady = true
+								syncEntranceAnimation()
+							}
+
 							x: Math.max(0, Math.min(wifiPage.width - width, preferredX))
 							y: Math.max(0, Math.min(wifiPage.height - height,
 								preferredY))
@@ -1116,6 +1200,8 @@ PanelWindow {
 						icon: Networking.wifiEnabled ? "󰖩" : "󰖪"
 						active: Networking.wifiEnabled
 						interactive: false
+						opacity: wifiRadar.entranceOpacity
+						scale: wifiRadar.entranceScale
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "wifi"
 						pulseTargetDiameter: wifiRadar.width * 0.4

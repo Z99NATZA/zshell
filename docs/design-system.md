@@ -14,6 +14,8 @@ color, and motion rather than decoration or repeated labels.
 | Radio pulse duration | `1800ms` |
 | Radar sweep duration | `4800ms` |
 | Active scan sweep duration | `2600ms` |
+| Radar entrance duration | `440ms` |
+| Bubble entrance duration | `470ms` plus stagger |
 | Motion easing | `Easing.OutCubic` |
 | Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |
@@ -76,6 +78,12 @@ does not own the icon value.
   use a continuous `20%` to `47%` radial range spanning the first four grid
   lines counted from the outside, with added center clearance below the radio
   orb where bubbles extend upward.
+- Radar entrance motion scales from `88%` through a `103.5%` overshoot and back
+  to full size while fading in. The center orb shares that transform. Bubbles
+  follow after a `360ms` lead with a `55ms` per-item stagger, overshoot to
+  `110%`, rebound to `96%`, and settle at full size. Existing connection keys
+  animate once per page entrance; ordinary service refreshes do not replay
+  them, while newly discovered keys still receive an entrance.
 - Connection bubbles use softened surfaces and move between random
   two-dimensional waypoints within a `10px` radius. Curved tethers keep their
   endpoints on deterministic blips, prefer a length of four large spacing

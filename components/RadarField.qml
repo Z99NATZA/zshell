@@ -11,10 +11,76 @@ Item {
 	property bool active: false
 	property bool busy: false
 	property bool motionEnabled: false
+	property int entranceEpoch: 0
+	property bool entranceReady: false
+	property real entranceScale: 1
+	property real entranceOpacity: 1
 
 	readonly property bool scanning: motionEnabled && active
 	readonly property real sweepAngle: sweepLayer.rotation
 	readonly property var targetSlotAngles: [-150, -90, -30, 30, 90, 150]
+	scale: entranceScale
+	opacity: entranceOpacity
+	transformOrigin: Item.Center
+
+	function playEntrance() {
+		entranceAnimation.stop()
+		entranceScale = 0.88
+		entranceOpacity = 0
+		entranceAnimation.start()
+	}
+
+	onEntranceEpochChanged: {
+		if (entranceReady && entranceEpoch > 0) playEntrance()
+	}
+	Component.onCompleted: {
+		entranceReady = true
+		if (entranceEpoch > 0) playEntrance()
+	}
+
+	SequentialAnimation {
+		id: entranceAnimation
+
+		ParallelAnimation {
+			NumberAnimation {
+				target: root
+				property: "entranceScale"
+				from: 0.88
+				to: 1.035
+				duration: 240
+				easing.type: Easing.OutCubic
+			}
+			NumberAnimation {
+				target: root
+				property: "entranceOpacity"
+				from: 0
+				to: 1
+				duration: 170
+				easing.type: Easing.OutCubic
+			}
+		}
+		NumberAnimation {
+			target: root
+			property: "entranceScale"
+			from: 1.035
+			to: 0.985
+			duration: 100
+			easing.type: Easing.InOutQuad
+		}
+		NumberAnimation {
+			target: root
+			property: "entranceScale"
+			from: 0.985
+			to: 1
+			duration: 100
+			easing.type: Easing.OutCubic
+		}
+
+		onFinished: {
+			root.entranceScale = 1
+			root.entranceOpacity = 1
+		}
+	}
 
 	function stableHash(value) {
 		let hash = 0

@@ -43,6 +43,12 @@
   affected tether. The sweep briefly raises the matching bubble and launches
   two fading ripples from its blip without changing the underlying target
   position.
+- Opening Quick Settings or switching between Wi-Fi and Bluetooth gives the
+  active radar a scale-and-opacity overshoot before its bubbles pop in with a
+  short stagger. Each bubble expands from `65%` to `110%`, rebounds through
+  `96%`, and settles at full size. Connection keys are claimed once per page
+  entrance, so service refreshes do not replay existing bubble entrances while
+  a newly discovered key still animates when its delegate first appears.
 - Clicking a connection bubble selects its radar target and opens the detail
   inspector; it never changes connection state directly. The radar shifts left
   while the inspector slides in from the right. A second click, the close
