@@ -13,6 +13,7 @@ Item {
 	property bool motionEnabled: false
 	property int entranceEpoch: 0
 	property bool entranceReady: false
+	property int playedEntranceEpoch: -1
 	property real entranceScale: 1
 	property real entranceOpacity: 1
 
@@ -30,12 +31,26 @@ Item {
 		entranceAnimation.start()
 	}
 
-	onEntranceEpochChanged: {
-		if (entranceReady && entranceEpoch > 0) playEntrance()
+	function syncEntrance() {
+		if (!entranceReady || !motionEnabled || entranceEpoch <= 0
+				|| playedEntranceEpoch === entranceEpoch) return
+
+		playedEntranceEpoch = entranceEpoch
+		playEntrance()
+	}
+
+	function cancelEntrance() {
+		entranceAnimation.stop()
+	}
+
+	onEntranceEpochChanged: syncEntrance()
+	onMotionEnabledChanged: {
+		if (motionEnabled) syncEntrance()
+		else cancelEntrance()
 	}
 	Component.onCompleted: {
 		entranceReady = true
-		if (entranceEpoch > 0) playEntrance()
+		syncEntrance()
 	}
 
 	SequentialAnimation {

@@ -46,16 +46,18 @@ PanelWindow {
 	property bool bluetoothScanPending: false
 	property bool wifiScanOwned: false
 	property bool bluetoothScanOwned: false
+	property bool connectionAmbientReady: false
 	property int wifiEntranceEpoch: 0
 	property int bluetoothEntranceEpoch: 0
-	property var wifiEntranceSeen: ({})
-	property var bluetoothEntranceSeen: ({})
+	property var wifiEntranceSchedule: ({})
+	property var bluetoothEntranceSchedule: ({})
 	property int wifiEntranceOrder: 0
 	property int bluetoothEntranceOrder: 0
 	property double wifiEntranceStartedAt: 0
 	property double bluetoothEntranceStartedAt: 0
 	readonly property int connectionEntranceLeadDelay: 360
 	readonly property int connectionEntranceStagger: 55
+	readonly property int connectionEntranceDuration: 470
 	readonly property int bluetoothDiscoveryDuration: 15000
 	readonly property int bluetoothDiscoveryCooldown: 30000
 	readonly property bool bluetoothAutoScanActive: modalVisible && !closing
@@ -152,6 +154,7 @@ PanelWindow {
 		closeAnimation.stop()
 		closing = false
 		pinned = false
+		connectionAmbientReady = false
 		UiState.activateComponent("quickSettings")
 		clearConnectionSelection()
 		modalVisible = true
@@ -166,6 +169,7 @@ PanelWindow {
 		panelSurface.scale = 0.12
 		panelSurface.opacity = 0
 		openAnimation.restart()
+		beginConnectionEntrance(UiState.quickSettingsPage)
 		focusTimer.restart()
 		pageScanTimer.restart()
 	}
@@ -174,6 +178,7 @@ PanelWindow {
 		if (!modalVisible || closing) return
 
 		closing = true
+		connectionAmbientReady = false
 		stopWifiScan()
 		stopBluetoothScan()
 		pinned = false
@@ -344,12 +349,12 @@ PanelWindow {
 
 	function beginConnectionEntrance(kind) {
 		if (kind === "wifi") {
-			wifiEntranceSeen = ({})
+			wifiEntranceSchedule = ({})
 			wifiEntranceOrder = 0
 			wifiEntranceStartedAt = Date.now()
 			wifiEntranceEpoch++
 		} else if (kind === "bluetooth") {
-			bluetoothEntranceSeen = ({})
+			bluetoothEntranceSchedule = ({})
 			bluetoothEntranceOrder = 0
 			bluetoothEntranceStartedAt = Date.now()
 			bluetoothEntranceEpoch++
@@ -359,20 +364,31 @@ PanelWindow {
 	function claimConnectionEntrance(kind, key) {
 		if (!modalVisible || closing || UiState.quickSettingsPage !== kind) return -1
 
-		const seen = kind === "wifi" ? wifiEntranceSeen : bluetoothEntranceSeen
+		const schedule = kind === "wifi"
+			? wifiEntranceSchedule : bluetoothEntranceSchedule
 		const token = "$" + key
-		if (seen[token]) return -1
-		seen[token] = true
+		let entry = schedule[token]
 
-		const order = kind === "wifi" ? wifiEntranceOrder++ : bluetoothEntranceOrder++
-		const startedAt = kind === "wifi"
-			? wifiEntranceStartedAt : bluetoothEntranceStartedAt
-		const elapsed = Math.max(0, Date.now() - startedAt)
-		const leadDelay = Math.max(0, connectionEntranceLeadDelay - elapsed)
-		const staggerDelay = elapsed < connectionEntranceLeadDelay + 360
-			? Math.min(order, 5) * connectionEntranceStagger : 0
+		if (!entry) {
+			const order = kind === "wifi"
+				? wifiEntranceOrder++ : bluetoothEntranceOrder++
+			const startedAt = kind === "wifi"
+				? wifiEntranceStartedAt : bluetoothEntranceStartedAt
+			const elapsed = Math.max(0, Date.now() - startedAt)
+			const staggerDelay = elapsed < connectionEntranceLeadDelay + 360
+				? Math.min(order, 5) * connectionEntranceStagger : 0
+			const startAt = startedAt + connectionEntranceLeadDelay + staggerDelay
 
-		return Math.round(leadDelay + staggerDelay)
+			entry = {
+				startAt: startAt,
+				endAt: startAt + connectionEntranceDuration
+			}
+			schedule[token] = entry
+		}
+
+		const now = Date.now()
+		if (now >= entry.endAt) return -1
+		return Math.round(Math.max(0, entry.startAt - now))
 	}
 
 	function prioritizedItems(items, kind) {
@@ -516,9 +532,7 @@ PanelWindow {
 			root.stopBluetoothScan()
 			if (root.modalVisible && !root.closing) {
 				pageScanTimer.restart()
-				if (!openAnimation.running) {
-					root.beginConnectionEntrance(UiState.quickSettingsPage)
-				}
+				root.beginConnectionEntrance(UiState.quickSettingsPage)
 			}
 		}
 	}
@@ -626,7 +640,7 @@ PanelWindow {
 			easing.type: Easing.OutCubic
 		}
 
-		onFinished: root.beginConnectionEntrance(UiState.quickSettingsPage)
+		onFinished: root.connectionAmbientReady = true
 	}
 
 	ParallelAnimation {
@@ -1036,6 +1050,7 @@ PanelWindow {
 							radarHighlight: bluetoothRadar.targetIlluminated(radarKey)
 							radarBubble: true
 							ambientMotion: root.modalVisible && !root.closing
+								&& root.connectionAmbientReady
 								&& UiState.quickSettingsPage === "bluetooth"
 							connectorBend: (bluetoothRadar.stableUnit(radarKey,
 								"connector-direction") < 0.5 ? -1 : 1)
@@ -1177,6 +1192,7 @@ PanelWindow {
 							radarHighlight: wifiRadar.targetIlluminated(radarKey)
 							radarBubble: true
 							ambientMotion: root.modalVisible && !root.closing
+								&& root.connectionAmbientReady
 								&& UiState.quickSettingsPage === "wifi"
 							connectorBend: (wifiRadar.stableUnit(radarKey,
 								"connector-direction") < 0.5 ? -1 : 1)

@@ -47,8 +47,13 @@
   active radar a scale-and-opacity overshoot before its bubbles pop in with a
   short stagger. Each bubble expands from `65%` to `110%`, rebounds through
   `96%`, and settles at full size. Connection keys are claimed once per page
-  entrance, so service refreshes do not replay existing bubble entrances while
-  a newly discovered key still animates when its delegate first appears.
+  entrance. Their scheduled start and finish times remain keyed to that page
+  entrance, so a Wi-Fi delegate recreated by a scan resumes the same delay
+  instead of appearing immediately. A newly discovered key still animates when
+  its delegate first appears. Radar entrance starts with the panel open
+  transition instead of waiting for it to finish. Bubble drift and connector
+  repainting begin after panel and bubble entrance motion settles. Closing or
+  leaving the page immediately stops pending entrance timers and animations.
 - Clicking a connection bubble selects its radar target and opens the detail
   inspector; it never changes connection state directly. The radar shifts left
   while the inspector slides in from the right. A second click, the close

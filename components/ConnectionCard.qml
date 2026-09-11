@@ -14,6 +14,7 @@ ShellSurface {
 	property bool ambientMotion: false
 	property bool motionReady: false
 	property bool entranceActive: false
+	readonly property bool ambientAnimationRunning: ambientMotion && !entranceActive
 	property real entranceScale: 1
 	property real entranceOpacity: 1
 	property real floatRadius: 10
@@ -41,7 +42,7 @@ ShellSurface {
 	}
 
 	function chooseFloatTarget() {
-		if (!ambientMotion) return
+		if (!ambientAnimationRunning) return
 
 		const angle = Math.random() * Math.PI * 2
 		const distance = Math.sqrt(Math.random()) * floatRadius
@@ -52,7 +53,7 @@ ShellSurface {
 	}
 
 	function syncAmbientMotion() {
-		if (ambientMotion) {
+		if (ambientAnimationRunning) {
 			chooseFloatTarget()
 		} else {
 			floatTimer.stop()
@@ -73,7 +74,18 @@ ShellSurface {
 		else entranceAnimation.start()
 	}
 
-	onAmbientMotionChanged: if (motionReady) syncAmbientMotion()
+	function cancelEntrance() {
+		entranceDelay.stop()
+		entranceAnimation.stop()
+		entranceActive = false
+	}
+
+	onAmbientAnimationRunningChanged: {
+		if (!motionReady) return
+
+		syncAmbientMotion()
+	}
+	onAmbientMotionChanged: if (!ambientMotion) cancelEntrance()
 	Component.onCompleted: {
 		motionReady = true
 		syncAmbientMotion()
@@ -136,7 +148,7 @@ ShellSurface {
 	}
 
 	Behavior on floatOffsetX {
-		enabled: root.ambientMotion
+		enabled: root.ambientAnimationRunning
 		NumberAnimation {
 			duration: root.floatTransitionDuration
 			easing.type: Easing.InOutSine
@@ -144,7 +156,7 @@ ShellSurface {
 	}
 
 	Behavior on floatOffsetY {
-		enabled: root.ambientMotion
+		enabled: root.ambientAnimationRunning
 		NumberAnimation {
 			duration: root.floatTransitionDuration
 			easing.type: Easing.InOutSine
@@ -269,7 +281,7 @@ ShellSurface {
 			duration: root.connectorDuration
 			easing.type: Easing.Linear
 			loops: Animation.Infinite
-			running: root.radarBubble && root.ambientMotion
+			running: root.radarBubble && root.ambientAnimationRunning
 		}
 	}
 

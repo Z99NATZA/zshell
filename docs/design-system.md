@@ -79,11 +79,15 @@ does not own the icon value.
   lines counted from the outside, with added center clearance below the radio
   orb where bubbles extend upward.
 - Radar entrance motion scales from `88%` through a `103.5%` overshoot and back
-  to full size while fading in. The center orb shares that transform. Bubbles
-  follow after a `360ms` lead with a `55ms` per-item stagger, overshoot to
-  `110%`, rebound to `96%`, and settle at full size. Existing connection keys
-  animate once per page entrance; ordinary service refreshes do not replay
-  them, while newly discovered keys still receive an entrance.
+  to full size while fading in, beginning alongside the panel open transition.
+  The center orb shares that transform. Bubbles follow after a `360ms` lead with
+  a `55ms` per-item stagger, overshoot to `110%`, rebound to `96%`, and settle at
+  full size. Each connection key keeps its scheduled entrance window for the
+  current page entrance, preventing a delegate recreated by a Wi-Fi scan from
+  bypassing the delay. Newly discovered keys still receive an entrance. Bubble
+  drift and animated connector repainting wait until panel and bubble entrance
+  motion has settled. Closing the panel or leaving a connection page stops its
+  running entrance and pending delays immediately.
 - Connection bubbles use softened surfaces and move between random
   two-dimensional waypoints within a `10px` radius. Curved tethers keep their
   endpoints on deterministic blips, prefer a length of four large spacing
