@@ -24,6 +24,7 @@ PanelWindow {
 	readonly property bool unpinnedModalOpen:
 		(clockCard.visible && clockCard.expanded && !clockCard.pinned)
 		|| (musicCard.visible && musicCard.expanded && !musicCard.pinned)
+	readonly property bool panelDragActive: clockCard.dragging || musicCard.dragging
 
 	function hidePanel(panel, component) {
 		panel.pinned = false
@@ -45,6 +46,11 @@ PanelWindow {
 
 	mask: Region {
 		Region { item: modalBackdrop }
+
+		Region {
+			width: root.panelDragActive ? root.width : 0
+			height: root.panelDragActive ? root.height : 0
+		}
 
 		Region {
 			x: clockCard.x

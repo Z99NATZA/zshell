@@ -640,6 +640,7 @@ PanelWindow {
 		raised: true
 		interactive: UiState.activeComponent === "quickSettings"
 			|| panelDragArea.pressed
+		border.color: "transparent"
 		radius: Theme.radius * 3
 		transformOrigin: Item.Center
 

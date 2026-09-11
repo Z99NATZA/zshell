@@ -45,8 +45,8 @@ does not own the icon value.
 - Reserve fully round shapes for indicators and progress details.
 - Avoid large-area blur. The MVP uses no blur.
 - Hide absent content instead of rendering an empty placeholder card.
-- Minimal widgets stay visually quiet; hover cursors and the active border are
-  their drag and resize affordances.
+- Minimal widgets stay visually quiet; hover cursors communicate their drag and
+  resize affordances without a visible outer border.
 - Resize handles remain visually transparent and communicate direction only
   through the platform horizontal, vertical, or diagonal cursor. Their `12px`
   edge and `24px` corner targets make floating desktop panels easier to grab.
@@ -54,6 +54,9 @@ does not own the icon value.
   without a separate header strip or divider. Minimal and expanded panels share
   the Quick Settings modal radius. Body layout reflows from actual width and
   height; panel resize never scales a rendered snapshot.
+- Quick Settings and the Clock and Music surfaces keep a transparent outer
+  border in both minimal and expanded modes. Borders inside those surfaces keep
+  their semantic theme colors.
 - Expand Quick Settings from its invoking Dock control and collapse it back to
   the same target. Opening uses `Easing.OutCubic`; closing uses `Easing.InCubic`.
 

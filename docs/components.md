@@ -131,3 +131,8 @@ expanded. Minimal widgets stay on the desktop layer. The shared surface remains
 above normal windows while either desktop panel is expanded, unless Quick
 Settings is active. Within the desktop surface, the last activated Clock or
 Music panel has the highest item stack value.
+
+Pressing a Clock or Music drag area temporarily expands the desktop surface's
+input mask to the full screen until release or cancellation. This preserves the
+pointer grab during fast movement; normal outside click-through resumes as soon
+as the drag ends.

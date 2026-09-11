@@ -32,6 +32,7 @@ ShellSurface {
 		boundsWidth - width - edgeMargin)
 	readonly property real maximumPanelY: Math.max(edgeMargin,
 		boundsHeight - height - bottomMargin)
+	readonly property bool dragging: dragArea.pressed
 	readonly property bool resizing: resizeRepeater.resizeActive
 
 	signal activated
@@ -41,6 +42,7 @@ ShellSurface {
 
 	raised: true
 	color: expanded ? Theme.surfaceModal : Theme.surfaceRaised
+	border.color: "transparent"
 	radius: Theme.radius * 3
 	interactive: active || dragArea.containsMouse || resizing
 	clip: true
@@ -66,6 +68,7 @@ ShellSurface {
 		z: root.expanded ? 3 : 0
 		enabled: root.dragEnabled && !root.transitioning && !root.resizing
 		hoverEnabled: true
+		preventStealing: true
 		cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
 		drag.target: root
 		drag.minimumX: root.edgeMargin
