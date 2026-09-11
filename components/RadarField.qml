@@ -37,7 +37,13 @@ Item {
 	}
 
 	function targetRadius(key) {
-		return width * (0.38 + stableUnit(key, "radius") * 0.025)
+		const angle = targetAngle(key) * Math.PI / 180
+		const downwardBias = Math.max(0, Math.sin(angle))
+		const minimumRatio = 0.20 + downwardBias * 0.12
+		const maximumRatio = 0.47
+
+		return width * (minimumRatio + stableUnit(key, "radius")
+			* (maximumRatio - minimumRatio))
 	}
 
 	function targetSlot(key) {

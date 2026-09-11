@@ -72,11 +72,19 @@ does not own the icon value.
   stops with the modal, and never samples system state on a timer.
 - Connection radar sweeps use small cached Canvas surfaces and run only while
   their radio and matching Quick Settings page are active. Target positions
-  are deterministic so service refreshes do not make cards or blips jump.
+  are deterministic so service refreshes do not make cards or blips jump. Blips
+  use a continuous `20%` to `47%` radial range spanning the first four grid
+  lines counted from the outside, with added center clearance below the radio
+  orb where bubbles extend upward.
 - Connection bubbles use softened surfaces and move between random
   two-dimensional waypoints within a `10px` radius. Curved tethers keep their
-  endpoints on deterministic blips and carry small animated accent pulses. A
-  pair of fading ripples marks each sweep encounter and explicit selection.
+  endpoints on deterministic blips, prefer a length of four large spacing
+  units, use half that length in the lower radar half, and carry small animated
+  accent pulses. Side bubbles follow their own radar bearing with lower-half
+  angles reflected upward; targets in the central `12%` horizontal band retain
+  vertical tethers. Connectors begin at the nearest card edge, and page-edge
+  clamping adjusts only the affected tether. A pair of fading ripples marks each
+  sweep encounter and explicit selection.
 - Radar blips and their bubble connectors always use `Theme.accent`; connection
   state remains visible through each bubble's text and surface treatment.
 - Use Quickshell service bindings for system changes. Aside from bounded visual

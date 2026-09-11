@@ -18,6 +18,8 @@ ShellSurface {
 	property real floatOffsetX: 0
 	property real floatOffsetY: 0
 	property real connectorBend: 10
+	property real connectorTargetX: width / 2
+	property real connectorTargetY: height + Theme.spacingLg
 	property int connectorDuration: 2400
 	signal clicked
 
@@ -118,34 +120,54 @@ ShellSurface {
 
 	Canvas {
 		id: connector
-		readonly property real padding: root.floatRadius + 16
+		readonly property real padding: root.floatRadius + 18
+		readonly property real minimumX: Math.min(0, targetX) - padding
+		readonly property real minimumY: Math.min(0, targetY) - padding
+		readonly property real maximumX: Math.max(root.width, targetX) + padding
+		readonly property real maximumY: Math.max(root.height, targetY) + padding
 		property color lineColor: Theme.accent
 		property real cardOffsetX: root.floatOffsetX
 		property real cardOffsetY: root.floatOffsetY
+		property real targetX: root.connectorTargetX
+		property real targetY: root.connectorTargetY
 		property real wavePhase: 0
 
-		x: -padding
-		y: root.height - 3
-		width: root.width + padding * 2
-		height: Theme.spacingLg + root.floatRadius + 9
+		x: minimumX
+		y: minimumY
+		width: maximumX - minimumX
+		height: maximumY - minimumY
 		visible: root.radarBubble
 
 		onLineColorChanged: requestPaint()
 		onCardOffsetXChanged: requestPaint()
 		onCardOffsetYChanged: requestPaint()
+		onTargetXChanged: requestPaint()
+		onTargetYChanged: requestPaint()
 		onWavePhaseChanged: requestPaint()
 		onWidthChanged: requestPaint()
 		onHeightChanged: requestPaint()
 
 		onPaint: {
 			const context = getContext("2d")
-			const startX = width / 2
-			const startY = 3
-			const endX = width / 2 - cardOffsetX
-			const endY = Theme.spacingLg + 3 - cardOffsetY
-			const controlX = (startX + endX) / 2 + root.connectorBend
-				+ Math.sin(wavePhase) * 4
-			const controlY = (startY + endY) / 2
+			const centerX = root.width / 2 - x
+			const centerY = root.height / 2 - y
+			const endX = targetX - cardOffsetX - x
+			const endY = targetY - cardOffsetY - y
+			const centerDeltaX = endX - centerX
+			const centerDeltaY = endY - centerY
+			const edgeRatio = Math.max(
+				Math.abs(centerDeltaX) / (root.width / 2),
+				Math.abs(centerDeltaY) / (root.height / 2))
+			const edgeScale = Math.min(1, 1 / Math.max(0.0001, edgeRatio))
+			const startX = centerX + centerDeltaX * edgeScale
+			const startY = centerY + centerDeltaY * edgeScale
+			const deltaX = endX - startX
+			const deltaY = endY - startY
+			const distance = Math.max(1, Math.sqrt(deltaX * deltaX
+				+ deltaY * deltaY))
+			const curve = root.connectorBend + Math.sin(wavePhase) * 4
+			const controlX = (startX + endX) / 2 - deltaY / distance * curve
+			const controlY = (startY + endY) / 2 + deltaX / distance * curve
 
 			context.reset()
 			context.strokeStyle = lineColor

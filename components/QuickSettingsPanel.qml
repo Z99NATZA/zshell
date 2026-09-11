@@ -914,12 +914,48 @@ PanelWindow {
 							required property var modelData
 							readonly property string radarKey: root.connectionKey(modelData,
 								"bluetooth")
+							readonly property real radarLocalX:
+								bluetoothRadar.targetX(radarKey)
+							readonly property real radarLocalY:
+								bluetoothRadar.targetY(radarKey)
+							readonly property real radarTargetX: bluetoothRadar.x + radarLocalX
+							readonly property real radarTargetY:
+								(bluetoothPage.height - bluetoothRadar.height) / 2
+								+ radarLocalY
+							readonly property real radarDeltaX:
+								radarLocalX - bluetoothRadar.width / 2
+							readonly property real radarDeltaY:
+								radarLocalY - bluetoothRadar.height / 2
+							readonly property bool lowerTarget: radarDeltaY > 0
+							readonly property real preferredConnectorDistance:
+								Theme.spacingLg * (lowerTarget ? 2 : 4)
+							readonly property real radarDistance: Math.max(1,
+								Math.sqrt(radarDeltaX * radarDeltaX + radarDeltaY * radarDeltaY))
+							readonly property bool centered:
+								Math.abs(radarLocalX - bluetoothRadar.width / 2)
+									< bluetoothRadar.width * 0.12
+							readonly property real bubbleDirectionX:
+								centered ? 0 : radarDeltaX / radarDistance
+							readonly property real bubbleDirectionY:
+								centered ? -1 : -Math.abs(radarDeltaY) / radarDistance
+							readonly property real cardEdgeDistance: {
+								const horizontal = Math.abs(bubbleDirectionX) < 0.001
+									? 1000000 : width / 2 / Math.abs(bubbleDirectionX)
+								const vertical = Math.abs(bubbleDirectionY) < 0.001
+									? 1000000 : height / 2 / Math.abs(bubbleDirectionY)
+								return Math.min(horizontal, vertical)
+							}
+							readonly property real bubbleCenterDistance:
+								cardEdgeDistance + preferredConnectorDistance
+							readonly property real preferredX: radarTargetX
+								+ bubbleDirectionX * bubbleCenterDistance - width / 2
+							readonly property real preferredY: radarTargetY
+								+ bubbleDirectionY * bubbleCenterDistance - height / 2
 
-							x: bluetoothRadar.x + bluetoothRadar.targetX(radarKey)
-								- width / 2
-							y: (bluetoothPage.height - bluetoothRadar.height) / 2
-								+ bluetoothRadar.targetY(radarKey) - height
-								- Theme.spacingLg
+							x: Math.max(0, Math.min(bluetoothPage.width - width,
+								preferredX))
+							y: Math.max(0, Math.min(bluetoothPage.height - height,
+								preferredY))
 							z: selected ? 4 : 3
 							icon: "󰂯"
 							title: modelData.name || modelData.address
@@ -939,6 +975,8 @@ PanelWindow {
 								"connector-direction") < 0.5 ? -1 : 1)
 								* (8 + bluetoothRadar.stableUnit(radarKey,
 									"connector-bend") * 6)
+							connectorTargetX: radarTargetX - x
+							connectorTargetY: radarTargetY - y
 							connectorDuration: Math.round(1900
 								+ bluetoothRadar.stableUnit(radarKey,
 									"connector-duration") * 1400)
@@ -1005,11 +1043,45 @@ PanelWindow {
 							required property var modelData
 							readonly property string radarKey: root.connectionKey(modelData,
 								"wifi")
+							readonly property real radarLocalX: wifiRadar.targetX(radarKey)
+							readonly property real radarLocalY: wifiRadar.targetY(radarKey)
+							readonly property real radarTargetX: wifiRadar.x + radarLocalX
+							readonly property real radarTargetY:
+								(wifiPage.height - wifiRadar.height) / 2
+								+ radarLocalY
+							readonly property real radarDeltaX:
+								radarLocalX - wifiRadar.width / 2
+							readonly property real radarDeltaY:
+								radarLocalY - wifiRadar.height / 2
+							readonly property bool lowerTarget: radarDeltaY > 0
+							readonly property real preferredConnectorDistance:
+								Theme.spacingLg * (lowerTarget ? 2 : 4)
+							readonly property real radarDistance: Math.max(1,
+								Math.sqrt(radarDeltaX * radarDeltaX + radarDeltaY * radarDeltaY))
+							readonly property bool centered:
+								Math.abs(radarLocalX - wifiRadar.width / 2)
+									< wifiRadar.width * 0.12
+							readonly property real bubbleDirectionX:
+								centered ? 0 : radarDeltaX / radarDistance
+							readonly property real bubbleDirectionY:
+								centered ? -1 : -Math.abs(radarDeltaY) / radarDistance
+							readonly property real cardEdgeDistance: {
+								const horizontal = Math.abs(bubbleDirectionX) < 0.001
+									? 1000000 : width / 2 / Math.abs(bubbleDirectionX)
+								const vertical = Math.abs(bubbleDirectionY) < 0.001
+									? 1000000 : height / 2 / Math.abs(bubbleDirectionY)
+								return Math.min(horizontal, vertical)
+							}
+							readonly property real bubbleCenterDistance:
+								cardEdgeDistance + preferredConnectorDistance
+							readonly property real preferredX: radarTargetX
+								+ bubbleDirectionX * bubbleCenterDistance - width / 2
+							readonly property real preferredY: radarTargetY
+								+ bubbleDirectionY * bubbleCenterDistance - height / 2
 
-							x: wifiRadar.x + wifiRadar.targetX(radarKey) - width / 2
-							y: (wifiPage.height - wifiRadar.height) / 2
-								+ wifiRadar.targetY(radarKey) - height
-								- Theme.spacingLg
+							x: Math.max(0, Math.min(wifiPage.width - width, preferredX))
+							y: Math.max(0, Math.min(wifiPage.height - height,
+								preferredY))
 							z: selected ? 4 : 3
 							icon: modelData.connected ? "󰖩" : "󰖪"
 							title: modelData.name
@@ -1026,6 +1098,8 @@ PanelWindow {
 								"connector-direction") < 0.5 ? -1 : 1)
 								* (8 + wifiRadar.stableUnit(radarKey,
 									"connector-bend") * 6)
+							connectorTargetX: radarTargetX - x
+							connectorTargetY: radarTargetY - y
 							connectorDuration: Math.round(1900
 								+ wifiRadar.stableUnit(radarKey,
 									"connector-duration") * 1400)

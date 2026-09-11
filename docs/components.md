@@ -27,12 +27,22 @@
   Bluetooth devices as persistent bubbles over their targets on a circular
   radar. Its bottom switch changes modes without closing the panel.
 - Every visible connection has a stable pseudo-random radar blip derived from
-  its identity. Collision-safe angular slots keep bubbles apart. Every bubble
-  overlays the radar and moves through random waypoints within `10px` of its
-  stable base position. A curved animated tether compensates for that movement
-  so its endpoint remains attached to the blip. The sweep briefly raises the
-  matching bubble and launches two fading ripples from its blip without
-  changing the underlying target position.
+  its identity. Collision-safe angular slots and a broad continuous radial
+  range distribute targets between the first four grid lines counted from the
+  outside, rather than collecting around one ring. Lower targets retain extra
+  center clearance for their upward-extending bubbles, while other targets may
+  sit near the radar edge. Every bubble overlays the radar and moves through
+  random waypoints within `10px` of its stable base position. A curved animated
+  tether uses a preferred length of four large spacing units, reduced by `50%`
+  for targets in the lower radar half. Side bubbles fan outward at the bearing
+  of their own blip, with lower-half bearings reflected upward to keep cards
+  inside the connection area. Targets within the radar's central `12%`
+  horizontal band keep vertical tethers and centered bubbles. The connector
+  begins at the nearest card edge and compensates for bubble movement so its
+  endpoint remains attached to the blip. Page-edge clamping redirects only the
+  affected tether. The sweep briefly raises the matching bubble and launches
+  two fading ripples from its blip without changing the underlying target
+  position.
 - Clicking a connection bubble selects its radar target and opens the detail
   inspector; it never changes connection state directly. The radar shifts left
   while the inspector slides in from the right. A second click, the close
