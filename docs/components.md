@@ -40,11 +40,12 @@
   available battery data for Bluetooth. Connect, disconnect, pair, and cancel
   pairing are explicit inspector actions. Wi-Fi profiles requiring credentials
   remain selectable for detail but cannot connect in this first version.
-- The central radio control responds to hover and press, starts a scan, and
-  gently pulses only while its radio is active and its Quick Settings page is
-  visible. A page-specific header control owns radio power so scan clicks do
-  not accidentally disable Wi-Fi or Bluetooth. Scan state remains visible in
-  the center status and radar sweep without orbiting activity decoration.
+- The central radio control starts a Wi-Fi scan on press and gently pulses only
+  while its radio is active and its Quick Settings page is visible. The
+  Bluetooth center is a passive indicator with no status row or scan action.
+  A page-specific header control owns radio power so the center never toggles
+  Wi-Fi or Bluetooth. Wi-Fi scan state remains visible in the center status;
+  Bluetooth discovery is represented only by the radar motion.
 - Quick Settings opens unpinned as a modal. Clicking outside dismisses it. The
   header Pin control keeps it open and restricts its input region to the panel,
   allowing outside clicks to reach other windows. Pin remains temporary: the
@@ -112,11 +113,12 @@
 - Opening the Wi-Fi page enables Quickshell's live scanner so available access
   points populate the radar. The scanner stops when the page or panel closes;
   saved and connected networks remain available through NetworkManager.
-- Opening the Bluetooth page starts a 15-second BlueZ discovery session. The
-  central control starts or extends discovery, and discovery started elsewhere
-  is never stopped by Quick Settings. The selected device inspector pairs
-  unpaired devices, connects paired devices, cancels pairing in progress, or
-  disconnects connected devices.
+- Opening the Bluetooth page starts a 15-second BlueZ discovery session. While
+  the page remains open, Quick Settings waits 30 seconds after each owned
+  session and then starts another one. Leaving the page or closing the panel
+  cancels the cycle, and discovery started elsewhere is never stopped. The
+  selected device inspector pairs unpaired devices, connects paired devices,
+  cancels pairing in progress, or disconnects connected devices.
 - Quick Settings shows at most six Wi-Fi networks or Bluetooth devices at once.
   Connected entries rank first, followed by saved Wi-Fi or paired Bluetooth
   entries; remaining Wi-Fi entries rank by signal. The footer reports the full

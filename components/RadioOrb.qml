@@ -11,7 +11,9 @@ Item {
 	property string status
 	property bool active: false
 	property bool busy: false
+	property bool interactive: true
 	property bool motionEnabled: false
+	property bool statusVisible: true
 	property real pulseTargetDiameter: 176
 	signal clicked
 
@@ -99,13 +101,15 @@ Item {
 		MouseArea {
 			id: pointer
 			anchors.fill: parent
+			enabled: root.enabled && root.interactive
 			hoverEnabled: true
-			cursorShape: root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+			cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
 			onClicked: root.clicked()
 		}
 	}
 
 	Row {
+		visible: root.statusVisible
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.top: parent.bottom
 		anchors.topMargin: 18

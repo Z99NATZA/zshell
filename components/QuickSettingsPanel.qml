@@ -47,6 +47,11 @@ PanelWindow {
 	property bool wifiScanOwned: false
 	property bool bluetoothScanOwned: false
 	readonly property int bluetoothDiscoveryDuration: 15000
+	readonly property int bluetoothDiscoveryCooldown: 30000
+	readonly property bool bluetoothAutoScanActive: modalVisible && !closing
+		&& UiState.quickSettingsPage === "bluetooth"
+		&& bluetoothAdapter && bluetoothAdapter.enabled
+		&& bluetoothAdapter.state === BluetoothAdapterState.Enabled
 	readonly property var selectedConnection: connectionForKey(
 		selectedConnectionKind === "bluetooth"
 			? radarBluetoothDevices : radarWifiNetworks,
@@ -530,6 +535,14 @@ PanelWindow {
 		}
 	}
 
+	Timer {
+		id: bluetoothScanCycleTimer
+		interval: root.bluetoothDiscoveryDuration + root.bluetoothDiscoveryCooldown
+		repeat: true
+		running: root.bluetoothAutoScanActive
+		onTriggered: root.startBluetoothScan()
+	}
+
 	ParallelAnimation {
 		id: openAnimation
 
@@ -932,17 +945,13 @@ PanelWindow {
 						z: 2
 						icon: root.bluetoothAdapter && root.bluetoothAdapter.enabled
 							? "󰂯" : "󰂲"
-						status: !root.bluetoothAdapter ? "No adapter"
-							: (!root.bluetoothAdapter.enabled ? "Bluetooth off"
-								: (root.bluetoothAdapter.discovering ? "Scanning…"
-									: "Scan again"))
 						active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
-						busy: root.bluetoothAdapter && root.bluetoothAdapter.discovering
+						interactive: false
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "bluetooth"
 						pulseTargetDiameter: bluetoothRadar.width * 0.4
+						statusVisible: false
 						enabled: root.bluetoothAdapter !== null
-						onClicked: root.startBluetoothScan()
 					}
 				}
 
