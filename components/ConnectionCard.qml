@@ -63,15 +63,27 @@ ShellSurface {
 	}
 
 	function playEntrance(delay) {
+		prepareEntrance()
+		entranceDelay.interval = Math.max(0, delay)
+
+		if (entranceDelay.interval > 0) entranceDelay.start()
+		else entranceAnimation.start()
+	}
+
+	function prepareEntrance() {
 		entranceDelay.stop()
 		entranceAnimation.stop()
 		entranceActive = true
 		entranceScale = 0.65
 		entranceOpacity = 0
-		entranceDelay.interval = Math.max(0, delay)
+	}
 
-		if (entranceDelay.interval > 0) entranceDelay.start()
-		else entranceAnimation.start()
+	function completeEntrance() {
+		entranceDelay.stop()
+		entranceAnimation.stop()
+		entranceScale = 1
+		entranceOpacity = 1
+		entranceActive = false
 	}
 
 	function cancelEntrance() {

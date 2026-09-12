@@ -33,12 +33,13 @@ Hyprland / NetworkManager / BlueZ / MPRIS
   mask so transparent areas normally never block desktop input. An unpinned
   expanded card temporarily owns a transparent full-screen dismiss region;
   pinning it restores outside click-through. The surface moves above normal
-  windows while Clock or Music is expanded, except while Quick Settings owns
-  focus.
+  windows while Clock or Music is expanded.
 - Clock and Music share `DesktopSurface`, so their QML stack values provide
   deterministic last-activated ordering. Quick Settings remains a separate
-  window; `UiState.activeComponent` switches which shell window occupies the
-  above-window layer when their visible regions overlap.
+  window. Expanded or open panels remain on the layer-shell `Top` layer above
+  normal applications. `UiState.activeComponent` promotes the active zshell
+  window to `Overlay`, so switching panels only changes their order relative to
+  each other and never sends an inactive panel behind an application window.
 - `FloatingPanel` owns reusable desktop-panel chrome, optional property slots,
   drag interaction, and edge/corner geometry resize. Content components own
   responsive body layout and mode-specific persistence.

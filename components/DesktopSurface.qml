@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Services.Mpris
+import Quickshell.Wayland
 import qs.state
 
 PanelWindow {
@@ -14,10 +15,15 @@ PanelWindow {
 	}
 
 	color: "transparent"
-	aboveWindows: ((clockCard.visible && clockCard.expanded)
-		|| (musicCard.visible && musicCard.expanded))
-		&& UiState.activeComponent !== "quickSettings"
-	focusable: aboveWindows
+	readonly property bool expandedPanelVisible:
+		(clockCard.visible && clockCard.expanded)
+		|| (musicCard.visible && musicCard.expanded)
+	readonly property bool desktopPanelActive:
+		UiState.activeComponent === "clock" || UiState.activeComponent === "music"
+	WlrLayershell.layer: expandedPanelVisible
+		? (desktopPanelActive ? WlrLayer.Overlay : WlrLayer.Top)
+		: WlrLayer.Bottom
+	focusable: expandedPanelVisible && desktopPanelActive
 	exclusionMode: ExclusionMode.Ignore
 
 	readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null

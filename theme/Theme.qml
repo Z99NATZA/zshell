@@ -18,9 +18,6 @@ Singleton {
 	readonly property color surfaceRaised: light
 		? Qt.rgba(1, 1, 1, componentOpacity)
 		: Qt.rgba(48 / 255, 54 / 255, 64 / 255, componentOpacity)
-	readonly property color surfaceModal: light
-		? Qt.rgba(1, 1, 1, componentOpacity * 0.72)
-		: Qt.rgba(48 / 255, 54 / 255, 64 / 255, componentOpacity * 0.72)
 	readonly property color surfaceSoft: light
 		? Qt.rgba(218 / 255, 221 / 255, 227 / 255, componentOpacity)
 		: Qt.rgba(52 / 255, 58 / 255, 69 / 255, componentOpacity)
@@ -44,7 +41,6 @@ Singleton {
 	readonly property int modalCloseDuration: 220
 	readonly property int radioPulseDuration: 1800
 	readonly property int radarSweepDuration: 4800
-	readonly property int radarBusySweepDuration: 2600
 	readonly property int spacingXs: 4
 	readonly property int spacingSm: 8
 	readonly property int spacingMd: 12

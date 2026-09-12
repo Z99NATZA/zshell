@@ -9,13 +9,16 @@ Item {
 
 	property var targets: []
 	property bool active: false
-	property bool busy: false
 	property bool motionEnabled: false
 	property int entranceEpoch: 0
 	property bool entranceReady: false
 	property int playedEntranceEpoch: -1
+	property int sweepRunEpoch: 0
+	property int sweptTargetsEpoch: -1
+	property var sweptTargets: ({})
 	property real entranceScale: 1
 	property real entranceOpacity: 1
+	signal targetSwept(string key, int entranceEpoch)
 
 	readonly property bool scanning: motionEnabled && active
 	readonly property real sweepAngle: sweepLayer.rotation
@@ -43,13 +46,17 @@ Item {
 		entranceAnimation.stop()
 	}
 
-	onEntranceEpochChanged: syncEntrance()
+	onEntranceEpochChanged: {
+		resetTargetSweeps()
+		syncEntrance()
+	}
 	onMotionEnabledChanged: {
 		if (motionEnabled) syncEntrance()
 		else cancelEntrance()
 	}
 	Component.onCompleted: {
 		entranceReady = true
+		if (sweptTargetsEpoch !== entranceEpoch) resetTargetSweeps()
 		syncEntrance()
 	}
 
@@ -158,9 +165,39 @@ Item {
 		return Math.abs(((first - second + 540) % 360) - 180)
 	}
 
+	function sweepPhase(angle) {
+		return (angle + 450) % 360
+	}
+
+	function resetTargetSweeps() {
+		sweptTargetsEpoch = entranceEpoch
+		sweptTargets = ({})
+	}
+
+	function targetWasSwept(key) {
+		return sweptTargetsEpoch === entranceEpoch
+			&& !!sweptTargets["$" + key]
+	}
+
+	function markTargetSwept(key) {
+		if (entranceEpoch <= 0) return false
+		if (sweptTargetsEpoch !== entranceEpoch) resetTargetSweeps()
+
+		const token = "$" + key
+		if (sweptTargets[token]) return false
+
+		const nextSweptTargets = Object.assign({}, sweptTargets)
+		nextSweptTargets[token] = true
+		sweptTargets = nextSweptTargets
+		targetSwept(key, entranceEpoch)
+		return true
+	}
+
 	function targetIlluminated(key) {
 		return scanning && angularDistance(targetAngle(key), sweepAngle) < 13
 	}
+
+	onScanningChanged: if (scanning) sweepRunEpoch++
 
 	Rectangle {
 		anchors.fill: parent
@@ -242,13 +279,25 @@ Item {
 				const context = getContext("2d")
 				const center = width / 2
 				const radius = width / 2 - 2
+				const sweepSpan = Math.PI * 7 / 18
+				const sliceCount = 70
 				context.reset()
 				context.fillStyle = beamColor
-				context.beginPath()
-				context.moveTo(center, center)
-				context.arc(center, center, radius, -Math.PI / 7, 0)
-				context.closePath()
-				context.fill()
+
+				for (let index = 0; index < sliceCount; index++) {
+					const startAngle = -sweepSpan + sweepSpan * index / sliceCount
+					const endAngle = -sweepSpan
+						+ sweepSpan * (index + 1) / sliceCount
+					const progress = (index + 1) / sliceCount
+					context.globalAlpha = progress * progress * (3 - 2 * progress)
+					context.beginPath()
+					context.moveTo(center, center)
+					context.arc(center, center, radius, startAngle, endAngle)
+					context.closePath()
+					context.fill()
+				}
+
+				context.globalAlpha = 1
 			}
 
 			Behavior on opacity {
@@ -268,8 +317,7 @@ Item {
 		RotationAnimation on rotation {
 			from: -90
 			to: 270
-			duration: root.busy
-				? Theme.radarBusySweepDuration : Theme.radarSweepDuration
+			duration: Theme.radarSweepDuration
 			easing.type: Easing.Linear
 			loops: Animation.Infinite
 			running: root.scanning
@@ -280,10 +328,45 @@ Item {
 		model: root.targets
 
 		Item {
+			id: targetMarker
+
 			required property var modelData
 			readonly property string targetKey: modelData.key
 			readonly property bool selected: !!modelData.selected
 			readonly property bool illuminated: root.targetIlluminated(targetKey)
+			readonly property bool discovered: root.targetWasSwept(targetKey)
+			readonly property real targetSweepPhase:
+				root.sweepPhase(root.targetAngle(targetKey))
+			readonly property real currentSweepPhase: root.sweepPhase(root.sweepAngle)
+			property real previousSweepPhase: currentSweepPhase
+			property int trackedSweepRunEpoch: root.sweepRunEpoch
+
+			function resetSweepTracking() {
+				trackedSweepRunEpoch = root.sweepRunEpoch
+				previousSweepPhase = currentSweepPhase
+			}
+
+			function observeSweep() {
+				const current = currentSweepPhase
+				if (!root.scanning || trackedSweepRunEpoch !== root.sweepRunEpoch) {
+					resetSweepTracking()
+					return
+				}
+
+				if (discovered) {
+					previousSweepPhase = current
+					return
+				}
+
+				const crossed = current >= previousSweepPhase
+					? targetSweepPhase >= previousSweepPhase
+						&& targetSweepPhase <= current
+					: targetSweepPhase >= previousSweepPhase
+						|| targetSweepPhase <= current
+				previousSweepPhase = current
+
+				if (crossed && root.markTargetSwept(targetKey)) triggerRipple()
+			}
 
 			function triggerRipple() {
 				primaryRipple.restart()
@@ -294,8 +377,21 @@ Item {
 			y: root.targetY(targetKey) - height / 2
 			width: 14
 			height: width
-			onIlluminatedChanged: if (illuminated) triggerRipple()
-			onSelectedChanged: if (selected) triggerRipple()
+			onIlluminatedChanged: if (illuminated && discovered) triggerRipple()
+			onSelectedChanged: if (selected && discovered) triggerRipple()
+			onCurrentSweepPhaseChanged: observeSweep()
+
+			Connections {
+				target: root
+
+				function onEntranceEpochChanged() {
+					targetMarker.resetSweepTracking()
+				}
+
+				function onSweepRunEpochChanged() {
+					targetMarker.resetSweepTracking()
+				}
+			}
 
 			Rectangle {
 				id: primaryRippleRing
@@ -374,8 +470,10 @@ Item {
 				color: "transparent"
 				border.width: 1
 				border.color: Theme.accent
-				opacity: selected ? 1 : (illuminated ? 0.72 : 0)
-				scale: selected ? 2 : (illuminated ? 1.7 : 0.5)
+				opacity: discovered
+					? (selected ? 1 : (illuminated ? 0.72 : 0)) : 0
+				scale: discovered
+					? (selected ? 2 : (illuminated ? 1.7 : 0.5)) : 0.5
 
 				Behavior on opacity {
 					NumberAnimation { duration: Theme.motionDuration }
@@ -395,8 +493,9 @@ Item {
 				height: width
 				radius: width / 2
 				color: Theme.accent
-				opacity: root.active ? 0.9 : 0.48
-				scale: selected ? 1.6 : (illuminated ? 1.5 : 1)
+				opacity: discovered ? (root.active ? 0.9 : 0.48) : 0
+				scale: discovered
+					? (selected ? 1.6 : (illuminated ? 1.5 : 1)) : 0.5
 
 				Behavior on opacity {
 					NumberAnimation { duration: Theme.motionDuration }

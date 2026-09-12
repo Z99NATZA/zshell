@@ -41,7 +41,7 @@ ShellSurface {
 		real panelHeight)
 
 	raised: true
-	color: expanded ? Theme.surfaceModal : Theme.surfaceRaised
+	color: Theme.surfaceRaised
 	border.color: "transparent"
 	radius: Theme.radius * 3
 	interactive: active || dragArea.containsMouse || resizing

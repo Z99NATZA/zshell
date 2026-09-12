@@ -44,16 +44,17 @@
   two fading ripples from its blip without changing the underlying target
   position.
 - Opening Quick Settings or switching between Wi-Fi and Bluetooth gives the
-  active radar a scale-and-opacity overshoot before its bubbles pop in with a
-  short stagger. Each bubble expands from `65%` to `110%`, rebounds through
-  `96%`, and settles at full size. Connection keys are claimed once per page
-  entrance. Their scheduled start and finish times remain keyed to that page
-  entrance, so a Wi-Fi delegate recreated by a scan resumes the same delay
-  instead of appearing immediately. A newly discovered key still animates when
-  its delegate first appears. Radar entrance starts with the panel open
-  transition instead of waiting for it to finish. Bubble drift and connector
-  repainting begin after panel and bubble entrance motion settles. Closing or
-  leaving the page immediately stops pending entrance timers and animations.
+  active radar a scale-and-opacity overshoot. Each blip and bubble remains
+  hidden until the sweep line first crosses its target. The blip then fades and
+  scales into view while the bubble expands from `65%` to `110%`, rebounds
+  through `96%`, and settles at full size. Connection keys are claimed once per
+  page entrance after that first sweep encounter. A delegate recreated by a
+  scan resumes an active entrance or appears settled when its key was already
+  revealed. A newly discovered key waits for its own first sweep encounter.
+  Radar entrance starts with the panel open transition instead of waiting for
+  it to finish. Bubble drift and connector repainting begin after panel and
+  bubble entrance motion settles. Closing or leaving the page immediately
+  stops pending entrance timers and animations.
 - Clicking a connection bubble selects its radar target and opens the detail
   inspector; it never changes connection state directly. The radar shifts left
   while the inspector slides in from the right. A second click, the close
@@ -66,6 +67,8 @@
   status row or scan action. They gently pulse only while their radio is active
   and matching Quick Settings page is visible. A page-specific header control
   owns radio power, while background discovery is represented by radar motion.
+  The sweep keeps the same angular speed during live Wi-Fi and Bluetooth
+  discovery.
 - Quick Settings opens unpinned as a modal. Clicking outside dismisses it. The
   header Pin control keeps it open and restricts its input region to the panel,
   allowing outside clicks to reach other windows. Pin remains temporary: the
@@ -82,7 +85,9 @@
   back to that control when dismissed. Its header Close control and Escape use
   the same close path.
 - Quick Settings adjusts every component surface from fully transparent to
-  opaque in 10% steps. Text, icons, and media artwork remain opaque.
+  opaque in 10% steps. Its own surface and the Clock and Music surfaces use the
+  same selected opacity in both minimal and expanded modes. Text, icons, and
+  media artwork remain opaque.
 - The Quick Settings footer includes a `Widgets` page beside Wi-Fi and
   Bluetooth. It toggles persisted Clock visibility and whether Music may appear
   when media is available. The Dock time control opens this page directly.

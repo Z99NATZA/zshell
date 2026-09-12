@@ -45,9 +45,11 @@ outside click or focus change from restoring minimal mode, but it does not alter
 the persisted geometry or stack counters. Explicit Close and Escape reset it.
 
 `UiState.activeComponent` and the three component stack counters coordinate
-focus across Clock, Music, and Quick Settings. Activating a component advances
-the process-local serial and assigns it the newest stack value. Stack order is
-intentionally not persisted, so each session starts from a deterministic base.
+focus and layer order across Clock, Music, and Quick Settings. Open panels stay
+above normal applications; activating one promotes its shell window above the
+other zshell panels. Activation advances the process-local serial and assigns
+the newest stack value. Stack order is intentionally not persisted, so each
+session starts from a deterministic base.
 
 `showLanguageLeft` and `showLanguageRight` default to true. They are persisted
 now so a future settings UI can control each side without changing dock layout.

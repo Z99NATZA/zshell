@@ -13,9 +13,8 @@ color, and motion rather than decoration or repeated labels.
 | Modal close duration | `220ms` |
 | Radio pulse duration | `1800ms` |
 | Radar sweep duration | `4800ms` |
-| Active scan sweep duration | `2600ms` |
 | Radar entrance duration | `440ms` |
-| Bubble entrance duration | `470ms` plus stagger |
+| Bubble entrance duration | `470ms` after its first sweep encounter |
 | Motion easing | `Easing.OutCubic` |
 | Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |
@@ -29,8 +28,8 @@ not allowed outside the theme owner.
 
 The persisted component opacity applies to all surface and border roles. It
 does not reduce the opacity of foreground text, icons, or media artwork.
-`surfaceModal` applies an additional opacity reduction to large Clock and Music
-panels so their footprint remains as light as the compact Dock surfaces.
+Quick Settings and the Clock and Music panels use the same `surfaceRaised`
+opacity in both minimal and expanded modes.
 
 The default variant is One Half Gray. One Half Light demonstrates that visual
 components remain independent from a specific palette. Theme selection is
@@ -77,17 +76,21 @@ does not own the icon value.
   are deterministic so service refreshes do not make cards or blips jump. Blips
   use a continuous `20%` to `47%` radial range spanning the first four grid
   lines counted from the outside, with added center clearance below the radio
-  orb where bubbles extend upward.
+  orb where bubbles extend upward. The sweep keeps a crisp leading line and a
+  broad `70deg` sector whose opacity eases smoothly to zero at the trailing
+  edge. It completes every rotation in `4800ms`; live discovery never changes
+  that angular speed.
 - Radar entrance motion scales from `88%` through a `103.5%` overshoot and back
   to full size while fading in, beginning alongside the panel open transition.
-  The center orb shares that transform. Bubbles follow after a `360ms` lead with
-  a `55ms` per-item stagger, overshoot to `110%`, rebound to `96%`, and settle at
-  full size. Each connection key keeps its scheduled entrance window for the
-  current page entrance, preventing a delegate recreated by a Wi-Fi scan from
-  bypassing the delay. Newly discovered keys still receive an entrance. Bubble
-  drift and animated connector repainting wait until panel and bubble entrance
-  motion has settled. Closing the panel or leaving a connection page stops its
-  running entrance and pending delays immediately.
+  The center orb shares that transform. Each blip and bubble stays hidden until
+  the sweep line first crosses its target. The blip fades and scales into view;
+  the bubble overshoots to `110%`, rebounds to `96%`, and settles at full size.
+  Each connection key keeps that reveal state and its active entrance window
+  for the current page entrance, preventing a delegate recreated by a Wi-Fi
+  scan from bypassing the sweep. Newly discovered keys wait for their own first
+  encounter. Bubble drift and animated connector repainting wait until panel
+  and bubble entrance motion has settled. Closing the panel or leaving a
+  connection page stops its running entrance and pending reveal immediately.
 - Connection bubbles use softened surfaces and move between random
   two-dimensional waypoints within a `10px` radius. Curved tethers keep their
   endpoints on deterministic blips, prefer a length of four large spacing

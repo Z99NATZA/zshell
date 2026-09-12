@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Networking
 import Quickshell.Bluetooth
+import Quickshell.Wayland
 import qs.state
 import qs.theme
 
@@ -20,7 +21,8 @@ PanelWindow {
 	color: "transparent"
 	visible: modalVisible
 	focusable: modalVisible
-	aboveWindows: UiState.activeComponent === "quickSettings"
+	WlrLayershell.layer: UiState.activeComponent === "quickSettings"
+		? WlrLayer.Overlay : WlrLayer.Top
 	exclusionMode: ExclusionMode.Ignore
 
 	property bool modalVisible: false
@@ -51,12 +53,6 @@ PanelWindow {
 	property int bluetoothEntranceEpoch: 0
 	property var wifiEntranceSchedule: ({})
 	property var bluetoothEntranceSchedule: ({})
-	property int wifiEntranceOrder: 0
-	property int bluetoothEntranceOrder: 0
-	property double wifiEntranceStartedAt: 0
-	property double bluetoothEntranceStartedAt: 0
-	readonly property int connectionEntranceLeadDelay: 360
-	readonly property int connectionEntranceStagger: 55
 	readonly property int connectionEntranceDuration: 470
 	readonly property int bluetoothDiscoveryDuration: 15000
 	readonly property int bluetoothDiscoveryCooldown: 30000
@@ -70,6 +66,7 @@ PanelWindow {
 		selectedConnectionKind, selectedConnectionKey)
 	readonly property bool connectionInspectorOpen: selectedConnection !== null
 		&& selectedConnectionKind === UiState.quickSettingsPage
+	signal connectionTargetSwept(string kind, string key, int entranceEpoch)
 
 	mask: Region {
 		item: root.pinned ? panelSurface : modalInput
@@ -350,13 +347,9 @@ PanelWindow {
 	function beginConnectionEntrance(kind) {
 		if (kind === "wifi") {
 			wifiEntranceSchedule = ({})
-			wifiEntranceOrder = 0
-			wifiEntranceStartedAt = Date.now()
 			wifiEntranceEpoch++
 		} else if (kind === "bluetooth") {
 			bluetoothEntranceSchedule = ({})
-			bluetoothEntranceOrder = 0
-			bluetoothEntranceStartedAt = Date.now()
 			bluetoothEntranceEpoch++
 		}
 	}
@@ -367,28 +360,31 @@ PanelWindow {
 		const schedule = kind === "wifi"
 			? wifiEntranceSchedule : bluetoothEntranceSchedule
 		const token = "$" + key
-		let entry = schedule[token]
-
-		if (!entry) {
-			const order = kind === "wifi"
-				? wifiEntranceOrder++ : bluetoothEntranceOrder++
-			const startedAt = kind === "wifi"
-				? wifiEntranceStartedAt : bluetoothEntranceStartedAt
-			const elapsed = Math.max(0, Date.now() - startedAt)
-			const staggerDelay = elapsed < connectionEntranceLeadDelay + 360
-				? Math.min(order, 5) * connectionEntranceStagger : 0
-			const startAt = startedAt + connectionEntranceLeadDelay + staggerDelay
-
-			entry = {
-				startAt: startAt,
-				endAt: startAt + connectionEntranceDuration
-			}
-			schedule[token] = entry
-		}
+		const entry = schedule[token]
+		if (!entry) return -2
 
 		const now = Date.now()
 		if (now >= entry.endAt) return -1
 		return Math.round(Math.max(0, entry.startAt - now))
+	}
+
+	function handleConnectionTargetSwept(kind, key, entranceEpoch) {
+		const activeEpoch = kind === "wifi"
+			? wifiEntranceEpoch : bluetoothEntranceEpoch
+		if (!modalVisible || closing || UiState.quickSettingsPage !== kind
+				|| entranceEpoch !== activeEpoch) return
+
+		const schedule = kind === "wifi"
+			? wifiEntranceSchedule : bluetoothEntranceSchedule
+		const token = "$" + key
+		if (schedule[token]) return
+
+		const startAt = Date.now()
+		schedule[token] = {
+			startAt: startAt,
+			endAt: startAt + connectionEntranceDuration
+		}
+		connectionTargetSwept(kind, key, entranceEpoch)
 	}
 
 	function prioritizedItems(items, kind) {
@@ -959,7 +955,6 @@ PanelWindow {
 						height: width
 						targets: root.radarTargets(root.radarBluetoothDevices, "bluetooth")
 						active: root.bluetoothAdapter && root.bluetoothAdapter.enabled
-						busy: root.bluetoothAdapter && root.bluetoothAdapter.discovering
 						entranceEpoch: root.bluetoothEntranceEpoch
 						motionEnabled: root.modalVisible && !root.closing
 							&& UiState.quickSettingsPage === "bluetooth"
@@ -972,10 +967,21 @@ PanelWindow {
 						}
 					}
 
+					Connections {
+						target: bluetoothRadar
+
+						function onTargetSwept(key, entranceEpoch) {
+							root.handleConnectionTargetSwept("bluetooth", key,
+								entranceEpoch)
+						}
+					}
+
 					Repeater {
 						model: root.radarBluetoothDevices
 
 						ConnectionCard {
+							id: bluetoothCard
+
 							required property var modelData
 							property int cardEntranceEpoch: root.bluetoothEntranceEpoch
 							property bool cardEntranceReady: false
@@ -1023,13 +1029,26 @@ PanelWindow {
 								if (!cardEntranceReady || cardEntranceEpoch <= 0) return
 
 								const delay = root.claimConnectionEntrance("bluetooth", radarKey)
-								if (delay >= 0) playEntrance(delay)
+								if (delay === -2) prepareEntrance()
+								else if (delay >= 0) playEntrance(delay)
+								else completeEntrance()
 							}
 
 							onCardEntranceEpochChanged: syncEntranceAnimation()
 							Component.onCompleted: {
 								cardEntranceReady = true
 								syncEntranceAnimation()
+							}
+
+							Connections {
+								target: root
+
+								function onConnectionTargetSwept(kind, key, entranceEpoch) {
+									if (kind !== "bluetooth" || key !== bluetoothCard.radarKey
+											|| entranceEpoch !== bluetoothCard.cardEntranceEpoch) return
+
+									bluetoothCard.syncEntranceAnimation()
+								}
 							}
 
 							x: Math.max(0, Math.min(bluetoothPage.width - width,
@@ -1120,10 +1139,20 @@ PanelWindow {
 						}
 					}
 
+					Connections {
+						target: wifiRadar
+
+						function onTargetSwept(key, entranceEpoch) {
+							root.handleConnectionTargetSwept("wifi", key, entranceEpoch)
+						}
+					}
+
 					Repeater {
 						model: root.radarWifiNetworks
 
 						ConnectionCard {
+							id: wifiCard
+
 							required property var modelData
 							property int cardEntranceEpoch: root.wifiEntranceEpoch
 							property bool cardEntranceReady: false
@@ -1169,13 +1198,26 @@ PanelWindow {
 								if (!cardEntranceReady || cardEntranceEpoch <= 0) return
 
 								const delay = root.claimConnectionEntrance("wifi", radarKey)
-								if (delay >= 0) playEntrance(delay)
+								if (delay === -2) prepareEntrance()
+								else if (delay >= 0) playEntrance(delay)
+								else completeEntrance()
 							}
 
 							onCardEntranceEpochChanged: syncEntranceAnimation()
 							Component.onCompleted: {
 								cardEntranceReady = true
 								syncEntranceAnimation()
+							}
+
+							Connections {
+								target: root
+
+								function onConnectionTargetSwept(kind, key, entranceEpoch) {
+									if (kind !== "wifi" || key !== wifiCard.radarKey
+											|| entranceEpoch !== wifiCard.cardEntranceEpoch) return
+
+									wifiCard.syncEntranceAnimation()
+								}
 							}
 
 							x: Math.max(0, Math.min(wifiPage.width - width, preferredX))
