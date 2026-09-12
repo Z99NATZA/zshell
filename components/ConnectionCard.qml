@@ -25,6 +25,7 @@ ShellSurface {
 	property real connectorTargetX: width / 2
 	property real connectorTargetY: height + Theme.spacingLg
 	property int connectorDuration: 2400
+	property int cloudVariant: 0
 	signal clicked
 
 	implicitWidth: 176
@@ -207,6 +208,100 @@ ShellSurface {
 			? Theme.accent : Theme.connectionBubbleBorder
 		property color sheenColor: Theme.connectionBubbleSheen
 		property color shadeColor: Theme.connectionBubbleShade
+		readonly property int variant: ((root.cloudVariant % 6) + 6) % 6
+		readonly property var upperProfiles: [
+			[
+				[0.03, 0.48, 0.16, 0.08, 0.28, 0.25],
+				[0.32, -0.02, 0.54, -0.08, 0.62, 0.22],
+				[0.68, 0.05, 0.84, 0.07, 0.90, 0.30],
+				[0.98, 0.34, 1, 0.60, 0.975, 0.75]
+			],
+			[
+				[0.03, 0.52, 0.08, 0.34, 0.18, 0.34],
+				[0.25, 0.19, 0.38, 0.18, 0.46, 0.30],
+				[0.56, 0.17, 0.72, 0.18, 0.79, 0.32],
+				[0.88, 0.22, 0.96, 0.34, 0.95, 0.49],
+				[1, 0.54, 1, 0.66, 0.975, 0.75]
+			],
+			[
+				[0.02, 0.50, 0.08, 0.30, 0.18, 0.29],
+				[0.22, 0.18, 0.28, 0.18, 0.32, 0.28],
+				[0.35, -0.15, 0.62, -0.18, 0.67, 0.25],
+				[0.72, 0.14, 0.84, 0.18, 0.88, 0.34],
+				[0.95, 0.29, 1, 0.53, 0.975, 0.75]
+			],
+			[
+				[0.02, 0.52, 0.06, 0.29, 0.13, 0.28],
+				[0.14, 0.09, 0.24, 0.08, 0.27, 0.22],
+				[0.30, 0.05, 0.39, 0.05, 0.42, 0.22],
+				[0.46, 0.06, 0.55, 0.06, 0.58, 0.23],
+				[0.62, 0.04, 0.72, 0.05, 0.75, 0.22],
+				[0.81, 0.07, 0.91, 0.11, 0.94, 0.29],
+				[0.995, 0.38, 1, 0.62, 0.975, 0.75]
+			],
+			[
+				[0.01, 0.50, 0.04, 0.20, 0.14, 0.18],
+				[0.13, -0.10, 0.34, -0.12, 0.39, 0.20],
+				[0.45, 0.10, 0.54, 0.14, 0.58, 0.30],
+				[0.66, 0.24, 0.76, 0.25, 0.80, 0.38],
+				[0.88, 0.30, 0.96, 0.40, 0.95, 0.54],
+				[1, 0.58, 1, 0.67, 0.975, 0.75]
+			],
+			[
+				[0.02, 0.54, 0.06, 0.39, 0.15, 0.38],
+				[0.21, 0.27, 0.31, 0.27, 0.36, 0.34],
+				[0.43, 0.17, 0.54, 0.13, 0.59, 0.28],
+				[0.62, -0.12, 0.85, -0.10, 0.86, 0.21],
+				[0.94, 0.24, 1, 0.50, 0.975, 0.75]
+			]
+		]
+		readonly property var baseProfiles: [
+			[
+				[0.83, 0.98, 0.79, 0.92, 0.76, 0.88],
+				[0.70, 1.01, 0.60, 1, 0.55, 0.91],
+				[0.48, 1, 0.36, 1, 0.30, 0.91],
+				[0.24, 1.01, 0.15, 1, 0.08, 0.98]
+			],
+			[
+				[0.80, 1, 0.74, 0.90, 0.66, 0.90],
+				[0.57, 1.02, 0.43, 1.02, 0.34, 0.90],
+				[0.26, 0.99, 0.16, 0.99, 0.08, 0.98]
+			],
+			[
+				[0.84, 1, 0.80, 0.91, 0.76, 0.90],
+				[0.71, 1, 0.66, 1, 0.61, 0.92],
+				[0.56, 1, 0.49, 1, 0.44, 0.90],
+				[0.38, 1, 0.31, 1, 0.26, 0.92],
+				[0.20, 0.99, 0.14, 0.99, 0.08, 0.98]
+			],
+			[
+				[0.81, 1.01, 0.75, 0.91, 0.69, 0.90],
+				[0.62, 1, 0.52, 0.99, 0.47, 0.91],
+				[0.39, 1.02, 0.25, 1.01, 0.20, 0.90],
+				[0.16, 0.97, 0.12, 0.98, 0.08, 0.98]
+			],
+			[
+				[0.75, 1, 0.64, 0.95, 0.55, 0.94],
+				[0.43, 0.99, 0.30, 0.99, 0.23, 0.94],
+				[0.17, 0.98, 0.12, 0.98, 0.08, 0.98]
+			],
+			[
+				[0.84, 0.99, 0.81, 0.92, 0.77, 0.90],
+				[0.70, 1.01, 0.58, 1.01, 0.52, 0.90],
+				[0.44, 0.99, 0.38, 0.98, 0.33, 0.93],
+				[0.26, 1.01, 0.15, 1, 0.08, 0.98]
+			]
+		]
+
+		function traceSegments(context, segments, cardWidth, cardHeight) {
+			for (let index = 0; index < segments.length; index++) {
+				const segment = segments[index]
+				context.bezierCurveTo(cardWidth * segment[0],
+					cardHeight * segment[1], cardWidth * segment[2],
+					cardHeight * segment[3], cardWidth * segment[4],
+					cardHeight * segment[5])
+			}
+		}
 
 		function traceCloud(context) {
 			const cardWidth = width
@@ -215,39 +310,11 @@ ShellSurface {
 			context.moveTo(cardWidth * 0.08, cardHeight * 0.98)
 			context.bezierCurveTo(cardWidth * 0.025, cardHeight * 0.98,
 				0, cardHeight * 0.88, cardWidth * 0.018, cardHeight * 0.72)
-			context.bezierCurveTo(cardWidth * 0.025, cardHeight * 0.59,
-				cardWidth * 0.055, cardHeight * 0.36,
-				cardWidth * 0.13, cardHeight * 0.32)
-			context.bezierCurveTo(cardWidth * 0.12, cardHeight * 0.16,
-				cardWidth * 0.20, cardHeight * 0.10,
-				cardWidth * 0.26, cardHeight * 0.20)
-			context.bezierCurveTo(cardWidth * 0.28, cardHeight * 0.05,
-				cardWidth * 0.40, -cardHeight * 0.01,
-				cardWidth * 0.47, cardHeight * 0.17)
-			context.bezierCurveTo(cardWidth * 0.54, cardHeight * 0.04,
-				cardWidth * 0.69, cardHeight * 0.06,
-				cardWidth * 0.73, cardHeight * 0.28)
-			context.bezierCurveTo(cardWidth * 0.79, cardHeight * 0.13,
-				cardWidth * 0.91, cardHeight * 0.11,
-				cardWidth * 0.94, cardHeight * 0.26)
-			context.bezierCurveTo(cardWidth * 0.995, cardHeight * 0.34,
-				cardWidth, cardHeight * 0.60,
-				cardWidth * 0.975, cardHeight * 0.75)
+			traceSegments(context, upperProfiles[variant], cardWidth, cardHeight)
 			context.bezierCurveTo(cardWidth * 0.99, cardHeight * 0.89,
 				cardWidth * 0.95, cardHeight * 0.98,
 				cardWidth * 0.88, cardHeight * 0.98)
-			context.bezierCurveTo(cardWidth * 0.83, cardHeight * 0.98,
-				cardWidth * 0.79, cardHeight * 0.92,
-				cardWidth * 0.76, cardHeight * 0.88)
-			context.bezierCurveTo(cardWidth * 0.70, cardHeight * 1.01,
-				cardWidth * 0.60, cardHeight,
-				cardWidth * 0.55, cardHeight * 0.91)
-			context.bezierCurveTo(cardWidth * 0.48, cardHeight,
-				cardWidth * 0.36, cardHeight,
-				cardWidth * 0.30, cardHeight * 0.91)
-			context.bezierCurveTo(cardWidth * 0.24, cardHeight * 1.01,
-				cardWidth * 0.15, cardHeight,
-				cardWidth * 0.08, cardHeight * 0.98)
+			traceSegments(context, baseProfiles[variant], cardWidth, cardHeight)
 			context.closePath()
 		}
 
@@ -255,6 +322,7 @@ ShellSurface {
 		onOutlineColorChanged: requestPaint()
 		onSheenColorChanged: requestPaint()
 		onShadeColorChanged: requestPaint()
+		onVariantChanged: requestPaint()
 		onWidthChanged: requestPaint()
 		onHeightChanged: requestPaint()
 

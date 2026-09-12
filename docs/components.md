@@ -40,9 +40,12 @@
   horizontal band keep vertical tethers and centered bubbles. The connector
   begins at the nearest card edge and compensates for bubble movement so its
   endpoint remains attached to the blip. Page-edge clamping redirects only the
-  affected tether. Each bubble uses a single translucent cloud silhouette with
-  layered upper lobes, a softly scalloped base, and a vertical glass sheen, so
-  radar lines remain visible behind it without overlap-darkened seams.
+  affected tether. Six translucent cloud silhouettes have deliberately distinct
+  profiles: classic three-lobe, low stratus, tall-center cumulus, small-puff
+  chain, left-heavy, and right-heavy. Their softly scalloped bases vary too. The
+  target's collision-safe radar slot selects a unique silhouette while up to six
+  bubbles are visible. Each cloud is drawn as one path with a vertical glass
+  sheen, so radar lines remain visible behind it without overlap-darkened seams.
   Connected, selected, and swept bubbles receive a brighter surface or accent
   edge without making idle clouds opaque. The sweep briefly raises the matching
   bubble and launches two fading ripples from its blip without changing the

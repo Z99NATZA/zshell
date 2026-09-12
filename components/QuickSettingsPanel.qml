@@ -1057,6 +1057,7 @@ PanelWindow {
 								preferredY))
 							z: selected ? 4 : 3
 							icon: "󰂯"
+							cloudVariant: bluetoothRadar.targetSlot(radarKey)
 							title: modelData.name || modelData.address
 							subtitle: modelData.blocked ? "Blocked" : (modelData.connected
 								? "Connected" + (modelData.batteryAvailable
@@ -1225,6 +1226,7 @@ PanelWindow {
 								preferredY))
 							z: selected ? 4 : 3
 							icon: modelData.connected ? "󰖩" : "󰖪"
+							cloudVariant: wifiRadar.targetSlot(radarKey)
 							title: modelData.name
 							subtitle: modelData.connected ? "Connected"
 								: (modelData.stateChanging ? "Connecting…"
