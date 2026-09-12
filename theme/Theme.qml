@@ -18,6 +18,21 @@ Singleton {
 	readonly property color surfaceRaised: light
 		? Qt.rgba(1, 1, 1, componentOpacity)
 		: Qt.rgba(48 / 255, 54 / 255, 64 / 255, componentOpacity)
+	readonly property color connectionBubble: light
+		? Qt.rgba(244 / 255, 245 / 255, 247 / 255, componentOpacity * 0.62)
+		: Qt.rgba(40 / 255, 44 / 255, 52 / 255, componentOpacity * 0.54)
+	readonly property color connectionBubbleRaised: light
+		? Qt.rgba(1, 1, 1, componentOpacity * 0.76)
+		: Qt.rgba(48 / 255, 54 / 255, 64 / 255, componentOpacity * 0.68)
+	readonly property color connectionBubbleBorder: light
+		? Qt.rgba(170 / 255, 177 / 255, 189 / 255, componentOpacity * 0.52)
+		: Qt.rgba(93 / 255, 103 / 255, 122 / 255, componentOpacity * 0.52)
+	readonly property color connectionBubbleSheen: light
+		? Qt.rgba(1, 1, 1, componentOpacity * 0.20)
+		: Qt.rgba(97 / 255, 175 / 255, 239 / 255, componentOpacity * 0.11)
+	readonly property color connectionBubbleShade: light
+		? Qt.rgba(170 / 255, 177 / 255, 189 / 255, componentOpacity * 0.08)
+		: Qt.rgba(33 / 255, 37 / 255, 43 / 255, componentOpacity * 0.18)
 	readonly property color surfaceSoft: light
 		? Qt.rgba(218 / 255, 221 / 255, 227 / 255, componentOpacity)
 		: Qt.rgba(52 / 255, 58 / 255, 69 / 255, componentOpacity)

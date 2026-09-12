@@ -31,6 +31,14 @@ does not reduce the opacity of foreground text, icons, or media artwork.
 Quick Settings and the Clock and Music panels use the same `surfaceRaised`
 opacity in both minimal and expanded modes.
 
+Connection bubbles use dedicated glass surface roles. Their base alpha is
+`54%` in the gray theme and `62%` in the light theme, multiplied by the shared
+component opacity. Raised bubbles use `68%` and `76%` respectively. A subtle
+vertical sheen and shade preserve the bubble edge while allowing radar lines
+to remain visible through the body. The surface is one Canvas cloud path with
+layered upper lobes and a lightly scalloped base; drawing one unified path
+avoids darker seams where lobes would otherwise overlap.
+
 The default variant is One Half Gray. One Half Light demonstrates that visual
 components remain independent from a specific palette. Theme selection is
 persisted with the layout state.
@@ -91,15 +99,16 @@ does not own the icon value.
   encounter. Bubble drift and animated connector repainting wait until panel
   and bubble entrance motion has settled. Closing the panel or leaving a
   connection page stops its running entrance and pending reveal immediately.
-- Connection bubbles use softened surfaces and move between random
+- Connection bubbles use softened glass cloud surfaces and move between random
   two-dimensional waypoints within a `10px` radius. Curved tethers keep their
   endpoints on deterministic blips, prefer a length of four large spacing
   units, use half that length in the lower radar half, and carry small animated
   accent pulses. Side bubbles follow their own radar bearing with lower-half
   angles reflected upward; targets in the central `12%` horizontal band retain
-  vertical tethers. Connectors begin at the nearest card edge, and page-edge
-  clamping adjusts only the affected tether. A pair of fading ripples marks each
-  sweep encounter and explicit selection.
+  vertical tethers. Connectors use an elliptical boundary approximation to
+  meet the nearest cloud edge, and page-edge clamping adjusts only the affected
+  tether. A pair of fading ripples marks each sweep encounter and explicit
+  selection.
 - Radar blips and their bubble connectors always use `Theme.accent`; connection
   state remains visible through each bubble's text and surface treatment.
 - Use Quickshell service bindings for system changes. Aside from bounded visual

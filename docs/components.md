@@ -40,9 +40,13 @@
   horizontal band keep vertical tethers and centered bubbles. The connector
   begins at the nearest card edge and compensates for bubble movement so its
   endpoint remains attached to the blip. Page-edge clamping redirects only the
-  affected tether. The sweep briefly raises the matching bubble and launches
-  two fading ripples from its blip without changing the underlying target
-  position.
+  affected tether. Each bubble uses a single translucent cloud silhouette with
+  layered upper lobes, a softly scalloped base, and a vertical glass sheen, so
+  radar lines remain visible behind it without overlap-darkened seams.
+  Connected, selected, and swept bubbles receive a brighter surface or accent
+  edge without making idle clouds opaque. The sweep briefly raises the matching
+  bubble and launches two fading ripples from its blip without changing the
+  underlying target position.
 - Opening Quick Settings or switching between Wi-Fi and Bluetooth gives the
   active radar a scale-and-opacity overshoot. Each blip and bubble remains
   hidden until the sweep line first crosses its target. The blip then fades and

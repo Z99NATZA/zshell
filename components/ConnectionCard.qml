@@ -29,9 +29,11 @@ ShellSurface {
 
 	implicitWidth: 176
 	implicitHeight: 58
-	radius: Theme.radius * 2
+	radius: height / 2
 	raised: active || selected || radarHighlight
 	interactive: active || selected || radarHighlight || pointer.containsMouse
+	color: "transparent"
+	border.width: 0
 	opacity: (enabled ? 1 : 0.42) * entranceOpacity
 	scale: (selected ? 1.05
 		: (radarHighlight ? 1.035 : (pointer.containsMouse ? 1.018 : 1)))
@@ -195,18 +197,94 @@ ShellSurface {
 		NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
 	}
 
-	Rectangle {
+	Canvas {
+		id: cloudSurface
+
 		anchors.fill: parent
-		anchors.margins: 1
-		radius: Math.max(0, root.radius - 1)
-		opacity: root.selected || root.active ? 0.22 : 0.12
-		gradient: Gradient {
-			GradientStop { position: 0; color: Theme.surfaceRaised }
-			GradientStop { position: 1; color: Theme.surface }
+		property color fillColor: root.raised
+			? Theme.connectionBubbleRaised : Theme.connectionBubble
+		property color outlineColor: root.selected || root.radarHighlight
+			? Theme.accent : Theme.connectionBubbleBorder
+		property color sheenColor: Theme.connectionBubbleSheen
+		property color shadeColor: Theme.connectionBubbleShade
+
+		function traceCloud(context) {
+			const cardWidth = width
+			const cardHeight = height
+			context.beginPath()
+			context.moveTo(cardWidth * 0.08, cardHeight * 0.98)
+			context.bezierCurveTo(cardWidth * 0.025, cardHeight * 0.98,
+				0, cardHeight * 0.88, cardWidth * 0.018, cardHeight * 0.72)
+			context.bezierCurveTo(cardWidth * 0.025, cardHeight * 0.59,
+				cardWidth * 0.055, cardHeight * 0.36,
+				cardWidth * 0.13, cardHeight * 0.32)
+			context.bezierCurveTo(cardWidth * 0.12, cardHeight * 0.16,
+				cardWidth * 0.20, cardHeight * 0.10,
+				cardWidth * 0.26, cardHeight * 0.20)
+			context.bezierCurveTo(cardWidth * 0.28, cardHeight * 0.05,
+				cardWidth * 0.40, -cardHeight * 0.01,
+				cardWidth * 0.47, cardHeight * 0.17)
+			context.bezierCurveTo(cardWidth * 0.54, cardHeight * 0.04,
+				cardWidth * 0.69, cardHeight * 0.06,
+				cardWidth * 0.73, cardHeight * 0.28)
+			context.bezierCurveTo(cardWidth * 0.79, cardHeight * 0.13,
+				cardWidth * 0.91, cardHeight * 0.11,
+				cardWidth * 0.94, cardHeight * 0.26)
+			context.bezierCurveTo(cardWidth * 0.995, cardHeight * 0.34,
+				cardWidth, cardHeight * 0.60,
+				cardWidth * 0.975, cardHeight * 0.75)
+			context.bezierCurveTo(cardWidth * 0.99, cardHeight * 0.89,
+				cardWidth * 0.95, cardHeight * 0.98,
+				cardWidth * 0.88, cardHeight * 0.98)
+			context.bezierCurveTo(cardWidth * 0.83, cardHeight * 0.98,
+				cardWidth * 0.79, cardHeight * 0.92,
+				cardWidth * 0.76, cardHeight * 0.88)
+			context.bezierCurveTo(cardWidth * 0.70, cardHeight * 1.01,
+				cardWidth * 0.60, cardHeight,
+				cardWidth * 0.55, cardHeight * 0.91)
+			context.bezierCurveTo(cardWidth * 0.48, cardHeight,
+				cardWidth * 0.36, cardHeight,
+				cardWidth * 0.30, cardHeight * 0.91)
+			context.bezierCurveTo(cardWidth * 0.24, cardHeight * 1.01,
+				cardWidth * 0.15, cardHeight,
+				cardWidth * 0.08, cardHeight * 0.98)
+			context.closePath()
 		}
 
-		Behavior on opacity {
-			NumberAnimation { duration: Theme.motionDuration }
+		onFillColorChanged: requestPaint()
+		onOutlineColorChanged: requestPaint()
+		onSheenColorChanged: requestPaint()
+		onShadeColorChanged: requestPaint()
+		onWidthChanged: requestPaint()
+		onHeightChanged: requestPaint()
+
+		onPaint: {
+			const context = getContext("2d")
+			context.reset()
+			traceCloud(context)
+			context.fillStyle = fillColor
+			context.fill()
+
+			const glassLight = context.createLinearGradient(0, 0, 0, height)
+			glassLight.addColorStop(0, sheenColor)
+			glassLight.addColorStop(0.44, "transparent")
+			glassLight.addColorStop(1, shadeColor)
+			traceCloud(context)
+			context.fillStyle = glassLight
+			context.fill()
+
+			traceCloud(context)
+			context.strokeStyle = outlineColor
+			context.lineWidth = root.selected ? 1.6 : 1
+			context.stroke()
+		}
+
+		Behavior on fillColor {
+			ColorAnimation { duration: Theme.motionDuration }
+		}
+
+		Behavior on outlineColor {
+			ColorAnimation { duration: Theme.motionDuration }
 		}
 	}
 
@@ -247,9 +325,11 @@ ShellSurface {
 			const endY = targetY - cardOffsetY - y
 			const centerDeltaX = endX - centerX
 			const centerDeltaY = endY - centerY
-			const edgeRatio = Math.max(
-				Math.abs(centerDeltaX) / (root.width / 2),
-				Math.abs(centerDeltaY) / (root.height / 2))
+			const horizontalRadius = root.width / 2 - 5
+			const verticalRadius = root.height / 2 - 4
+			const edgeRatio = Math.sqrt(
+				Math.pow(centerDeltaX / horizontalRadius, 2)
+				+ Math.pow(centerDeltaY / verticalRadius, 2))
 			const edgeScale = Math.min(1, 1 / Math.max(0.0001, edgeRatio))
 			const startX = centerX + centerDeltaX * edgeScale
 			const startY = centerY + centerDeltaY * edgeScale
@@ -297,26 +377,9 @@ ShellSurface {
 		}
 	}
 
-	Rectangle {
-		anchors.fill: parent
-		radius: parent.radius
-		color: "transparent"
-		border.width: 1
-		border.color: Theme.accent
-		opacity: root.selected ? 1 : 0
-		scale: root.selected ? 1 : 0.96
-
-		Behavior on opacity {
-			NumberAnimation { duration: Theme.motionDuration }
-		}
-
-		Behavior on scale {
-			NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
-		}
-	}
-
 	Row {
 		anchors.fill: parent
+		anchors.topMargin: Theme.spacingXs
 		anchors.leftMargin: Theme.spacingMd
 		anchors.rightMargin: Theme.spacingMd
 		spacing: Theme.spacingSm
