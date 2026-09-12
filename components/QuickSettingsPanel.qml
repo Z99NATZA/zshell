@@ -53,7 +53,6 @@ PanelWindow {
 	property int bluetoothEntranceEpoch: 0
 	property var wifiEntranceSchedule: ({})
 	property var bluetoothEntranceSchedule: ({})
-	readonly property int connectionEntranceDuration: 470
 	readonly property int bluetoothDiscoveryDuration: 15000
 	readonly property int bluetoothDiscoveryCooldown: 30000
 	readonly property bool bluetoothAutoScanActive: modalVisible && !closing
@@ -354,18 +353,12 @@ PanelWindow {
 		}
 	}
 
-	function claimConnectionEntrance(kind, key) {
-		if (!modalVisible || closing || UiState.quickSettingsPage !== kind) return -1
+	function connectionWasRevealed(kind, key) {
+		if (!modalVisible || closing || UiState.quickSettingsPage !== kind) return true
 
 		const schedule = kind === "wifi"
 			? wifiEntranceSchedule : bluetoothEntranceSchedule
-		const token = "$" + key
-		const entry = schedule[token]
-		if (!entry) return -2
-
-		const now = Date.now()
-		if (now >= entry.endAt) return -1
-		return Math.round(Math.max(0, entry.startAt - now))
+		return !!schedule["$" + key]
 	}
 
 	function handleConnectionTargetSwept(kind, key, entranceEpoch) {
@@ -379,11 +372,7 @@ PanelWindow {
 		const token = "$" + key
 		if (schedule[token]) return
 
-		const startAt = Date.now()
-		schedule[token] = {
-			startAt: startAt,
-			endAt: startAt + connectionEntranceDuration
-		}
+		schedule[token] = true
 		connectionTargetSwept(kind, key, entranceEpoch)
 	}
 
@@ -1028,10 +1017,11 @@ PanelWindow {
 							function syncEntranceAnimation() {
 								if (!cardEntranceReady || cardEntranceEpoch <= 0) return
 
-								const delay = root.claimConnectionEntrance("bluetooth", radarKey)
-								if (delay === -2) prepareEntrance()
-								else if (delay >= 0) playEntrance(delay)
-								else completeEntrance()
+								if (root.connectionWasRevealed("bluetooth", radarKey)) {
+									completeEntrance()
+								} else {
+									prepareEntrance()
+								}
 							}
 
 							onCardEntranceEpochChanged: syncEntranceAnimation()
@@ -1047,7 +1037,7 @@ PanelWindow {
 									if (kind !== "bluetooth" || key !== bluetoothCard.radarKey
 											|| entranceEpoch !== bluetoothCard.cardEntranceEpoch) return
 
-									bluetoothCard.syncEntranceAnimation()
+									bluetoothCard.playEntrance(0)
 								}
 							}
 
@@ -1198,10 +1188,11 @@ PanelWindow {
 							function syncEntranceAnimation() {
 								if (!cardEntranceReady || cardEntranceEpoch <= 0) return
 
-								const delay = root.claimConnectionEntrance("wifi", radarKey)
-								if (delay === -2) prepareEntrance()
-								else if (delay >= 0) playEntrance(delay)
-								else completeEntrance()
+								if (root.connectionWasRevealed("wifi", radarKey)) {
+									completeEntrance()
+								} else {
+									prepareEntrance()
+								}
 							}
 
 							onCardEntranceEpochChanged: syncEntranceAnimation()
@@ -1217,7 +1208,7 @@ PanelWindow {
 									if (kind !== "wifi" || key !== wifiCard.radarKey
 											|| entranceEpoch !== wifiCard.cardEntranceEpoch) return
 
-									wifiCard.syncEntranceAnimation()
+									wifiCard.playEntrance(0)
 								}
 							}
 

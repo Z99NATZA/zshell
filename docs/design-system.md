@@ -14,7 +14,7 @@ color, and motion rather than decoration or repeated labels.
 | Radio pulse duration | `1800ms` |
 | Radar sweep duration | `4800ms` |
 | Radar entrance duration | `440ms` |
-| Bubble entrance duration | `470ms` after its first sweep encounter |
+| Bubble entrance duration | `280ms` after its first sweep encounter |
 | Motion easing | `Easing.OutCubic` |
 | Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |
@@ -95,13 +95,14 @@ does not own the icon value.
   to full size while fading in, beginning alongside the panel open transition.
   The center orb shares that transform. Each blip and bubble stays hidden until
   the sweep line first crosses its target. The blip fades and scales into view;
-  the bubble overshoots to `110%`, rebounds to `96%`, and settles at full size.
-  Each connection key keeps that reveal state and its active entrance window
-  for the current page entrance, preventing a delegate recreated by a Wi-Fi
-  scan from bypassing the sweep. Newly discovered keys wait for their own first
-  encounter. Bubble drift and animated connector repainting wait until panel
-  and bubble entrance motion has settled. Closing the panel or leaving a
-  connection page stops its running entrance and pending reveal immediately.
+  the bubble eases from `86%` to full size over `280ms` without overshoot or
+  rebound. Each connection key keeps that reveal state for the current page
+  entrance. A delegate recreated by a Wi-Fi or Bluetooth scan appears settled
+  instead of replaying visible entrance motion. Newly discovered keys wait for
+  their own first encounter. Bubble drift starts on the next event-loop turn
+  after entrance motion settles, allowing its offset behavior to engage before
+  the first waypoint changes. Closing the panel or leaving a connection page
+  stops its running entrance and pending reveal immediately.
 - Connection bubbles use softened glass cloud surfaces and move between random
   two-dimensional waypoints within a `10px` radius. Curved tethers keep their
   endpoints on deterministic blips, prefer a length of four large spacing

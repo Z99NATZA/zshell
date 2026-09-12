@@ -53,11 +53,11 @@
 - Opening Quick Settings or switching between Wi-Fi and Bluetooth gives the
   active radar a scale-and-opacity overshoot. Each blip and bubble remains
   hidden until the sweep line first crosses its target. The blip then fades and
-  scales into view while the bubble expands from `65%` to `110%`, rebounds
-  through `96%`, and settles at full size. Connection keys are claimed once per
-  page entrance after that first sweep encounter. A delegate recreated by a
-  scan resumes an active entrance or appears settled when its key was already
-  revealed. A newly discovered key waits for its own first sweep encounter.
+  scales into view while the bubble eases once from `86%` to full size without
+  a rebound. Connection keys are claimed once per page entrance after that
+  first sweep encounter. A delegate recreated by a scan appears settled when
+  its key was already revealed instead of replaying the entrance. A newly
+  discovered key waits for its own first sweep encounter.
   Radar entrance starts with the panel open transition instead of waiting for
   it to finish. Bubble drift and connector repainting begin after panel and
   bubble entrance motion settles. Closing or leaving the page immediately

@@ -57,8 +57,9 @@ ShellSurface {
 
 	function syncAmbientMotion() {
 		if (ambientAnimationRunning) {
-			chooseFloatTarget()
+			ambientStartTimer.restart()
 		} else {
+			ambientStartTimer.stop()
 			floatTimer.stop()
 			floatOffsetX = 0
 			floatOffsetY = 0
@@ -77,7 +78,7 @@ ShellSurface {
 		entranceDelay.stop()
 		entranceAnimation.stop()
 		entranceActive = true
-		entranceScale = 0.65
+		entranceScale = 0.86
 		entranceOpacity = 0
 	}
 
@@ -107,6 +108,12 @@ ShellSurface {
 	}
 
 	Timer {
+		id: ambientStartTimer
+		interval: 0
+		onTriggered: if (root.ambientAnimationRunning) root.chooseFloatTarget()
+	}
+
+	Timer {
 		id: floatTimer
 		interval: root.floatTransitionDuration
 		onTriggered: root.chooseFloatTarget()
@@ -117,41 +124,23 @@ ShellSurface {
 		onTriggered: entranceAnimation.start()
 	}
 
-	SequentialAnimation {
+	ParallelAnimation {
 		id: entranceAnimation
 
-		ParallelAnimation {
-			NumberAnimation {
-				target: root
-				property: "entranceScale"
-				from: 0.65
-				to: 1.10
-				duration: 220
-				easing.type: Easing.OutCubic
-			}
-			NumberAnimation {
-				target: root
-				property: "entranceOpacity"
-				from: 0
-				to: 1
-				duration: 160
-				easing.type: Easing.OutCubic
-			}
-		}
 		NumberAnimation {
 			target: root
 			property: "entranceScale"
-			from: 1.10
-			to: 0.96
-			duration: 120
-			easing.type: Easing.InOutQuad
-		}
-		NumberAnimation {
-			target: root
-			property: "entranceScale"
-			from: 0.96
+			from: 0.86
 			to: 1
-			duration: 130
+			duration: Theme.modalOpenDuration
+			easing.type: Easing.OutCubic
+		}
+		NumberAnimation {
+			target: root
+			property: "entranceOpacity"
+			from: 0
+			to: 1
+			duration: Theme.modalCloseDuration
 			easing.type: Easing.OutCubic
 		}
 
