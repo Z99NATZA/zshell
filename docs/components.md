@@ -46,6 +46,9 @@
   target's collision-safe radar slot selects a unique silhouette while up to six
   bubbles are visible. Each cloud is drawn as one path with a vertical glass
   sheen, so radar lines remain visible behind it without overlap-darkened seams.
+  The `176x64` card remaps every profile into an internal Canvas inset, keeping
+  tall crowns and scalloped bases fully visible instead of clipping at the texture
+  edge.
   Connected, selected, and swept bubbles receive a brighter surface or accent
   edge without making idle clouds opaque. The sweep briefly raises the matching
   bubble and launches two fading ripples from its blip without changing the

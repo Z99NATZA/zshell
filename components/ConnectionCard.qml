@@ -29,7 +29,7 @@ ShellSurface {
 	signal clicked
 
 	implicitWidth: 176
-	implicitHeight: 58
+	implicitHeight: 64
 	radius: height / 2
 	raised: active || selected || radarHighlight
 	interactive: active || selected || radarHighlight || pointer.containsMouse
@@ -281,14 +281,30 @@ ShellSurface {
 				[0.26, 1.01, 0.15, 1, 0.08, 0.98]
 			]
 		]
+		readonly property real profileMinimumY: -0.18
+		readonly property real profileMaximumY: 1.02
+
+		function insetX(value) {
+			return 0.015 + Math.max(0, Math.min(1, value)) * 0.97
+		}
+
+		function insetY(value) {
+			const clamped = Math.max(profileMinimumY,
+				Math.min(profileMaximumY, value))
+			const normalized = (clamped - profileMinimumY)
+				/ (profileMaximumY - profileMinimumY)
+			return 0.04 + normalized * 0.92
+		}
 
 		function traceSegments(context, segments, cardWidth, cardHeight) {
 			for (let index = 0; index < segments.length; index++) {
 				const segment = segments[index]
-				context.bezierCurveTo(cardWidth * segment[0],
-					cardHeight * segment[1], cardWidth * segment[2],
-					cardHeight * segment[3], cardWidth * segment[4],
-					cardHeight * segment[5])
+				context.bezierCurveTo(cardWidth * insetX(segment[0]),
+					cardHeight * insetY(segment[1]),
+					cardWidth * insetX(segment[2]),
+					cardHeight * insetY(segment[3]),
+					cardWidth * insetX(segment[4]),
+					cardHeight * insetY(segment[5]))
 			}
 		}
 
@@ -296,13 +312,16 @@ ShellSurface {
 			const cardWidth = width
 			const cardHeight = height
 			context.beginPath()
-			context.moveTo(cardWidth * 0.08, cardHeight * 0.98)
-			context.bezierCurveTo(cardWidth * 0.025, cardHeight * 0.98,
-				0, cardHeight * 0.88, cardWidth * 0.018, cardHeight * 0.72)
+			context.moveTo(cardWidth * insetX(0.08), cardHeight * insetY(0.98))
+			context.bezierCurveTo(cardWidth * insetX(0.025),
+				cardHeight * insetY(0.98), cardWidth * insetX(0),
+				cardHeight * insetY(0.88), cardWidth * insetX(0.018),
+				cardHeight * insetY(0.72))
 			traceSegments(context, upperProfiles[variant], cardWidth, cardHeight)
-			context.bezierCurveTo(cardWidth * 0.99, cardHeight * 0.89,
-				cardWidth * 0.95, cardHeight * 0.98,
-				cardWidth * 0.88, cardHeight * 0.98)
+			context.bezierCurveTo(cardWidth * insetX(0.99),
+				cardHeight * insetY(0.89), cardWidth * insetX(0.95),
+				cardHeight * insetY(0.98), cardWidth * insetX(0.88),
+				cardHeight * insetY(0.98))
 			traceSegments(context, baseProfiles[variant], cardWidth, cardHeight)
 			context.closePath()
 		}
@@ -333,6 +352,8 @@ ShellSurface {
 			traceCloud(context)
 			context.strokeStyle = outlineColor
 			context.lineWidth = root.selected ? 1.6 : 1
+			context.lineCap = "round"
+			context.lineJoin = "round"
 			context.stroke()
 		}
 

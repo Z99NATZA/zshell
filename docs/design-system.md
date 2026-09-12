@@ -40,7 +40,9 @@ silhouettes: classic, low, tall-center, small-puff, left-heavy, and right-heavy.
 Their lightly scalloped bases vary as well. The collision-safe radar slot
 selects the profile, so up to six visible targets have distinct clouds. Each
 profile is one unified path, avoiding darker seams where lobes would otherwise
-overlap.
+overlap. The `176x64` surface remaps profile coordinates into a safe Canvas
+inset and uses rounded stroke joins, preserving the full crown and base without
+texture-edge clipping.
 
 The default variant is One Half Gray. One Half Light demonstrates that visual
 components remain independent from a specific palette. Theme selection is
