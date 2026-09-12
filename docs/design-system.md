@@ -35,14 +35,15 @@ Connection bubbles use dedicated glass surface roles. Their base alpha is
 `54%` in the gray theme and `62%` in the light theme, multiplied by the shared
 component opacity. Raised bubbles use `68%` and `76%` respectively. A subtle
 vertical sheen and shade preserve the bubble edge while allowing radar lines
-to remain visible through the body. Six Canvas profiles use clearly separated
-silhouettes: classic, low, tall-center, small-puff, left-heavy, and right-heavy.
-Their lightly scalloped bases vary as well. The collision-safe radar slot
-selects the profile, so up to six visible targets have distinct clouds. Each
-profile is one unified path, avoiding darker seams where lobes would otherwise
-overlap. The `176x64` surface remaps profile coordinates into a safe Canvas
-inset and uses rounded stroke joins, preserving the full crown and base without
-texture-edge clipping.
+to remain visible through the body. Six Canvas profiles use a related
+tall-center silhouette with distinct upper-lobe rhythms. Rounded sides flow into
+long, gently curved bases rather than repeated lower scallops. The
+collision-safe radar slot selects the profile, so up to six visible targets have
+distinct clouds. Each profile is one unified path, avoiding darker seams where
+lobes would otherwise overlap. The `184x80` surface normalizes each silhouette's
+vertical range into a safe Canvas inset and uses rounded stroke joins. This lets
+every cloud fill the available space while preserving its full crown and base
+without texture-edge clipping.
 
 The default variant is One Half Gray. One Half Light demonstrates that visual
 components remain independent from a specific palette. Theme selection is
