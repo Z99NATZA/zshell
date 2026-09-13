@@ -21,8 +21,8 @@ PanelWindow {
 	margins.left: 0
 	margins.right: 0
 	margins.bottom: 0
-	color: "transparent"
-	exclusiveZone: 0
+	color: Theme.surface
+	exclusiveZone: implicitHeight
 	aboveWindows: true
 	readonly property int statusLabelLimit: 12
 
