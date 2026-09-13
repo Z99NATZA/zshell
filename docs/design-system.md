@@ -15,6 +15,7 @@ color, and motion rather than decoration or repeated labels.
 | Radar sweep duration | `4800ms` |
 | Radar entrance duration | `440ms` |
 | Bubble entrance duration | `280ms` after its first sweep encounter |
+| Panel shadow | Three layers at `3%`, `5%`, and `9%` opacity |
 | Motion easing | `Easing.OutCubic` |
 | Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |
@@ -57,6 +58,9 @@ does not own the icon value.
 - Omit a title or label when the value and icon already explain the component.
 - Keep persistent chrome compact; reveal detail on demand.
 - Prefer borders and surface contrast over heavy shadows.
+- Quick Settings, Clock, and Music use one restrained contact shadow treatment
+  only to separate overlapping components. Their outer borders remain
+  transparent.
 - Reserve fully round shapes for indicators and progress details.
 - Avoid large-area blur. The MVP uses no blur.
 - Hide absent content instead of rendering an empty placeholder card.
@@ -82,6 +86,9 @@ does not own the icon value.
   restore the separately persisted minimal rectangle on collapse.
 - Limit large translucent surface animation to bounded open and close motion;
   never animate one continuously or continuously sample idle data.
+- Panel shadows use three solid rounded underlays without Canvas, runtime blur,
+  or transparent ring textures. They follow panel geometry and fade faster than
+  the surface as shared component opacity decreases.
 - The central radio pulse travels from the core to the radar's second grid ring
   while its matching Quick Settings page is visible. It scales with the radar,
   stops with the modal, and never samples system state on a timer.

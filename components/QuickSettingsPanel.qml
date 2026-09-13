@@ -201,7 +201,7 @@ PanelWindow {
 	function setWidgetVisible(widget, visible) {
 		if (widget !== "clock" && widget !== "music") return
 
-		if (visible) UiState.raiseComponent(widget)
+		if (visible) UiState.raiseDesktopComponent(widget)
 
 		if (widget === "clock") LayoutState.showClock = visible
 		else LayoutState.showMusic = visible
@@ -697,6 +697,17 @@ PanelWindow {
 			enabled: !root.closing && !root.pinned
 			onClicked: root.requestClose()
 		}
+	}
+
+	PanelShadow {
+		x: panelSurface.x - padding
+		y: panelSurface.y - padding
+		panelWidth: panelSurface.width
+		panelHeight: panelSurface.height
+		panelRadius: panelSurface.radius
+		sourceOpacity: panelSurface.opacity
+		scale: panelSurface.scale
+		transformOrigin: Item.Center
 	}
 
 	ShellSurface {

@@ -5,7 +5,7 @@ a process restart.
 
 | Owner | Lifetime | Values |
 | --- | --- | --- |
-| `UiState.qml` | Current process | Modal visibility, active component and stack order, Dock animation target, and selected connection mode |
+| `UiState.qml` | Current process | Modal visibility, active component, desktop promotion and stack order, Dock animation target, and selected connection mode |
 | `LayoutState.qml` | Across restarts | Minimal and expanded card geometry, card visibility, Quick Settings geometry, theme, component opacity, and language indicator visibility |
 
 `LayoutState` uses Quickshell `FileView` with `JsonAdapter`. Updates are written
@@ -50,9 +50,12 @@ above normal applications; activating Clock or Music promotes their shared
 shell window above the other zshell panels in both minimal and expanded modes.
 Activation advances the process-local serial and assigns the newest stack
 value. Re-enabling Clock or Music also advances that widget's stack value
-without changing the active component, so Quick Settings keeps focus while the
-newly shown desktop widget moves above its peer. Stack order is intentionally
-not persisted, so each session starts from a deterministic base.
+without changing the active component. `raisedDesktopComponent` then keeps the
+shared desktop surface on the top layer above normal applications while Quick
+Settings retains focus on the overlay layer. A later Quick Settings activation
+from another component clears that temporary promotion. Stack order and surface
+promotion are intentionally not persisted, so each session starts from a
+deterministic base.
 
 `showLanguageLeft` and `showLanguageRight` default to true. They are persisted
 now so a future settings UI can control each side without changing dock layout.

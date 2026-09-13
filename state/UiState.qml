@@ -8,6 +8,7 @@ Singleton {
 	property real quickSettingsTargetX: -1
 	property real quickSettingsTargetY: -1
 	property string activeComponent: ""
+	property string raisedDesktopComponent: ""
 	property int stackSerial: 3
 	property int clockStack: 1
 	property int musicStack: 2
@@ -23,8 +24,26 @@ Singleton {
 		else if (component === "quickSettings") quickSettingsStack = stackSerial
 	}
 
+	function raiseDesktopComponent(component) {
+		if (component !== "clock" && component !== "music") return
+
+		raisedDesktopComponent = component
+		raiseComponent(component)
+	}
+
+	function releaseRaisedDesktopComponent(component) {
+		if (raisedDesktopComponent === component) raisedDesktopComponent = ""
+	}
+
 	function activateComponent(component) {
 		if (component.length === 0) return
+
+		if (component === "clock" || component === "music") {
+			raisedDesktopComponent = component
+		} else if (component === "quickSettings"
+				&& activeComponent !== "quickSettings") {
+			raisedDesktopComponent = ""
+		}
 
 		activeComponent = component
 		raiseComponent(component)

@@ -42,6 +42,7 @@ Singleton {
 	readonly property color borderStrong: light
 		? Qt.rgba(170 / 255, 177 / 255, 189 / 255, componentOpacity)
 		: Qt.rgba(93 / 255, 103 / 255, 122 / 255, componentOpacity)
+	readonly property color panelShadow: light ? "#282C34" : "#000000"
 	readonly property color text: light ? "#282C34" : "#DCDFE4"
 	readonly property color textMuted: light ? "#5D677A" : "#ABB2BF"
 	readonly property color accent: "#61AFEF"
