@@ -141,7 +141,8 @@
   stores minimal and expanded rectangles separately.
 - Hiding an expanded or pinned desktop card first clears Pin and restores its
   minimal geometry. Showing it again restores the last committed minimal
-  rectangle; Music still requires an available MPRIS player.
+  rectangle and raises it above the other desktop card without taking focus
+  from Quick Settings. Music still requires an available MPRIS player.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
   require new credentials remain selectable, but their inspector action is
   disabled.

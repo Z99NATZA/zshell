@@ -13,15 +13,21 @@ Singleton {
 	property int musicStack: 2
 	property int quickSettingsStack: 3
 
-	function activateComponent(component) {
+	function raiseComponent(component) {
 		if (component.length === 0) return
 
-		activeComponent = component
 		stackSerial += 1
 
 		if (component === "clock") clockStack = stackSerial
 		else if (component === "music") musicStack = stackSerial
 		else if (component === "quickSettings") quickSettingsStack = stackSerial
+	}
+
+	function activateComponent(component) {
+		if (component.length === 0) return
+
+		activeComponent = component
+		raiseComponent(component)
 	}
 
 	function releaseComponent(component) {

@@ -199,8 +199,12 @@ PanelWindow {
 	}
 
 	function setWidgetVisible(widget, visible) {
+		if (widget !== "clock" && widget !== "music") return
+
+		if (visible) UiState.raiseComponent(widget)
+
 		if (widget === "clock") LayoutState.showClock = visible
-		else if (widget === "music") LayoutState.showMusic = visible
+		else LayoutState.showMusic = visible
 	}
 
 	function connectionForKey(items, kind, key) {
