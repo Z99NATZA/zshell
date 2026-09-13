@@ -25,7 +25,9 @@ make run
 ```
 
 `make run` invokes `qs -p <repository>`, which gives the project a stable shell
-ID and state directory through the pragmas in `shell.qml`.
+ID and state directory through the pragmas in `shell.qml`. The runner owns that
+Quickshell child process: interrupting `make run`, including Kitty's
+`Super+\\` mapping to `Ctrl+C`, terminates the child before the runner exits.
 
 The root configuration opts into `QApplication` mode so StatusNotifier items
 can display their platform menus. Changing this pragma requires a full
