@@ -18,8 +18,11 @@ rendering.
 
 `clockX`, `clockY`, `clockWidth`, and `clockHeight` store the minimal Clock
 rectangle. The matching `clockExpanded*` values store its expanded rectangle.
-Music uses the same split through `music*` and `musicExpanded*`. Panels always
-start minimal after a process restart; only their two geometry sets persist.
+Music uses the same split through `music*` and `musicExpanded*`. Expansion uses
+the persisted expanded size but derives its position from the current minimal
+rectangle: it grows right and down when space permits and reverses only the
+axis that would cross a screen boundary. Panels always start minimal after a
+process restart; only their two geometry sets persist.
 
 `showClock` and `showMusic` default to true and are controlled from the Quick
 Settings Widgets page. Disabling either value hides the card across restarts.

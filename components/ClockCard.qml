@@ -74,15 +74,19 @@ FloatingPanel {
 		const nextHeight = clampedHeight(nextExpanded
 			? LayoutState.clockExpandedHeight : LayoutState.clockHeight,
 			nextExpanded ? 260 : 108)
-		const storedX = nextExpanded ? LayoutState.clockExpandedX : LayoutState.clockX
-		const storedY = nextExpanded ? LayoutState.clockExpandedY : LayoutState.clockY
-		const centeredX = x + (width - nextWidth) / 2
-		const centeredY = y + (height - nextHeight) / 2
 
-		transitionX = clampedX(storedX < 0 ? centeredX : storedX, nextWidth)
-		transitionY = clampedY(storedY < 0 ? centeredY : storedY, nextHeight)
-		transitionWidth = nextWidth
-		transitionHeight = nextHeight
+		if (nextExpanded) {
+			const target = anchoredExpansionGeometry(nextWidth, nextHeight)
+			transitionX = target.x
+			transitionY = target.y
+			transitionWidth = target.width
+			transitionHeight = target.height
+		} else {
+			transitionX = clampedX(LayoutState.clockX, nextWidth)
+			transitionY = clampedY(LayoutState.clockY, nextHeight)
+			transitionWidth = nextWidth
+			transitionHeight = nextHeight
+		}
 		expanded = nextExpanded
 		modeTransition.restart()
 		if (activatePanel) focusTimer.restart()

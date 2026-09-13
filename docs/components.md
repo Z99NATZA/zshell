@@ -132,10 +132,13 @@
   `hypr-power-menu`; it never runs a session or machine power action directly.
 - Clock and Music start as minimal desktop widgets. A single click activates the
   widget and raises its stack order. Double-clicking empty widget space expands
-  it into a floating panel. When unpinned, double-clicking again, clicking the
-  transparent outside region, the header Close control, or Escape returns it to
-  minimal mode. Music transport controls retain their single-click actions and
-  do not toggle panel mode.
+  it into a floating panel through true geometry resize. Expansion keeps the
+  minimal panel's left and top edges fixed and grows right and down whenever
+  both dimensions fit. An axis reverses independently when its preferred side
+  lacks room, so a bottom-left widget grows right and up. When unpinned,
+  double-clicking again, clicking the transparent outside region, the header
+  Close control, or Escape returns it to minimal mode. Music transport controls
+  retain their single-click actions and do not toggle panel mode.
 - Expanded Clock and Music panels expose a transient Pin control. Pin keeps the
   panel expanded when focus moves or the user clicks outside, while preserving
   drag, resize, and normal stack activation. Close and Escape override Pin,

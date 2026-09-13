@@ -40,6 +40,39 @@ ShellSurface {
 	signal geometryCommitted(real panelX, real panelY, real panelWidth,
 		real panelHeight)
 
+	function anchoredExpansionAxis(panelStart, panelSize, targetSize,
+			minimumEdge, maximumEdge) {
+		const panelEnd = panelStart + panelSize
+		const desiredSize = Math.max(panelSize, targetSize)
+		const forwardSpace = Math.max(panelSize, maximumEdge - panelStart)
+		const backwardSpace = Math.max(panelSize, panelEnd - minimumEdge)
+
+		if (desiredSize <= forwardSpace) {
+			return { start: panelStart, size: desiredSize }
+		}
+		if (desiredSize <= backwardSpace) {
+			return { start: panelEnd - desiredSize, size: desiredSize }
+		}
+		if (forwardSpace >= backwardSpace) {
+			return { start: panelStart, size: forwardSpace }
+		}
+		return { start: panelEnd - backwardSpace, size: backwardSpace }
+	}
+
+	function anchoredExpansionGeometry(targetWidth, targetHeight) {
+		const horizontal = anchoredExpansionAxis(x, width, targetWidth,
+			edgeMargin, boundsWidth - edgeMargin)
+		const vertical = anchoredExpansionAxis(y, height, targetHeight,
+			edgeMargin, boundsHeight - bottomMargin)
+
+		return {
+			x: horizontal.start,
+			y: vertical.start,
+			width: horizontal.size,
+			height: vertical.size
+		}
+	}
+
 	raised: true
 	color: Theme.surfaceRaised
 	border.color: "transparent"

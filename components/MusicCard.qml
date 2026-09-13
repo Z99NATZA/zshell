@@ -78,15 +78,19 @@ FloatingPanel {
 		const nextHeight = clampedHeight(nextExpanded
 			? LayoutState.musicExpandedHeight : LayoutState.musicHeight,
 			nextExpanded ? 320 : 124)
-		const storedX = nextExpanded ? LayoutState.musicExpandedX : LayoutState.musicX
-		const storedY = nextExpanded ? LayoutState.musicExpandedY : LayoutState.musicY
-		const centeredX = x + (width - nextWidth) / 2
-		const centeredY = y + (height - nextHeight) / 2
 
-		transitionX = clampedX(storedX < 0 ? centeredX : storedX, nextWidth)
-		transitionY = clampedY(storedY < 0 ? centeredY : storedY, nextHeight)
-		transitionWidth = nextWidth
-		transitionHeight = nextHeight
+		if (nextExpanded) {
+			const target = anchoredExpansionGeometry(nextWidth, nextHeight)
+			transitionX = target.x
+			transitionY = target.y
+			transitionWidth = target.width
+			transitionHeight = target.height
+		} else {
+			transitionX = clampedX(LayoutState.musicX, nextWidth)
+			transitionY = clampedY(LayoutState.musicY, nextHeight)
+			transitionWidth = nextWidth
+			transitionHeight = nextHeight
+		}
 		expanded = nextExpanded
 		modeTransition.restart()
 		if (activatePanel) focusTimer.restart()

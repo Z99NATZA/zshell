@@ -90,8 +90,9 @@ does not own the icon value.
 ## Motion and performance
 
 - Animate opacity, color, position, and bounded progress changes.
-- Animate minimal-to-expanded geometry from the widget's current center and
-  restore the separately persisted minimal rectangle on collapse.
+- Animate minimal-to-expanded geometry as an edge-anchored resize. Grow right
+  and down first, reversing only an axis that lacks room, and restore the
+  separately persisted minimal rectangle on collapse.
 - Limit large translucent surface animation to bounded open and close motion;
   never animate one continuously or continuously sample idle data.
 - Panel shadows use three solid rounded underlays without Canvas, runtime blur,
