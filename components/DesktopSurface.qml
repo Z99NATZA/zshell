@@ -31,33 +31,15 @@ PanelWindow {
 	exclusionMode: ExclusionMode.Ignore
 
 	readonly property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
-	readonly property bool unpinnedModalOpen:
-		(clockCard.visible && clockCard.expanded && !clockCard.pinned)
-		|| (musicCard.visible && musicCard.expanded && !musicCard.pinned)
 	readonly property bool panelDragActive: clockCard.dragging || musicCard.dragging
 
 	function hidePanel(panel, component) {
-		panel.pinned = false
 		if (panel.expanded) panel.setExpanded(false, false)
 		UiState.releaseRaisedDesktopComponent(component)
 		UiState.releaseComponent(component)
 	}
 
-	function collapseUnpinnedPanels(exceptComponent) {
-		if (exceptComponent !== "clock" && clockCard.expanded
-				&& !clockCard.pinned) {
-			clockCard.setExpanded(false, false)
-		}
-
-		if (exceptComponent !== "music" && musicCard.expanded
-				&& !musicCard.pinned) {
-			musicCard.setExpanded(false, false)
-		}
-	}
-
 	mask: Region {
-		Region { item: modalBackdrop }
-
 		Region {
 			width: root.panelDragActive ? root.width : 0
 			height: root.panelDragActive ? root.height : 0
@@ -77,25 +59,6 @@ PanelWindow {
 			width: musicCard.visible ? musicCard.width : 0
 			height: musicCard.visible ? musicCard.height : 0
 			radius: musicCard.radius
-		}
-	}
-
-	MouseArea {
-		id: modalBackdrop
-		x: 0
-		y: 0
-		width: root.unpinnedModalOpen ? root.width : 0
-		height: root.unpinnedModalOpen ? root.height : 0
-		z: 0
-		enabled: root.unpinnedModalOpen
-		onClicked: root.collapseUnpinnedPanels("")
-	}
-
-	Connections {
-		target: UiState
-
-		function onActiveComponentChanged() {
-			root.collapseUnpinnedPanels(UiState.activeComponent)
 		}
 	}
 
@@ -127,6 +90,7 @@ PanelWindow {
 		visible: LayoutState.showClock
 		availableWidth: root.width
 		availableHeight: root.height
+		onHideRequested: LayoutState.showClock = false
 	}
 
 	PanelShadow {
@@ -146,5 +110,6 @@ PanelWindow {
 		userVisible: LayoutState.showMusic
 		availableWidth: root.width
 		availableHeight: root.height
+		onHideRequested: LayoutState.showMusic = false
 	}
 }

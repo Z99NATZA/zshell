@@ -10,7 +10,6 @@ ShellSurface {
 	property string title: ""
 	property string icon: ""
 	property bool expanded: false
-	property bool pinned: false
 	property bool active: false
 	property bool dragEnabled: true
 	property bool resizeEnabled: true
@@ -37,6 +36,7 @@ ShellSurface {
 
 	signal activated
 	signal modeToggleRequested
+	signal hideRequested
 	signal geometryCommitted(real panelX, real panelY, real panelWidth,
 		real panelHeight)
 
@@ -79,7 +79,6 @@ ShellSurface {
 	radius: Theme.radius * 3
 	interactive: active || dragArea.containsMouse || resizing
 	clip: true
-	onExpandedChanged: if (!expanded) pinned = false
 
 	MouseArea {
 		id: activationArea
@@ -87,9 +86,7 @@ ShellSurface {
 		z: 0
 		hoverEnabled: true
 		onPressed: root.activated()
-		onDoubleClicked: {
-			if (!root.expanded || !root.pinned) root.modeToggleRequested()
-		}
+		onDoubleClicked: if (!root.expanded) root.modeToggleRequested()
 	}
 
 	MouseArea {
@@ -110,9 +107,7 @@ ShellSurface {
 		drag.maximumY: root.maximumPanelY
 		drag.smoothed: true
 		onPressed: root.activated()
-		onDoubleClicked: {
-			if (!root.expanded || !root.pinned) root.modeToggleRequested()
-		}
+		onDoubleClicked: if (!root.expanded) root.modeToggleRequested()
 		onReleased: root.geometryCommitted(root.x, root.y, root.width, root.height)
 	}
 
@@ -191,38 +186,33 @@ ShellSurface {
 
 		Row {
 			id: headerActionHost
-			anchors.right: pinButton.left
+			anchors.right: collapseButton.left
 			anchors.rightMargin: Theme.spacingXs
 			anchors.verticalCenter: parent.verticalCenter
 			spacing: Theme.spacingXs
 		}
 
 		ActionButton {
-			id: pinButton
-			anchors.right: compactButton.left
+			id: collapseButton
+			anchors.right: closeButton.left
 			anchors.rightMargin: Theme.spacingXs
 			anchors.verticalCenter: parent.verticalCenter
 			compact: true
-			icon: "󰐃"
-			active: root.pinned
+			icon: "󰖰"
 			onClicked: {
 				root.activated()
-				root.pinned = !root.pinned
+				root.modeToggleRequested()
 			}
 		}
 
 		ActionButton {
-			id: compactButton
+			id: closeButton
 			anchors.right: parent.right
 			anchors.rightMargin: Theme.spacingLg
 			anchors.verticalCenter: parent.verticalCenter
 			compact: true
 			icon: "󰅖"
-			onClicked: {
-				root.activated()
-				root.pinned = false
-				root.modeToggleRequested()
-			}
+			onClicked: root.hideRequested()
 		}
 	}
 

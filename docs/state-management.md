@@ -43,9 +43,10 @@ surfaces and borders without fading foreground content.
 open panel's click-through mask and resets whenever the panel closes, so it is
 not stored in `UiState` or `LayoutState`.
 
-Each expanded `FloatingPanel` also owns transient Pin state. Pin prevents an
-outside click or focus change from restoring minimal mode, but it does not alter
-the persisted geometry or stack counters. Explicit Close and Escape reset it.
+Expanded Clock and Music panels have no Pin state. They stay expanded across
+outside clicks and focus changes while transparent outside input passes through.
+Collapse and Escape restore minimal mode. Close restores minimal geometry and
+sets the matching persisted visibility switch to false.
 
 `UiState.activeComponent` and the three component stack counters coordinate
 focus and layer order across Clock, Music, and Quick Settings. Open panels stay

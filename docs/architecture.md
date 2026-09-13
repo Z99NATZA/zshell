@@ -34,10 +34,9 @@ Hyprland / NetworkManager / BlueZ / MPRIS
   the visible controls.
 - `QuickSettingsPanel` is created per screen and shown on demand.
 - `DesktopSurface` is below normal application windows and uses a click-through
-  mask so transparent areas normally never block desktop input. An unpinned
-  expanded card temporarily owns a transparent full-screen dismiss region;
-  pinning it restores outside click-through. The surface moves above normal
-  windows while Clock or Music is expanded.
+  mask so transparent areas never block desktop input. Expanded Clock and Music
+  cards remain open while outside input passes through. The surface moves above
+  normal windows while either card is expanded.
 - Clock and Music share `DesktopSurface`, so their QML stack values provide
   deterministic last-activated ordering. Quick Settings remains a separate
   window. Expanded or open panels remain on the layer-shell `Top` layer above

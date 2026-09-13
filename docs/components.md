@@ -135,17 +135,17 @@
   it into a floating panel through true geometry resize. Expansion keeps the
   minimal panel's left and top edges fixed and grows right and down whenever
   both dimensions fit. An axis reverses independently when its preferred side
-  lacks room, so a bottom-left widget grows right and up. When unpinned,
-  double-clicking again, clicking the transparent outside region, the header
-  Close control, or Escape returns it to minimal mode. Music transport controls
-  retain their single-click actions and do not toggle panel mode.
-- Expanded Clock and Music panels expose a transient Pin control. Pin keeps the
-  panel expanded when focus moves or the user clicks outside, while preserving
-  drag, resize, and normal stack activation. Close and Escape override Pin,
-  collapse the panel, and reset Pin.
+  lacks room, so a bottom-left widget grows right and up. Expanded panels stay
+  open when focus moves or the user clicks outside. The header Collapse control
+  or Escape returns the panel to minimal mode. Music transport controls retain
+  their single-click actions and do not toggle panel mode.
+- Expanded Clock and Music headers provide separate Collapse and Close actions.
+  Collapse restores the persisted minimal rectangle. Close first restores that
+  rectangle and then hides the widget by turning off its persisted Widgets-page
+  visibility switch; the switch is the path for showing it again.
 - Clock and Music use the same `Theme.radius * 3` corner radius as Quick
   Settings in both modes. Their expanded mode is one uninterrupted translucent
-  surface: Title, Pin, and Close sit inside its padding without a separate
+  surface: Title, Collapse, and Close sit inside its padding without a separate
   header fill or divider, and the surrounding top region remains the drag
   target.
 - `FloatingPanel` provides an optional header-action row and right-side
@@ -158,11 +158,10 @@
   Dragging and resizing commit the geometry for the current mode.
 - Desktop cards report committed geometry. `LayoutState` owns persistence and
   stores minimal and expanded rectangles separately.
-- Hiding an expanded or pinned desktop card first clears Pin and restores its
-  minimal geometry. Showing it again restores the last committed minimal
-  rectangle, raises it above normal applications and the other desktop card,
-  and leaves focus with Quick Settings. Music still requires an available
-  MPRIS player.
+- Hiding an expanded desktop card restores its minimal geometry. Showing it
+  again restores the last committed minimal rectangle, raises it above normal
+  applications and the other desktop card, and leaves focus with Quick
+  Settings. Music still requires an available MPRIS player.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
   require new credentials remain selectable, but their inspector action is
   disabled.
@@ -183,19 +182,17 @@
 
 ## Input behavior
 
-The desktop surface normally accepts pointer input only over visible Clock and
-Music panels. An unpinned expanded panel temporarily adds a transparent
-full-screen input region so the first outside click can collapse it. Pin removes
-that outside region, allowing unrelated clicks through while the panel stays
-expanded. Minimal widgets start on the desktop layer. Clicking either minimal
-widget promotes the shared surface above the other zshell panels, just as
-activating an expanded widget does. Re-enabling a minimal widget promotes the
-shared surface to the top layer above normal applications while Quick Settings
-keeps focus on the overlay layer. Opening Quick Settings from another component
-clears the previous promotion and returns inactive minimal widgets to the
-desktop layer; an inactive expanded widget remains above normal windows. Within
-the desktop surface, the last activated Clock or Music panel has the highest
-item stack value.
+The desktop surface accepts pointer input only over visible Clock and Music
+panels. Transparent outside regions always pass input through while an expanded
+panel stays open. Minimal widgets start on the desktop layer. Clicking either
+minimal widget promotes the shared surface above the other zshell panels, just
+as activating an expanded widget does. Re-enabling a minimal widget promotes
+the shared surface to the top layer above normal applications while Quick
+Settings keeps focus on the overlay layer. Opening Quick Settings from another
+component clears the previous promotion and returns inactive minimal widgets to
+the desktop layer; an inactive expanded widget remains above normal windows.
+Within the desktop surface, the last activated Clock or Music panel has the
+highest item stack value.
 
 Pressing a Clock or Music drag area temporarily expands the desktop surface's
 input mask to the full screen until release or cancellation. This preserves the
