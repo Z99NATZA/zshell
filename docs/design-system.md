@@ -61,15 +61,17 @@ does not own the icon value.
 - Omit a title or label when the value and icon already explain the component.
 - Keep persistent chrome compact; reveal detail on demand.
 - Keep system tray icons at `18px` inside the Dock's existing `30px` control
-  rhythm. Show each app's native icon without tinting and use only the shared
-  soft surface for hover and press feedback. Tray tooltips use the raised
-  surface above the hovered icon, appear after `500ms`, and remain at most
-  `300px` wide.
+  rhythm. Their hover and press surface is circular. Show each app's native icon
+  without tinting and use only the shared soft surface for feedback. Tray
+  tooltips use the raised surface above the hovered icon, appear after `500ms`,
+  and remain at most `300px` wide.
 - Prefer borders and surface contrast over heavy shadows.
 - Quick Settings, Clock, and Music use one restrained contact shadow treatment
   only to separate overlapping components. Their outer borders remain
   transparent.
-- Reserve fully round shapes for indicators and progress details.
+- Reserve fully round shapes for indicators, progress details, and square
+  icon-only controls. Controls containing text retain the standard rounded
+  rectangle.
 - Avoid large-area blur. The MVP uses no blur.
 - Hide absent content instead of rendering an empty placeholder card.
 - Minimal widgets stay visually quiet; hover cursors communicate their drag and

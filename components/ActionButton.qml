@@ -15,7 +15,7 @@ Rectangle {
 
 	implicitWidth: compact ? 34 : Math.max(72, content.implicitWidth + Theme.spacingMd * 2)
 	implicitHeight: 34
-	radius: Theme.radius
+	radius: compact ? height / 2 : Theme.radius
 	color: active ? Theme.surfaceSoft : (pointer.containsMouse ? Theme.surfaceSoft : "transparent")
 	opacity: enabled ? 1 : 0.42
 

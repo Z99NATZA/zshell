@@ -13,7 +13,7 @@ Rectangle {
 
 	implicitWidth: 30
 	implicitHeight: 30
-	radius: Theme.radius
+	radius: height / 2
 	color: pointer.pressed || pointer.containsMouse
 		? Theme.surfaceSoft
 		: "transparent"
