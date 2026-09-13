@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import qs.theme
 
 Rectangle {
@@ -13,8 +14,18 @@ Rectangle {
 	color: pointer.pressed || pointer.containsMouse
 		? Theme.surfaceSoft
 		: "transparent"
+	readonly property string tooltipTitle: {
+		if (!trayItem) return ""
+		return (trayItem.tooltipTitle || trayItem.title
+			|| trayItem.id || "").trim()
+	}
+	readonly property string tooltipDescription: trayItem
+		? (trayItem.tooltipDescription || "").trim()
+		: ""
+	property bool tooltipRequested: false
 
 	function displayMenu() {
+		tooltipRequested = false
 		if (!trayItem || !trayItem.hasMenu) return
 
 		const anchor = root.mapToItem(parentWindow.contentItem,
@@ -24,6 +35,92 @@ Rectangle {
 
 	Behavior on color {
 		ColorAnimation { duration: Theme.motionDuration }
+	}
+
+	Timer {
+		id: tooltipTimer
+		interval: 500
+		onTriggered: root.tooltipRequested = root.tooltipTitle.length > 0
+	}
+
+	PopupWindow {
+		id: tooltip
+
+		property real reveal: root.tooltipRequested ? 1 : 0
+
+		anchor {
+			window: root.parentWindow
+			adjustment: PopupAdjustment.SlideX
+			gravity: Edges.Bottom | Edges.Right
+
+			onAnchoring: {
+				const position = root.mapToItem(root.parentWindow.contentItem,
+					root.width / 2 - tooltip.width / 2,
+					-tooltip.height - Theme.spacingSm)
+				tooltip.anchor.rect.x = Math.round(position.x)
+				tooltip.anchor.rect.y = Math.round(position.y)
+			}
+		}
+
+		implicitWidth: Math.min(300, Math.max(
+			tooltipTitleLabel.implicitWidth,
+			tooltipDescriptionLabel.visible
+				? tooltipDescriptionLabel.implicitWidth
+				: 0) + Theme.spacingMd * 2)
+		implicitHeight: tooltipContent.implicitHeight + Theme.spacingSm * 2
+		color: "transparent"
+		visible: reveal > 0
+		grabFocus: false
+
+		onImplicitWidthChanged: if (visible) anchor.updateAnchor()
+		onImplicitHeightChanged: if (visible) anchor.updateAnchor()
+
+		Behavior on reveal {
+			NumberAnimation {
+				duration: Theme.motionDuration
+				easing.type: Easing.OutCubic
+			}
+		}
+
+		Rectangle {
+			anchors.fill: parent
+			radius: Theme.radius
+			color: Theme.surfaceRaised
+			border.width: 1
+			border.color: Theme.border
+			opacity: tooltip.reveal
+
+			Column {
+				id: tooltipContent
+				anchors.centerIn: parent
+				width: parent.width - Theme.spacingMd * 2
+				spacing: tooltipDescriptionLabel.visible ? Theme.spacingXs : 0
+
+				Text {
+					id: tooltipTitleLabel
+					width: parent.width
+					text: root.tooltipTitle
+					color: Theme.text
+					font.family: Theme.textFontFamily
+					font.pixelSize: 12
+					font.weight: Font.Medium
+					wrapMode: Text.Wrap
+				}
+
+				Text {
+					id: tooltipDescriptionLabel
+					width: parent.width
+					visible: root.tooltipDescription.length > 0
+					text: root.tooltipDescription
+					color: Theme.textMuted
+					font.family: Theme.textFontFamily
+					font.pixelSize: 11
+					wrapMode: Text.Wrap
+					maximumLineCount: 3
+					elide: Text.ElideRight
+				}
+			}
+		}
 	}
 
 	Image {
@@ -53,8 +150,18 @@ Rectangle {
 		hoverEnabled: true
 		acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
 		cursorShape: Qt.PointingHandCursor
+		onContainsMouseChanged: {
+			if (containsMouse) {
+				root.tooltipRequested = false
+				tooltipTimer.restart()
+			} else {
+				tooltipTimer.stop()
+				root.tooltipRequested = false
+			}
+		}
 
 		onClicked: mouse => {
+			root.tooltipRequested = false
 			if (!root.trayItem) return
 
 			if (mouse.button === Qt.RightButton) {
