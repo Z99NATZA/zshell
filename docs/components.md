@@ -108,8 +108,10 @@
   Bluetooth. It toggles persisted Clock visibility and whether Music may appear
   when media is available. The Dock time control opens this page directly.
 - `ActionButton` owns reusable control feedback. Compact icon-only instances
-  use circular hover, pressed, and active surfaces; controls containing text
-  retain the standard rounded rectangle. Feature components own layout.
+  use circular hover, pressed, and active surfaces that switch directly to the
+  shared soft color without interpolation; controls containing text retain the
+  standard rounded rectangle and color transition. Feature components own
+  layout.
 - The workspace switcher starts with the configurable `Theme.workspaceIcon`.
   Its numbers have no shared container, and the active workspace uses a
   high-contrast circular indicator.
@@ -118,10 +120,12 @@
 - The dock volume button toggles mute on click and changes volume by 5% per
   mouse-wheel step.
 - The Dock renders one compact button for each StatusNotifier tray item and
-  uses a circular interaction surface, and leaves no empty tray placeholder
-  when no items are registered. Left click activates the item, right click
-  opens its menu, middle click invokes its secondary action, and wheel input is
-  forwarded to the item. Menu-only items open their menu on left click.
+  uses a circular interaction surface and leaves no empty tray placeholder
+  when no items are registered. Its interaction surface switches directly to
+  the shared soft color without interpolation. Left click activates the item,
+  right click opens its menu, middle click invokes its secondary action, and
+  wheel input is forwarded to the item. Menu-only items open their menu on left
+  click.
   Hovering for 500ms opens a non-focusable tooltip above the icon. The tooltip
   prefers the item's tooltip title, falls back to its application title or ID,
   keeps that title on one line, and shows up to three description lines. If an

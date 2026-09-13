@@ -71,7 +71,9 @@ does not own the icon value.
   transparent.
 - Reserve fully round shapes for indicators, progress details, and square
   icon-only controls. Controls containing text retain the standard rounded
-  rectangle.
+  rectangle. Compact font icons and native system tray images remain
+  geometrically centered. Icon-only and tray hover surfaces switch directly to
+  `surfaceSoft` without color interpolation.
 - Avoid large-area blur. The MVP uses no blur.
 - Hide absent content instead of rendering an empty placeholder card.
 - Minimal widgets stay visually quiet; hover cursors communicate their drag and

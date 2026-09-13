@@ -20,6 +20,7 @@ Rectangle {
 	opacity: enabled ? 1 : 0.42
 
 	Behavior on color {
+		enabled: !root.compact
 		ColorAnimation { duration: Theme.motionDuration }
 	}
 

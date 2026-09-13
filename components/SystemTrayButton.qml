@@ -47,10 +47,6 @@ Rectangle {
 		trayItem.display(parentWindow, Math.round(anchor.x), Math.round(anchor.y))
 	}
 
-	Behavior on color {
-		ColorAnimation { duration: Theme.motionDuration }
-	}
-
 	Timer {
 		id: tooltipTimer
 		interval: 500
