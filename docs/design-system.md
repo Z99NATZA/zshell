@@ -30,8 +30,10 @@ not allowed outside the theme owner.
 
 The persisted component opacity applies to all surface and border roles. It
 does not reduce the opacity of foreground text, icons, or media artwork.
-The Dock background uses `surface`; Quick Settings and the Clock and Music
-panels use the same `surfaceRaised` opacity in both minimal and expanded modes.
+The Dock window and island containers remain transparent. Individual Dock
+controls use `surfaceSoft` only for interaction feedback. Quick Settings and
+the Clock and Music panels use the same `surfaceRaised` opacity in both minimal
+and expanded modes.
 
 Connection bubbles use dedicated glass surface roles. Their base alpha is
 `54%` in the gray theme and `62%` in the light theme, multiplied by the shared

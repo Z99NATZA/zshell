@@ -21,7 +21,7 @@ PanelWindow {
 	margins.left: 0
 	margins.right: 0
 	margins.bottom: 0
-	color: Theme.surface
+	color: "transparent"
 	exclusiveZone: implicitHeight
 	aboveWindows: true
 	readonly property int statusLabelLimit: 12
@@ -105,13 +105,12 @@ PanelWindow {
 		Region { item: statusIsland }
 	}
 
-	ShellSurface {
+	Item {
 		id: leftLanguageIsland
 		anchors.left: parent.left
 		anchors.verticalCenter: parent.verticalCenter
 		width: leftLanguageRow.width + Theme.spacingSm * 2
 		height: parent.height
-		raised: true
 
 		Row {
 			id: leftLanguageRow
@@ -192,13 +191,12 @@ PanelWindow {
 		}
 	}
 
-	ShellSurface {
+	Item {
 		id: statusIsland
 		anchors.right: parent.right
 		anchors.verticalCenter: parent.verticalCenter
 		width: statusRow.width + Theme.spacingSm * 2
 		height: parent.height
-		raised: true
 
 		Row {
 			id: statusRow

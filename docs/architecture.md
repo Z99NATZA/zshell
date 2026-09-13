@@ -29,9 +29,9 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 
 - `Dock` is an above-window layer surface attached directly to the bottom,
   left, and right screen edges. It reserves its 44-pixel height so normal
-  windows stop above rather than render underneath it. Its background uses the
-  shared component opacity, while the input mask limits pointer handling to the
-  visible islands.
+  windows stop above rather than render underneath it. Its window and island
+  containers are transparent, while the input mask limits pointer handling to
+  the visible controls.
 - `QuickSettingsPanel` is created per screen and shown on demand.
 - `DesktopSurface` is below normal application windows and uses a click-through
   mask so transparent areas normally never block desktop input. An unpinned
