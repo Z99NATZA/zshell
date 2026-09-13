@@ -27,7 +27,9 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 
 ## Window model
 
-- `Dock` is an above-window layer surface offset above the existing Waybar.
+- `Dock` is an above-window layer surface anchored 12 pixels above the bottom
+  edge. Its automatic exclusion zone reserves the Dock height and margin so
+  normal windows do not extend underneath the shell.
 - `QuickSettingsPanel` is created per screen and shown on demand.
 - `DesktopSurface` is below normal application windows and uses a click-through
   mask so transparent areas normally never block desktop input. An unpinned

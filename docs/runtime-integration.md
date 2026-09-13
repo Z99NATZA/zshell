@@ -1,7 +1,7 @@
 # Runtime Integration
 
-The MVP runs directly from the repository and deliberately does not replace
-Waybar or modify Hyprland startup.
+The MVP runs directly from the repository and is designed to replace Waybar.
+Repository commands do not modify Hyprland startup automatically.
 
 ## Requirements
 
@@ -43,8 +43,9 @@ Repository implementation does not authorize any of these operations:
 - stopping Waybar or enabling zshell at login.
 
 Those changes require an explicitly agreed machine-integration scope. During
-development, the dock remains 54 pixels above the bottom edge so it can coexist
-with the current Waybar.
+normal use, run either zshell or Waybar rather than both. The zshell Dock sits
+12 pixels above the bottom edge and reserves its full height plus that margin;
+running Waybar at the same time stacks both shells' exclusion zones.
 
 ## Failure behavior
 
