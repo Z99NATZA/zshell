@@ -122,7 +122,9 @@
   open their menu on left click. Hovering for 500ms opens a non-focusable
   tooltip above the icon. The tooltip prefers the item's tooltip title, falls
   back to its application title or ID, keeps that title on one line, and shows
-  up to three description lines.
+  up to three description lines. If an item unregisters, its delegate rejects
+  further input and immediately dismisses its hover timer and tooltip before
+  the model removes the delegate.
 - Dock Wi-Fi and Bluetooth labels are capped at 12 characters. Bluetooth shows
   the first connected device and reserves space for `+N` when more are active;
   Quick Settings keeps the full names.

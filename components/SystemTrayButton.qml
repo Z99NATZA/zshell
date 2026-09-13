@@ -7,6 +7,9 @@ Rectangle {
 
 	required property var trayItem
 	required property var parentWindow
+	property bool componentReady: false
+	property bool retiring: false
+	readonly property bool itemAvailable: !retiring && trayItem !== null
 
 	implicitWidth: 30
 	implicitHeight: 30
@@ -15,18 +18,29 @@ Rectangle {
 		? Theme.surfaceSoft
 		: "transparent"
 	readonly property string tooltipTitle: {
-		if (!trayItem) return ""
+		if (!itemAvailable) return ""
 		return (trayItem.tooltipTitle || trayItem.title
 			|| trayItem.id || "").replace(/\s+/g, " ").trim()
 	}
-	readonly property string tooltipDescription: trayItem
+	readonly property string tooltipDescription: itemAvailable
 		? (trayItem.tooltipDescription || "").trim()
 		: ""
 	property bool tooltipRequested: false
 
-	function displayMenu() {
+	function dismissTransientUi() {
+		tooltipTimer.stop()
 		tooltipRequested = false
-		if (!trayItem || !trayItem.hasMenu) return
+	}
+
+	function retireTrayItem() {
+		if (retiring) return
+		retiring = true
+		dismissTransientUi()
+	}
+
+	function displayMenu() {
+		dismissTransientUi()
+		if (!itemAvailable || !trayItem.hasMenu) return
 
 		const anchor = root.mapToItem(parentWindow.contentItem,
 			root.width / 2, 0)
@@ -40,7 +54,21 @@ Rectangle {
 	Timer {
 		id: tooltipTimer
 		interval: 500
-		onTriggered: root.tooltipRequested = root.tooltipTitle.length > 0
+		onTriggered: root.tooltipRequested = root.itemAvailable
+			&& root.tooltipTitle.length > 0
+	}
+
+	onTrayItemChanged: {
+		if (!componentReady) return
+		dismissTransientUi()
+		retiring = trayItem === null
+	}
+
+	Component.onCompleted: componentReady = true
+	Component.onDestruction: {
+		componentReady = false
+		retiring = true
+		tooltipRequested = false
 	}
 
 	TextMetrics {
@@ -61,7 +89,8 @@ Rectangle {
 	PopupWindow {
 		id: tooltip
 
-		property real reveal: root.tooltipRequested ? 1 : 0
+		property real reveal: root.itemAvailable
+			&& root.tooltipRequested ? 1 : 0
 
 		anchor {
 			window: root.parentWindow
@@ -69,6 +98,7 @@ Rectangle {
 			gravity: Edges.Bottom | Edges.Right
 
 			onAnchoring: {
+				if (!root.itemAvailable || !root.parentWindow) return
 				const position = root.mapToItem(root.parentWindow.contentItem,
 					root.width / 2 - tooltip.width / 2,
 					-tooltip.height - Theme.spacingSm)
@@ -84,7 +114,7 @@ Rectangle {
 				: 0)) + Theme.spacingMd * 2)
 		implicitHeight: tooltipContent.implicitHeight + Theme.spacingSm * 2
 		color: "transparent"
-		visible: reveal > 0
+		visible: root.itemAvailable && reveal > 0
 		grabFocus: false
 
 		onImplicitWidthChanged: if (visible) anchor.updateAnchor()
@@ -145,7 +175,7 @@ Rectangle {
 		anchors.centerIn: parent
 		width: 18
 		height: 18
-		source: root.trayItem ? root.trayItem.icon : ""
+		source: root.itemAvailable ? root.trayItem.icon : ""
 		sourceSize.width: width
 		sourceSize.height: height
 		fillMode: Image.PreserveAspectFit
@@ -165,6 +195,7 @@ Rectangle {
 		id: pointer
 		anchors.fill: parent
 		hoverEnabled: true
+		enabled: root.itemAvailable
 		acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
 		cursorShape: Qt.PointingHandCursor
 		onContainsMouseChanged: {
@@ -178,8 +209,8 @@ Rectangle {
 		}
 
 		onClicked: mouse => {
-			root.tooltipRequested = false
-			if (!root.trayItem) return
+			root.dismissTransientUi()
+			if (!root.itemAvailable) return
 
 			if (mouse.button === Qt.RightButton) {
 				root.displayMenu()
@@ -193,7 +224,7 @@ Rectangle {
 		}
 
 		onWheel: wheel => {
-			if (!root.trayItem) {
+			if (!root.itemAvailable) {
 				wheel.accepted = false
 				return
 			}
