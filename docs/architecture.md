@@ -27,9 +27,10 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 
 ## Window model
 
-- `Dock` is an above-window layer surface anchored 12 pixels above the bottom
-  edge. Its automatic exclusion zone reserves the Dock height and margin so
-  normal windows do not extend underneath the shell.
+- `Dock` is a transparent above-window layer surface attached directly to the
+  bottom, left, and right screen edges. It reserves no exclusive strip, so
+  normal windows remain visible behind transparent Dock regions. The input mask
+  limits pointer handling to the visible islands.
 - `QuickSettingsPanel` is created per screen and shown on demand.
 - `DesktopSurface` is below normal application windows and uses a click-through
   mask so transparent areas normally never block desktop input. An unpinned

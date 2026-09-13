@@ -16,6 +16,7 @@ color, and motion rather than decoration or repeated labels.
 | Radar entrance duration | `440ms` |
 | Bubble entrance duration | `280ms` after its first sweep encounter |
 | Panel shadow | Three layers at `3%`, `5%`, and `9%` opacity |
+| Dock edge clearance | `0px` |
 | Motion easing | `Easing.OutCubic` |
 | Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |

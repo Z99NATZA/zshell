@@ -44,8 +44,8 @@ Repository implementation does not authorize any of these operations:
 
 Those changes require an explicitly agreed machine-integration scope. During
 normal use, run either zshell or Waybar rather than both. The zshell Dock sits
-12 pixels above the bottom edge and reserves its full height plus that margin;
-running Waybar at the same time stacks both shells' exclusion zones.
+directly on the bottom edge with a transparent, click-through background and
+does not reserve an exclusive strip from normal windows.
 
 ## Failure behavior
 

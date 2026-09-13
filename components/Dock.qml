@@ -18,11 +18,11 @@ PanelWindow {
 	}
 
 	implicitHeight: 44
-	margins.left: 12
-	margins.right: 12
-	margins.bottom: Theme.spacingMd
+	margins.left: 0
+	margins.right: 0
+	margins.bottom: 0
 	color: "transparent"
-	exclusionMode: ExclusionMode.Auto
+	exclusiveZone: 0
 	aboveWindows: true
 	readonly property int statusLabelLimit: 12
 
