@@ -4,7 +4,7 @@
 
 | Component | Responsibility |
 | --- | --- |
-| `Dock` | Workspace actions, audio, time, language, and power |
+| `Dock` | Workspace actions, system tray, audio, time, language, and power |
 | `QuickSettingsPanel` | Wi-Fi, Bluetooth, theme, and desktop widget controls |
 | `ConnectionCard` | Shared selectable network and Bluetooth target bubble |
 | `ConnectionInspector` | On-demand connection details and explicit primary action |
@@ -18,6 +18,7 @@
 | `ClockCard` | Minimal clock and expanded floating time panel |
 | `MusicCard` | Minimal MPRIS controls and expanded now-playing panel |
 | `LanguageIndicator` | Fixed-width current keyboard label |
+| `SystemTrayButton` | StatusNotifier icon and pointer actions |
 | `ActionButton` | Shared compact hover, active, and disabled behavior |
 | `ShellSurface` | Shared surface, border, radius, and color transitions |
 
@@ -114,6 +115,11 @@
   starts its own process.
 - The dock volume button toggles mute on click and changes volume by 5% per
   mouse-wheel step.
+- The Dock renders one compact button for each StatusNotifier tray item and
+  leaves no empty tray placeholder when no items are registered. Left click
+  activates the item, right click opens its menu, middle click invokes its
+  secondary action, and wheel input is forwarded to the item. Menu-only items
+  open their menu on left click.
 - Dock Wi-Fi and Bluetooth labels are capped at 12 characters. Bluetooth shows
   the first connected device and reserves space for `+N` when more are active;
   Quick Settings keeps the full names.

@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Networking
 import Quickshell.Bluetooth
+import Quickshell.Services.SystemTray
 import qs.services
 import qs.state
 import qs.theme
@@ -203,6 +204,16 @@ PanelWindow {
 			id: statusRow
 			anchors.centerIn: parent
 			spacing: 2
+
+			Repeater {
+				model: SystemTray.items
+
+				SystemTrayButton {
+					required property var modelData
+					trayItem: modelData
+					parentWindow: root
+				}
+			}
 
 			ActionButton {
 				icon: AudioOutput.icon

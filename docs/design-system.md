@@ -57,6 +57,9 @@ does not own the icon value.
 
 - Omit a title or label when the value and icon already explain the component.
 - Keep persistent chrome compact; reveal detail on demand.
+- Keep system tray icons at `18px` inside the Dock's existing `30px` control
+  rhythm. Show each app's native icon without tinting and use only the shared
+  soft surface for hover and press feedback.
 - Prefer borders and surface contrast over heavy shadows.
 - Quick Settings, Clock, and Music use one restrained contact shadow treatment
   only to separate overlapping components. Their outer borders remain
