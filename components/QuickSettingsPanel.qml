@@ -699,6 +699,18 @@ PanelWindow {
 		}
 	}
 
+	ElevationShadow {
+		x: panelSurface.x - padding
+		y: panelSurface.y - padding
+		panelWidth: panelSurface.width
+		panelHeight: panelSurface.height
+		panelRadius: panelSurface.radius
+		active: UiState.activeComponent === "quickSettings"
+		sourceOpacity: panelSurface.opacity
+		scale: panelSurface.scale
+		transformOrigin: Item.Center
+	}
+
 	ShellSurface {
 		id: panelSurface
 		width: 960
@@ -706,7 +718,7 @@ PanelWindow {
 		raised: true
 		interactive: UiState.activeComponent === "quickSettings"
 			|| panelDragArea.pressed
-		border.color: "transparent"
+		border.color: Theme.elevationBorder
 		radius: Theme.radius * 3
 		transformOrigin: Item.Center
 

@@ -15,6 +15,8 @@ color, and motion rather than decoration or repeated labels.
 | Radar sweep duration | `4800ms` |
 | Radar entrance duration | `440ms` |
 | Bubble entrance duration | `280ms` after its first sweep encounter |
+| Floating shadow | `24px` blur, `7px` vertical offset |
+| Floating shadow opacity | `16%` inactive, `24%` active |
 | Motion easing | `Easing.OutCubic` |
 | Workspace icon | `Theme.workspaceIcon` |
 | UI font | `JetBrainsMono Nerd Font` |
@@ -56,9 +58,12 @@ does not own the icon value.
 
 - Omit a title or label when the value and icon already explain the component.
 - Keep persistent chrome compact; reveal detail on demand.
-- Prefer borders and surface contrast over heavy shadows.
+- Prefer borders and surface contrast over heavy shadows. Top-level Quick
+  Settings, Clock, and Music surfaces use one soft shadow only to separate
+  overlapping components.
 - Reserve fully round shapes for indicators and progress details.
-- Avoid large-area blur. The MVP uses no blur.
+- Avoid large-area background blur. The only blur is the bounded outer shadow
+  on top-level floating surfaces.
 - Hide absent content instead of rendering an empty placeholder card.
 - Minimal widgets stay visually quiet; hover cursors communicate their drag and
   resize affordances without a visible outer border.
@@ -69,9 +74,9 @@ does not own the icon value.
   without a separate header strip or divider. Minimal and expanded panels share
   the Quick Settings modal radius. Body layout reflows from actual width and
   height; panel resize never scales a rendered snapshot.
-- Quick Settings and the Clock and Music surfaces keep a transparent outer
-  border in both minimal and expanded modes. Borders inside those surfaces keep
-  their semantic theme colors.
+- Quick Settings and the Clock and Music surfaces use the same subtle semantic
+  elevation border in both minimal and expanded modes. Borders inside those
+  surfaces keep their existing semantic theme colors.
 - Expand Quick Settings from its invoking Dock control and collapse it back to
   the same target. Opening uses `Easing.OutCubic`; closing uses `Easing.InCubic`.
 
@@ -82,6 +87,9 @@ does not own the icon value.
   restore the separately persisted minimal rectangle on collapse.
 - Limit large translucent surface animation to bounded open and close motion;
   never animate one continuously or continuously sample idle data.
+- Floating shadows are cached Canvas textures. Movement repositions the cached
+  texture; repainting occurs only for geometry or theme changes. Active state
+  changes animate shadow opacity without changing blur geometry.
 - The central radio pulse travels from the core to the radar's second grid ring
   while its matching Quick Settings page is visible. It scales with the radar,
   stops with the modal, and never samples system state on a timer.

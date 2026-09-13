@@ -42,6 +42,10 @@ Singleton {
 	readonly property color borderStrong: light
 		? Qt.rgba(170 / 255, 177 / 255, 189 / 255, componentOpacity)
 		: Qt.rgba(93 / 255, 103 / 255, 122 / 255, componentOpacity)
+	readonly property color elevationBorder: light
+		? Qt.rgba(40 / 255, 44 / 255, 52 / 255, componentOpacity * 0.12)
+		: Qt.rgba(220 / 255, 223 / 255, 228 / 255, componentOpacity * 0.10)
+	readonly property color elevationShadow: light ? "#282C34" : "#000000"
 	readonly property color text: light ? "#282C34" : "#DCDFE4"
 	readonly property color textMuted: light ? "#5D677A" : "#ABB2BF"
 	readonly property color accent: "#61AFEF"
@@ -56,6 +60,11 @@ Singleton {
 	readonly property int modalCloseDuration: 220
 	readonly property int radioPulseDuration: 1800
 	readonly property int radarSweepDuration: 4800
+	readonly property int elevationShadowBlur: 24
+	readonly property int elevationShadowYOffset: 7
+	readonly property int elevationShadowPadding: 32
+	readonly property real elevationShadowOpacity: 0.16
+	readonly property real elevationShadowActiveOpacity: 0.24
 	readonly property int spacingXs: 4
 	readonly property int spacingSm: 8
 	readonly property int spacingMd: 12

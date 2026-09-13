@@ -11,6 +11,7 @@
 | `RadarField` | Theme-native connection grid, sweep, and target blips |
 | `RadioOrb` | Shared animated Wi-Fi and Bluetooth radio control |
 | `ResizeHandle` | Invisible edge and corner geometry-resize input |
+| `ElevationShadow` | Shared soft separation behind top-level floating surfaces |
 | `FloatingPanel` | Shared focus, chrome, drag, resize, and inspector slots for desktop widgets |
 | `WidgetVisibilityCard` | Shared Clock and Music visibility switch row |
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
@@ -23,6 +24,9 @@
 ## Boundaries
 
 - Visual components consume semantic theme roles; they do not define palettes.
+- Quick Settings, Clock, and Music share one restrained elevation treatment:
+  a subtle outline and a soft shadow that strengthens when the owning panel is
+  active. Internal cards and controls do not receive elevation shadows.
 - Quick Settings uses a `960x680` modal and presents Wi-Fi networks or
   Bluetooth devices as persistent bubbles over their targets on a circular
   radar. Its bottom switch changes modes without closing the panel.
@@ -167,10 +171,12 @@ The desktop surface normally accepts pointer input only over visible Clock and
 Music panels. An unpinned expanded panel temporarily adds a transparent
 full-screen input region so the first outside click can collapse it. Pin removes
 that outside region, allowing unrelated clicks through while the panel stays
-expanded. Minimal widgets stay on the desktop layer. The shared surface remains
-above normal windows while either desktop panel is expanded, unless Quick
-Settings is active. Within the desktop surface, the last activated Clock or
-Music panel has the highest item stack value.
+expanded. Minimal widgets start on the desktop layer. Clicking either minimal
+widget promotes the shared surface above the other zshell panels, just as
+activating an expanded widget does. Activating Quick Settings returns inactive
+minimal widgets to the desktop layer; an inactive expanded widget remains above
+normal windows. Within the desktop surface, the last activated Clock or Music
+panel has the highest item stack value.
 
 Pressing a Clock or Music drag area temporarily expands the desktop surface's
 input mask to the full screen until release or cancellation. This preserves the

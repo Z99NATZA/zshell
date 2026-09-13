@@ -42,7 +42,7 @@ ShellSurface {
 
 	raised: true
 	color: Theme.surfaceRaised
-	border.color: "transparent"
+	border.color: Theme.elevationBorder
 	radius: Theme.radius * 3
 	interactive: active || dragArea.containsMouse || resizing
 	clip: true

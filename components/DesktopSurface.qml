@@ -20,9 +20,9 @@ PanelWindow {
 		|| (musicCard.visible && musicCard.expanded)
 	readonly property bool desktopPanelActive:
 		UiState.activeComponent === "clock" || UiState.activeComponent === "music"
-	WlrLayershell.layer: expandedPanelVisible
-		? (desktopPanelActive ? WlrLayer.Overlay : WlrLayer.Top)
-		: WlrLayer.Bottom
+	WlrLayershell.layer: desktopPanelActive
+		? WlrLayer.Overlay
+		: (expandedPanelVisible ? WlrLayer.Top : WlrLayer.Bottom)
 	focusable: expandedPanelVisible && desktopPanelActive
 	exclusionMode: ExclusionMode.Ignore
 
@@ -106,11 +106,35 @@ PanelWindow {
 		}
 	}
 
+	ElevationShadow {
+		x: clockCard.x - padding
+		y: clockCard.y - padding
+		z: clockCard.z - 0.5
+		panelWidth: clockCard.width
+		panelHeight: clockCard.height
+		panelRadius: clockCard.radius
+		active: clockCard.active
+		sourceOpacity: clockCard.opacity
+		visible: clockCard.visible
+	}
+
 	ClockCard {
 		id: clockCard
 		visible: LayoutState.showClock
 		availableWidth: root.width
 		availableHeight: root.height
+	}
+
+	ElevationShadow {
+		x: musicCard.x - padding
+		y: musicCard.y - padding
+		z: musicCard.z - 0.5
+		panelWidth: musicCard.width
+		panelHeight: musicCard.height
+		panelRadius: musicCard.radius
+		active: musicCard.active
+		sourceOpacity: musicCard.opacity
+		visible: musicCard.visible
 	}
 
 	MusicCard {

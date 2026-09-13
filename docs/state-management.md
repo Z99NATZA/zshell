@@ -46,12 +46,13 @@ the persisted geometry or stack counters. Explicit Close and Escape reset it.
 
 `UiState.activeComponent` and the three component stack counters coordinate
 focus and layer order across Clock, Music, and Quick Settings. Open panels stay
-above normal applications; activating one promotes its shell window above the
-other zshell panels. Activation advances the process-local serial and assigns
-the newest stack value. Re-enabling Clock or Music also advances that widget's
-stack value without changing the active component, so Quick Settings keeps
-focus while the newly shown desktop widget moves above its peer. Stack order is
-intentionally not persisted, so each session starts from a deterministic base.
+above normal applications; activating Clock or Music promotes their shared
+shell window above the other zshell panels in both minimal and expanded modes.
+Activation advances the process-local serial and assigns the newest stack
+value. Re-enabling Clock or Music also advances that widget's stack value
+without changing the active component, so Quick Settings keeps focus while the
+newly shown desktop widget moves above its peer. Stack order is intentionally
+not persisted, so each session starts from a deterministic base.
 
 `showLanguageLeft` and `showLanguageRight` default to true. They are persisted
 now so a future settings UI can control each side without changing dock layout.
