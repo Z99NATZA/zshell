@@ -1,3 +1,4 @@
+//@ pragma UseQApplication
 //@ pragma ShellId zshell
 //@ pragma AppId dev.zshell
 //@ pragma StateDir $BASE/zshell

@@ -27,6 +27,10 @@ make run
 `make run` invokes `qs -p <repository>`, which gives the project a stable shell
 ID and state directory through the pragmas in `shell.qml`.
 
+The root configuration opts into `QApplication` mode so StatusNotifier items
+can display their platform menus. Changing this pragma requires a full
+Quickshell process restart; configuration hot reload is not sufficient.
+
 ## Machine boundary
 
 Repository implementation does not authorize any of these operations:
