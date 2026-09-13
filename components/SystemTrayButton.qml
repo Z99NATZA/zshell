@@ -17,7 +17,7 @@ Rectangle {
 	readonly property string tooltipTitle: {
 		if (!trayItem) return ""
 		return (trayItem.tooltipTitle || trayItem.title
-			|| trayItem.id || "").trim()
+			|| trayItem.id || "").replace(/\s+/g, " ").trim()
 	}
 	readonly property string tooltipDescription: trayItem
 		? (trayItem.tooltipDescription || "").trim()
@@ -43,6 +43,21 @@ Rectangle {
 		onTriggered: root.tooltipRequested = root.tooltipTitle.length > 0
 	}
 
+	TextMetrics {
+		id: tooltipTitleMetrics
+		text: root.tooltipTitle
+		font.family: Theme.textFontFamily
+		font.pixelSize: 12
+		font.weight: Font.Medium
+	}
+
+	TextMetrics {
+		id: tooltipDescriptionMetrics
+		text: root.tooltipDescription
+		font.family: Theme.textFontFamily
+		font.pixelSize: 11
+	}
+
 	PopupWindow {
 		id: tooltip
 
@@ -62,11 +77,11 @@ Rectangle {
 			}
 		}
 
-		implicitWidth: Math.min(300, Math.max(
-			tooltipTitleLabel.implicitWidth,
+		implicitWidth: Math.min(300, Math.ceil(Math.max(
+			tooltipTitleMetrics.advanceWidth,
 			tooltipDescriptionLabel.visible
-				? tooltipDescriptionLabel.implicitWidth
-				: 0) + Theme.spacingMd * 2)
+				? tooltipDescriptionMetrics.advanceWidth
+				: 0)) + Theme.spacingMd * 2)
 		implicitHeight: tooltipContent.implicitHeight + Theme.spacingSm * 2
 		color: "transparent"
 		visible: reveal > 0
@@ -104,7 +119,9 @@ Rectangle {
 					font.family: Theme.textFontFamily
 					font.pixelSize: 12
 					font.weight: Font.Medium
-					wrapMode: Text.Wrap
+					elide: Text.ElideRight
+					maximumLineCount: 1
+					wrapMode: Text.NoWrap
 				}
 
 				Text {

@@ -121,7 +121,8 @@
   secondary action, and wheel input is forwarded to the item. Menu-only items
   open their menu on left click. Hovering for 500ms opens a non-focusable
   tooltip above the icon. The tooltip prefers the item's tooltip title, falls
-  back to its application title or ID, and shows up to three description lines.
+  back to its application title or ID, keeps that title on one line, and shows
+  up to three description lines.
 - Dock Wi-Fi and Bluetooth labels are capped at 12 characters. Bluetooth shows
   the first connected device and reserves space for `+N` when more are active;
   Quick Settings keeps the full names.
