@@ -253,7 +253,9 @@ PanelWindow {
 			ActionButton {
 				compact: true
 				icon: "󰐥"
-				onClicked: Quickshell.execDetached(["hypr-power-menu"])
+				onClicked: Quickshell.execDetached([
+					"bash", "-lc", "exec hypr-power-menu"
+				])
 			}
 		}
 	}

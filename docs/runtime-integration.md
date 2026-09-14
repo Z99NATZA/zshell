@@ -53,6 +53,9 @@ It still reserves its 44-pixel height so normal windows never overlap it.
 - Missing NetworkManager, BlueZ, or MPRIS data hides or disables only the
   affected controls; the shell remains usable.
 - Missing PipeWire output data disables the volume control.
+- The power button resolves `hypr-power-menu` through the user's Bash login
+  environment, so commands installed in `~/.local/bin` remain available even
+  when the Quickshell process starts with a system-only `PATH`.
 - Missing `hypr-power-menu` leaves the power button visible, but the action
   exits without opening a menu.
 - Layout writes are atomic. A write error is reported by Quickshell and does not
