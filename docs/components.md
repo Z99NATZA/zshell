@@ -55,6 +55,8 @@
   The `184x80` card normalizes each silhouette's own vertical range into an
   internal Canvas inset. Every cloud uses the available space while its crown
   and base remain fully visible instead of clipping at the texture edge.
+  Every cloud centers its connection icon, name, and status in a vertical
+  stack.
   Connected, selected, and swept bubbles receive a brighter surface or accent
   edge without making idle clouds opaque. The sweep briefly raises the matching
   bubble and launches two fading ripples from its blip without changing the

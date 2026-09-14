@@ -461,47 +461,39 @@ ShellSurface {
 		}
 	}
 
-	Row {
-		anchors.fill: parent
-		anchors.topMargin: Theme.spacingXs
-		anchors.leftMargin: Theme.spacingMd
-		anchors.rightMargin: Theme.spacingMd
-		spacing: Theme.spacingSm
+	Column {
+		anchors.centerIn: parent
+		width: parent.width - Theme.spacingMd * 2
+		spacing: 2
 
 		Text {
-			width: 24
-			height: parent.height
+			width: parent.width
 			text: root.icon
 			color: root.active ? Theme.accent : Theme.text
 			horizontalAlignment: Text.AlignHCenter
-			verticalAlignment: Text.AlignVCenter
 			font.family: Theme.fontFamily
 			font.pixelSize: 16
 		}
 
-		Column {
-			width: parent.width - 24 - parent.spacing
-			anchors.verticalCenter: parent.verticalCenter
-			spacing: 2
+		Text {
+			width: parent.width
+			text: root.title
+			color: Theme.text
+			horizontalAlignment: Text.AlignHCenter
+			font.family: Theme.textFontFamily
+			font.pixelSize: 12
+			font.weight: Font.Medium
+			elide: Text.ElideRight
+		}
 
-			Text {
-				width: parent.width
-				text: root.title
-				color: Theme.text
-				font.family: Theme.textFontFamily
-				font.pixelSize: 12
-				font.weight: Font.Medium
-				elide: Text.ElideRight
-			}
-
-			Text {
-				width: parent.width
-				text: root.subtitle
-				color: root.active ? Theme.accent : Theme.textMuted
-				font.family: Theme.textFontFamily
-				font.pixelSize: 10
-				elide: Text.ElideRight
-			}
+		Text {
+			width: parent.width
+			text: root.subtitle
+			color: root.active ? Theme.accent : Theme.textMuted
+			horizontalAlignment: Text.AlignHCenter
+			font.family: Theme.textFontFamily
+			font.pixelSize: 10
+			elide: Text.ElideRight
 		}
 	}
 
