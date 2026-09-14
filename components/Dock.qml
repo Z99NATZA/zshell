@@ -135,15 +135,12 @@ PanelWindow {
 			anchors.centerIn: parent
 			spacing: Theme.spacingXs
 
-			Text {
+			ActionButton {
 				width: 30
 				height: 30
-				text: Theme.workspaceIcon
-				color: Theme.text
-				horizontalAlignment: Text.AlignHCenter
-				verticalAlignment: Text.AlignVCenter
-				font.family: Theme.fontFamily
-				font.pixelSize: 15
+				compact: true
+				icon: Theme.workspaceIcon
+				onClicked: Hyprland.dispatch("exec rofi -show drun")
 			}
 
 			Repeater {

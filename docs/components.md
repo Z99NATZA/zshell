@@ -113,8 +113,9 @@
   standard rounded rectangle and color transition. Feature components own
   layout.
 - The workspace switcher starts with the configurable `Theme.workspaceIcon`.
-  Its numbers have no shared container, and the active workspace uses a
-  high-contrast circular indicator.
+  Clicking the icon opens the same Rofi application launcher as the Hyprland
+  `Super+I` binding. Its numbers have no shared container, and the active
+  workspace uses a high-contrast circular indicator.
 - Both language indicators consume the same `KeyboardLayout.code`; neither
   starts its own process.
 - The dock volume button toggles mute on click and changes volume by 5% per
