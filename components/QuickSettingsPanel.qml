@@ -259,13 +259,19 @@ PanelWindow {
 		if (!item) return ""
 
 		if (selectedConnectionKind === "wifi") {
-			if (item.connected) return "Connected to this network"
 			if (item.stateChanging) return "Connection in progress…"
+			if (item.connected) return "Connected to this network"
 			if (item.known) return "Saved network · Ready to connect"
 			return "Credentials are required to connect"
 		}
 
 		if (item.blocked) return "Blocked by the Bluetooth service"
+		if (item.state === BluetoothDeviceState.Connecting) {
+			return "Connecting to this device…"
+		}
+		if (item.state === BluetoothDeviceState.Disconnecting) {
+			return "Disconnecting from this device…"
+		}
 		if (item.connected) return "Connected to this device"
 		if (item.pairing) return "Pairing in progress…"
 		if (item.paired) return "Paired device · Ready to connect"
@@ -276,15 +282,27 @@ PanelWindow {
 		const item = selectedConnection
 		if (!item) return ""
 		if (selectedConnectionKind === "bluetooth" && item.blocked) return "Blocked"
-		if (item.connected) return "Disconnect"
 
 		if (selectedConnectionKind === "wifi") {
 			if (item.stateChanging) return "Working…"
+			if (item.connected) return "Disconnect"
 			return item.known ? "Connect" : "Credentials required"
 		}
 
+		if (item.state === BluetoothDeviceState.Connecting) return "Connecting…"
+		if (item.state === BluetoothDeviceState.Disconnecting) return "Disconnecting…"
+		if (item.connected) return "Disconnect"
 		if (item.pairing) return "Cancel pairing"
 		return item.paired ? "Connect" : "Pair device"
+	}
+
+	function selectedActionBusy() {
+		const item = selectedConnection
+		if (!item) return false
+		if (selectedConnectionKind === "wifi") return item.stateChanging
+
+		return item.state === BluetoothDeviceState.Connecting
+			|| item.state === BluetoothDeviceState.Disconnecting
 	}
 
 	function selectedActionEnabled() {
@@ -297,6 +315,7 @@ PanelWindow {
 		}
 
 		return bluetoothAdapter && bluetoothAdapter.enabled && !item.blocked
+			&& !selectedActionBusy()
 	}
 
 	function performSelectedConnectionAction() {
@@ -1371,6 +1390,7 @@ PanelWindow {
 					actionEnabled: root.selectedActionEnabled()
 					actionActive: root.selectedConnection
 						? root.selectedConnection.connected : false
+					actionBusy: root.selectedActionBusy()
 					onCloseRequested: root.clearConnectionSelection()
 					onActionRequested: root.performSelectedConnectionAction()
 				}

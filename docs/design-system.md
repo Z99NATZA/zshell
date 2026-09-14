@@ -74,6 +74,9 @@ does not own the icon value.
   rectangle. Compact font icons and native system tray images remain
   geometrically centered. Icon-only and tray hover surfaces switch directly to
   `surfaceSoft` without color interpolation.
+- Enabled buttons scale to `96%` while pressed. Buttons waiting for a backend
+  transition keep their interaction surface visible and pulse foreground
+  content until the source-of-truth state settles.
 - Avoid large-area blur. The MVP uses no blur.
 - Hide absent content instead of rendering an empty placeholder card.
 - Minimal widgets stay visually quiet; hover cursors communicate their drag and

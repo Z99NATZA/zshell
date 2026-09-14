@@ -17,6 +17,7 @@ ShellSurface {
 	property string actionText: ""
 	property bool actionEnabled: true
 	property bool actionActive: false
+	property bool actionBusy: false
 	signal closeRequested
 	signal actionRequested
 
@@ -206,6 +207,7 @@ ShellSurface {
 			icon: root.actionIcon
 			text: root.actionText
 			active: root.actionActive
+			busy: root.actionBusy
 			enabled: root.actionEnabled
 			onClicked: root.actionRequested()
 		}

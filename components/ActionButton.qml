@@ -7,8 +7,10 @@ Rectangle {
 	property string icon: ""
 	property string text: ""
 	property bool active: false
+	property bool busy: false
 	property bool compact: false
 	property bool wheelEnabled: false
+	readonly property bool interactive: enabled && !busy
 	signal clicked
 	signal wheelUp
 	signal wheelDown
@@ -16,8 +18,10 @@ Rectangle {
 	implicitWidth: compact ? 34 : Math.max(72, content.implicitWidth + Theme.spacingMd * 2)
 	implicitHeight: 34
 	radius: compact ? height / 2 : Theme.radius
-	color: active ? Theme.surfaceSoft : (pointer.containsMouse ? Theme.surfaceSoft : "transparent")
-	opacity: enabled ? 1 : 0.42
+	color: active || busy || pointer.pressed || pointer.containsMouse
+		? Theme.surfaceSoft : "transparent"
+	opacity: enabled || busy ? 1 : 0.42
+	scale: pointer.pressed && interactive ? 0.96 : 1
 
 	Behavior on color {
 		enabled: !root.compact
@@ -26,6 +30,10 @@ Rectangle {
 
 	Behavior on opacity {
 		NumberAnimation { duration: Theme.motionDuration; easing.type: Easing.OutCubic }
+	}
+
+	Behavior on scale {
+		NumberAnimation { duration: 90; easing.type: Easing.OutCubic }
 	}
 
 	Row {
@@ -39,7 +47,7 @@ Rectangle {
 			visible: root.icon.length > 0
 			height: content.height
 			text: root.icon
-			color: root.active ? Theme.accent : Theme.text
+			color: root.active || root.busy ? Theme.accent : Theme.text
 			verticalAlignment: Text.AlignVCenter
 			font.family: Theme.fontFamily
 			font.pixelSize: 15
@@ -58,14 +66,40 @@ Rectangle {
 		}
 	}
 
+	SequentialAnimation {
+		running: root.busy
+		loops: Animation.Infinite
+
+		NumberAnimation {
+			target: content
+			property: "opacity"
+			from: 1
+			to: 0.48
+			duration: Theme.motionDuration * 2
+			easing.type: Easing.InOutCubic
+		}
+
+		NumberAnimation {
+			target: content
+			property: "opacity"
+			from: 0.48
+			to: 1
+			duration: Theme.motionDuration * 2
+			easing.type: Easing.InOutCubic
+		}
+
+		onStopped: content.opacity = 1
+	}
+
 	MouseArea {
 		id: pointer
 		anchors.fill: parent
 		hoverEnabled: true
-		cursorShape: root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-		onClicked: if (root.enabled) root.clicked()
+		cursorShape: root.busy ? Qt.BusyCursor
+			: (root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor)
+		onClicked: if (root.interactive) root.clicked()
 		onWheel: wheel => {
-			if (!root.enabled || !root.wheelEnabled || wheel.angleDelta.y === 0) {
+			if (!root.interactive || !root.wheelEnabled || wheel.angleDelta.y === 0) {
 				wheel.accepted = false
 				return
 			}

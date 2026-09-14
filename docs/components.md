@@ -77,8 +77,10 @@
   control, an empty radar click, or Escape clears the selection.
 - The inspector exposes signal and security for Wi-Fi or address, trust, and
   available battery data for Bluetooth. Connect, disconnect, pair, and cancel
-  pairing are explicit inspector actions. Wi-Fi profiles requiring credentials
-  remain selectable for detail but cannot connect in this first version.
+  pairing are explicit inspector actions. Connecting and disconnecting use the
+  backend state to show a pulsing progress label and reject repeated clicks;
+  pairing remains cancellable. Wi-Fi profiles requiring credentials remain
+  selectable for detail but cannot connect in this first version.
 - The central Wi-Fi and Bluetooth controls are passive indicators with no
   status row or scan action. They gently pulse only while their radio is active
   and matching Quick Settings page is visible. A page-specific header control
@@ -107,11 +109,13 @@
 - The Quick Settings footer includes a `Widgets` page beside Wi-Fi and
   Bluetooth. It toggles persisted Clock visibility and whether Music may appear
   when media is available. The Dock time control opens this page directly.
-- `ActionButton` owns reusable control feedback. Compact icon-only instances
-  use circular hover, pressed, and active surfaces that switch directly to the
-  shared soft color without interpolation; controls containing text retain the
-  standard rounded rectangle and color transition. Feature components own
-  layout.
+- `ActionButton` owns reusable control feedback. Pressing an enabled button
+  briefly scales it to `96%`. Compact icon-only instances use circular hover,
+  pressed, and active surfaces that switch directly to the shared soft color
+  without interpolation; controls containing text retain the standard rounded
+  rectangle and color transition. A busy button blocks repeated activation,
+  keeps full opacity, uses the busy cursor, and pulses its content. Feature
+  components own layout and decide when an operation is busy.
 - The workspace switcher starts with the configurable `Theme.workspaceIcon`.
   Clicking the icon opens the same Rofi application launcher as the Hyprland
   `Super+I` binding. Its numbers have no shared container, and the active
