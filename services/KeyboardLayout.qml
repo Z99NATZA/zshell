@@ -12,7 +12,14 @@ Singleton {
 		"english": "EN",
 		"thai": "TH"
 	})
+	readonly property var layoutDefinitions: ({
+		"us": { code: "EN", label: "English" },
+		"th": { code: "TH", label: "ไทย" }
+	})
 	property string code: "--"
+	property string keyboardName: ""
+	property var layouts: []
+	property int activeLayoutIndex: -1
 	property bool refreshPending: false
 
 	function labelFor(keymap) {
@@ -27,6 +34,25 @@ Singleton {
 		return normalized.length > 0 ? normalized.slice(0, 2).toUpperCase() : "--"
 	}
 
+	function layoutOption(layoutName) {
+		const normalized = layoutName.trim().toLowerCase()
+		const definition = layoutDefinitions[normalized]
+		if (definition) {
+			return {
+				name: normalized,
+				code: definition.code,
+				label: definition.label
+			}
+		}
+
+		return {
+			name: normalized,
+			code: normalized.length > 0
+				? normalized.slice(0, 2).toUpperCase() : "--",
+			label: normalized.length > 0 ? normalized.toUpperCase() : "Unknown"
+		}
+	}
+
 	function applyDevices(rawDevices) {
 		try {
 			const keyboards = JSON.parse(rawDevices).keyboards || []
@@ -39,10 +65,40 @@ Singleton {
 				}
 			}
 
-			code = keyboard ? labelFor(keyboard.active_keymap || "") : "--"
+			if (!keyboard) {
+				keyboardName = ""
+				layouts = []
+				activeLayoutIndex = -1
+				code = "--"
+				return
+			}
+
+			keyboardName = keyboard.name || ""
+			const configuredLayouts = (keyboard.layout || "").split(",")
+			const nextLayouts = []
+			for (let index = 0; index < configuredLayouts.length; index++) {
+				const layoutName = configuredLayouts[index].trim()
+				if (layoutName.length > 0) nextLayouts.push(layoutOption(layoutName))
+			}
+
+			layouts = nextLayouts
+			const nextIndex = Number(keyboard.active_layout_index)
+			activeLayoutIndex = nextIndex >= 0 && nextIndex < nextLayouts.length
+				? nextIndex : -1
+			code = labelFor(keyboard.active_keymap || "")
 		} catch (error) {
+			keyboardName = ""
+			layouts = []
+			activeLayoutIndex = -1
 			code = "--"
 		}
+	}
+
+	function selectLayout(index) {
+		if (!keyboardName || index < 0 || index >= layouts.length) return
+		Quickshell.execDetached([
+			"hyprctl", "switchxkblayout", keyboardName, String(index)
+		])
 	}
 
 	function refresh() {

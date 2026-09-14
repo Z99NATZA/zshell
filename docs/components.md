@@ -17,7 +17,7 @@
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
 | `ClockCard` | Minimal clock and expanded floating time panel |
 | `MusicCard` | Minimal MPRIS controls and expanded now-playing panel |
-| `LanguageIndicator` | Fixed-width current keyboard label |
+| `LanguageIndicator` | Current keyboard label and layout-selection drop-up |
 | `SystemTrayButton` | StatusNotifier icon and pointer actions |
 | `ActionButton` | Shared compact hover, active, and disabled behavior |
 | `ShellSurface` | Shared surface, border, radius, and color transitions |
@@ -116,8 +116,9 @@
   Clicking the icon opens the same Rofi application launcher as the Hyprland
   `Super+I` binding. Its numbers have no shared container, and the active
   workspace uses a high-contrast circular indicator.
-- Both language indicators consume the same `KeyboardLayout.code`; neither
-  starts its own process.
+- Both language indicators consume the same `KeyboardLayout` state. Clicking
+  either label opens a focus-grabbing drop-up above the Dock, marks the active
+  layout, and dismisses the menu after selection or an outside click.
 - The dock volume button toggles mute on click and changes volume by 5% per
   mouse-wheel step.
 - The Dock renders one compact button for each StatusNotifier tray item and

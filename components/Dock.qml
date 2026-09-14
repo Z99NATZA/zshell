@@ -117,8 +117,12 @@ PanelWindow {
 			anchors.centerIn: parent
 
 			LanguageIndicator {
+				parentWindow: root
 				code: KeyboardLayout.code
+				layouts: KeyboardLayout.layouts
+				activeLayoutIndex: KeyboardLayout.activeLayoutIndex
 				shown: LayoutState.showLanguageLeft
+				onLayoutSelected: index => KeyboardLayout.selectLayout(index)
 			}
 		}
 	}
@@ -243,8 +247,12 @@ PanelWindow {
 			}
 
 			LanguageIndicator {
+				parentWindow: root
 				code: KeyboardLayout.code
+				layouts: KeyboardLayout.layouts
+				activeLayoutIndex: KeyboardLayout.activeLayoutIndex
 				shown: LayoutState.showLanguageRight
+				onLayoutSelected: index => KeyboardLayout.selectLayout(index)
 			}
 
 			ActionButton {

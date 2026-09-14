@@ -2,8 +2,8 @@
 
 ## Keyboard layout
 
-`KeyboardLayout.qml` owns the current keyboard label used by both sides of the
-dock.
+`KeyboardLayout.qml` owns the current keyboard label and configured layout list
+used by both sides of the dock.
 
 ```text
 startup or activelayout event
@@ -21,6 +21,10 @@ label tied to the current main keyboard when devices reconnect.
 
 `layoutAliases` maps full keymap names to short labels. An unknown name falls
 back to its first two characters; a missing or invalid response displays `--`.
+The service parses the main keyboard's configured layout identifiers and maps
+known identifiers to user-facing names. Selecting a layout runs
+`hyprctl switchxkblayout <main-keyboard> <index>`; the resulting
+`activelayout` event refreshes the shared state and both Dock indicators.
 
 ## Audio output
 
