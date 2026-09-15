@@ -102,6 +102,11 @@ does not own the icon value.
   separately persisted minimal rectangle on collapse.
 - Limit large translucent surface animation to bounded open and close motion;
   never animate one continuously or continuously sample idle data.
+- Expanded Music is the only audio-reactive surface. Its current frequency
+  contour, four delayed trails, subtle under-fill, and artwork edge update at
+  the CAVA stream rate only during expanded playback. Pause, collapse, close,
+  or player removal stops capture and gives existing values a short bounded
+  decay. No spectrum work runs in minimal mode.
 - Panel shadows use three solid rounded underlays without Canvas, runtime blur,
   or transparent ring textures. They follow panel geometry and fade faster than
   the surface as shared component opacity decreases.

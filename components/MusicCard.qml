@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell.Services.Mpris
+import qs.services
 import qs.state
 import qs.theme
 
@@ -162,6 +163,12 @@ FloatingPanel {
 		onTriggered: if (root.player) root.player.positionChanged()
 	}
 
+	CavaSpectrum {
+		id: spectrum
+		active: root.expanded && root.visible
+			&& root.player !== null && root.player.isPlaying
+	}
+
 	ParallelAnimation {
 		id: modeTransition
 
@@ -233,6 +240,23 @@ FloatingPanel {
 				font.family: Theme.fontFamily
 				font.pixelSize: root.expanded ? 42 : 28
 			}
+
+			Rectangle {
+				anchors.fill: parent
+				color: "transparent"
+				radius: parent.radius
+				border.width: 1
+				border.color: Theme.accent
+				opacity: root.expanded && spectrum.ready
+					? 0.14 + spectrum.bassLevel * 0.62 : 0
+
+				Behavior on opacity {
+					NumberAnimation {
+						duration: Theme.motionDuration
+						easing.type: Easing.OutCubic
+					}
+				}
+			}
 		}
 
 		Item {
@@ -268,6 +292,25 @@ FloatingPanel {
 				font.family: Theme.textFontFamily
 				font.pixelSize: root.expanded ? 13 : 11
 				elide: Text.ElideRight
+			}
+
+			SpectrumLandscape {
+				id: spectrumLandscape
+				anchors.left: parent.left
+				anchors.right: parent.right
+				y: artistLabel.y + artistLabel.height + Theme.spacingMd
+				height: Math.max(0,
+					progressTrack.y - Theme.spacingMd - y)
+				visible: root.expanded && height >= Theme.spacingLg
+				opacity: spectrum.ready ? 1 : 0
+				bands: spectrum.bands
+
+				Behavior on opacity {
+					NumberAnimation {
+						duration: Theme.motionDuration
+						easing.type: Easing.OutCubic
+					}
+				}
 			}
 
 			Rectangle {

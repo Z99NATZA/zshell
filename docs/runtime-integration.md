@@ -9,6 +9,8 @@ Repository commands do not modify Hyprland startup automatically.
 - Quickshell `0.3.1` or newer
 - NetworkManager and BlueZ for system controls
 - PipeWire for reactive output volume control
+- CAVA and a PulseAudio-compatible default-output monitor, normally provided by
+  `pipewire-pulse`, for the expanded Music spectrum
 - An MPRIS-compatible player for the media card
 - `hypr-power-menu` on `PATH` for the dock power button
 - JetBrains Mono Nerd Font for shell icons
@@ -53,6 +55,8 @@ It still reserves its 44-pixel height so normal windows never overlap it.
 - Missing NetworkManager, BlueZ, or MPRIS data hides or disables only the
   affected controls; the shell remains usable.
 - Missing PipeWire output data disables the volume control.
+- Missing CAVA or default-output monitor data hides only the expanded Music
+  spectrum; metadata, progress, and transport controls remain available.
 - The power button resolves `hypr-power-menu` through the user's Bash login
   environment, so commands installed in `~/.local/bin` remain available even
   when the Quickshell process starts with a system-only `PATH`.

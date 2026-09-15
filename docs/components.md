@@ -153,6 +153,13 @@
   open when focus moves or the user clicks outside. The header Collapse control
   or Escape returns the panel to minimal mode. Music transport controls retain
   their single-click actions and do not toggle panel mode.
+- Expanded Music places a five-line spectral landscape between its metadata and
+  progress track. The current 32-band frequency contour uses the accent role;
+  four progressively quieter contours follow it with delayed motion. A low
+  opacity fill grounds the front contour, and the artwork receives a restrained
+  accent edge driven by the average bass bands. The visualizer fades in only
+  after valid spectrum data arrives and reflows from the actual detail-column
+  space. Minimal Music never renders or captures the spectrum.
 - Expanded Clock and Music headers provide separate Collapse and Close actions.
   Collapse restores the persisted minimal rectangle. Close first restores that
   rectangle and then hides the widget by turning off its persisted Widgets-page
