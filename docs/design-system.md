@@ -102,12 +102,12 @@ does not own the icon value.
   separately persisted minimal rectangle on collapse.
 - Limit large translucent surface animation to bounded open and close motion;
   never animate one continuously or continuously sample idle data.
-- Music is the only audio-reactive surface. Its accent frequency ticks share one
-  circular Canvas around the artwork in minimal and expanded modes, updating at
-  the native spectrum frame rate only while visible media is playing. Pause,
-  widget disable, or player removal stops capture and gives existing values a
-  short bounded decay. Changing panel mode resizes the existing ring without
-  restarting capture.
+- Music is the only audio-reactive surface. Minimal mode shows artwork without
+  reactive decoration. Expanded Music cards request one shared circular Canvas
+  and native capture process; collapsing the last expanded card stops capture.
+  While requested, the Canvas updates at the native spectrum frame rate only
+  while visible media is playing. Pause, widget disable, player removal, or
+  collapse gives existing values a short bounded decay before hiding the ring.
 - Panel shadows use three solid rounded underlays without Canvas, runtime blur,
   or transparent ring textures. They follow panel geometry and fade faster than
   the surface as shared component opacity decreases.

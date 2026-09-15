@@ -12,10 +12,21 @@ Singleton {
 	readonly property int bandCount: 32
 	readonly property var player: Mpris.players.values.length > 0
 		? Mpris.players.values[0] : null
-	readonly property bool active: LayoutState.showMusic
+	property var consumers: []
+	readonly property bool requested: consumers.length > 0
+	readonly property bool active: requested && LayoutState.showMusic
 		&& player !== null && player.isPlaying
 	property var bands: zeroBands()
 	property bool ready: false
+
+	function setRequested(consumer, requested) {
+		const next = []
+		for (let index = 0; index < consumers.length; index++) {
+			if (consumers[index] !== consumer) next.push(consumers[index])
+		}
+		if (requested) next.push(consumer)
+		consumers = next
+	}
 
 	function zeroBands() {
 		const values = []

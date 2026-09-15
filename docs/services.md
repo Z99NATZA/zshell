@@ -37,9 +37,10 @@ service without starting a process or polling.
 ## Music spectrum
 
 `AudioSpectrum.qml` is one shell-wide adapter shared by every Music card. While
-the Music widget is enabled and the selected MPRIS player is playing, it starts
-the repository-owned `.build/zshell-spectrum` helper and consumes 32 normalized
-frequency bands at approximately 30 frames per second.
+at least one Music card is expanded, the widget is enabled, and the selected
+MPRIS player is playing, it starts the repository-owned
+`.build/zshell-spectrum` helper and consumes 32 normalized frequency bands at
+approximately 30 frames per second.
 
 ```text
 default PipeWire sink
@@ -61,9 +62,11 @@ built by `make build`; generated output stays under the ignored `.build/`
 directory.
 
 The adapter accepts only frames containing exactly 32 values, then applies fast
-attack and slower release smoothing. Capture continues across minimal and
-expanded modes, but stops on pause, widget disable, or player removal. A short
-local decay returns existing bands to zero before dropping the ready state.
+attack and slower release smoothing. Each expanded Music card registers a
+request with the adapter, so multiple monitors still share one helper. Capture
+stops when the last card collapses, or on pause, widget disable, or player
+removal. A short local decay returns existing bands to zero before dropping the
+ready state.
 Missing build output, missing `pw-record`, unavailable monitor data, or malformed
 frames leave the visualizer absent without changing Music metadata or transport
 controls. The captured signal is the mixed default output rather than an audio

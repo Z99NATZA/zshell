@@ -153,14 +153,12 @@
   open when focus moves or the user clicks outside. The header Collapse control
   or Escape returns the panel to minimal mode. Music transport controls retain
   their single-click actions and do not toggle panel mode.
-- Music uses one responsive radial spectrum in both minimal and expanded modes.
-  Its 32 ascending frequency bands are mirrored into 64 accent ticks around a
-  circular artwork crop, with a quiet inner baseline preserving the ring while
-  low values decay. Minimal mode fits the complete visualizer to the available
-  body height. Expanded mode caps it at `220px` and uses a `72%` artwork ratio,
-  keeping the media art smaller than the previous expanded layout. The same
-  Canvas and spectrum state resize through the mode transition instead of
-  restarting. The ring fades in only after a valid native frame arrives.
+- Music keeps minimal mode quiet with a `72px` circular artwork and no spectrum.
+  Expanded mode grows the visual stage to at most `252px`, uses the artwork for
+  `56%` of that diameter, and mirrors 32 ascending frequency bands into 48
+  rounded accent bars. The wider ring gives active bars enough travel to read as
+  audio motion rather than a fixed gear edge. Its baseline remains faint and the
+  bars fade in only after a valid native frame arrives.
 - Expanded Clock and Music headers provide separate Collapse and Close actions.
   Collapse restores the persisted minimal rectangle. Close first restores that
   rectangle and then hides the widget by turning off its persisted Widgets-page

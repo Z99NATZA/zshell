@@ -62,8 +62,9 @@ It still reserves its 44-pixel height so normal windows never overlap it.
   affected controls; the shell remains usable.
 - Missing PipeWire output data disables the volume control.
 - Missing spectrum build output, `pw-record`, or default-output monitor data
-  hides only the Music ring; metadata, progress, and transport controls remain
-  available. `make build` itself fails directly when no C++20 compiler exists.
+  hides only the expanded Music ring; metadata, progress, artwork, and transport
+  controls remain available. `make build` itself fails directly when no C++20
+  compiler exists.
 - The power button resolves `hypr-power-menu` through the user's Bash login
   environment, so commands installed in `~/.local/bin` remain available even
   when the Quickshell process starts with a system-only `PATH`.

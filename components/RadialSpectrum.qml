@@ -6,18 +6,25 @@ Item {
 
 	property var bands: []
 	property real coverDiameter: 0
-	property bool expanded: false
-	readonly property int barCount: bands ? bands.length * 2 : 0
+	readonly property int barCount: bands && bands.length > 0 ? 48 : 0
 
 	function bandForBar(index) {
 		if (!bands || bands.length === 0) return 0
-		return index < bands.length
-			? bands[index] : bands[barCount - index - 1]
+
+		const halfCount = barCount / 2
+		const mirroredIndex = index < halfCount
+			? index : barCount - index - 1
+		const sourcePosition = mirroredIndex * (bands.length - 1)
+			/ Math.max(1, halfCount - 1)
+		const lowerIndex = Math.floor(sourcePosition)
+		const upperIndex = Math.min(bands.length - 1, lowerIndex + 1)
+		const mix = sourcePosition - lowerIndex
+		return (bands[lowerIndex] || 0) * (1 - mix)
+			+ (bands[upperIndex] || 0) * mix
 	}
 
 	onBandsChanged: spectrumCanvas.requestPaint()
 	onCoverDiameterChanged: spectrumCanvas.requestPaint()
-	onExpandedChanged: spectrumCanvas.requestPaint()
 	onWidthChanged: spectrumCanvas.requestPaint()
 	onHeightChanged: spectrumCanvas.requestPaint()
 
@@ -33,9 +40,8 @@ Item {
 
 			const centerX = width / 2
 			const centerY = height / 2
-			const outerRadius = Math.max(1, Math.min(width, height) / 2
-				- (root.expanded ? 2 : 1))
-			const gap = root.expanded ? Theme.spacingSm : Theme.spacingXs
+			const outerRadius = Math.max(1, Math.min(width, height) / 2 - 4)
+			const gap = Theme.spacingMd
 			const innerRadius = Math.min(outerRadius - 1,
 				root.coverDiameter / 2 + gap)
 			const availableLength = Math.max(1, outerRadius - innerRadius)
@@ -44,17 +50,19 @@ Item {
 			context.arc(centerX, centerY, innerRadius, 0, Math.PI * 2)
 			context.strokeStyle = Theme.border
 			context.lineWidth = 1
-			context.globalAlpha = 0.55
+			context.globalAlpha = 0.28
 			context.stroke()
 
 			context.strokeStyle = Theme.accent
-			context.lineWidth = root.expanded ? 2 : 1.25
+			context.lineWidth = 3
 			context.lineCap = "round"
 			for (let index = 0; index < root.barCount; index++) {
-				const level = Math.max(0, Math.min(1, root.bandForBar(index)))
+				const rawLevel = Math.max(0,
+					Math.min(1, root.bandForBar(index)))
+				const level = Math.pow(rawLevel, 0.72)
 				const angle = -Math.PI / 2
 					+ index * Math.PI * 2 / root.barCount
-				const length = (root.expanded ? 2 : 1) + level * availableLength
+				const length = 4 + level * Math.max(0, availableLength - 4)
 				const endRadius = Math.min(outerRadius, innerRadius + length)
 
 				context.beginPath()
@@ -62,7 +70,7 @@ Item {
 					centerY + Math.sin(angle) * innerRadius)
 				context.lineTo(centerX + Math.cos(angle) * endRadius,
 					centerY + Math.sin(angle) * endRadius)
-				context.globalAlpha = 0.32 + level * 0.68
+				context.globalAlpha = 0.18 + level * 0.82
 				context.stroke()
 			}
 

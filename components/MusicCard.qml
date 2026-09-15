@@ -17,6 +17,7 @@ FloatingPanel {
 	property real availableHeight: 0
 	property bool geometryInitialized: false
 	readonly property bool modeTransitionRunning: modeTransition.running
+	readonly property bool spectrumRequested: expanded && visible
 
 	title: "Now playing"
 	icon: "󰎈"
@@ -142,7 +143,13 @@ FloatingPanel {
 
 	onAvailableWidthChanged: if (!geometryInitialized) geometryTimer.restart()
 	onAvailableHeightChanged: if (!geometryInitialized) geometryTimer.restart()
-	Component.onCompleted: geometryTimer.restart()
+	onSpectrumRequestedChanged:
+		AudioSpectrum.setRequested(root, spectrumRequested)
+	Component.onCompleted: {
+		geometryTimer.restart()
+		AudioSpectrum.setRequested(root, spectrumRequested)
+	}
+	Component.onDestruction: AudioSpectrum.setRequested(root, false)
 
 	Timer {
 		id: geometryTimer
@@ -206,10 +213,10 @@ FloatingPanel {
 		anchors.fill: parent
 		anchors.margins: root.expanded ? Theme.spacingLg : Theme.spacingMd
 		readonly property real visualizerSize: root.expanded
-			? Math.min(height, Math.min(width * 0.34, 220))
-			: Math.min(height, 104)
-		readonly property real artSize: visualizerSize
-			* (root.expanded ? 0.72 : 0.68)
+			? Math.min(height, Math.min(width * 0.42, 252))
+			: Math.min(height, 72)
+		readonly property real artSize: root.expanded
+			? visualizerSize * 0.56 : visualizerSize
 
 		Item {
 			id: artworkStage
@@ -220,10 +227,10 @@ FloatingPanel {
 
 			RadialSpectrum {
 				anchors.fill: parent
+				visible: root.expanded
 				coverDiameter: artwork.width
-				expanded: root.expanded
 				bands: AudioSpectrum.bands
-				opacity: AudioSpectrum.ready ? 1 : 0
+				opacity: root.expanded && AudioSpectrum.ready ? 1 : 0
 
 				Behavior on opacity {
 					NumberAnimation {
