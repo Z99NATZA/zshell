@@ -1,15 +1,21 @@
+pragma Singleton
+
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Mpris
+import qs.state
 
-Scope {
+Singleton {
 	id: root
 
-	property bool active: false
+	readonly property int bandCount: 32
+	readonly property var player: Mpris.players.values.length > 0
+		? Mpris.players.values[0] : null
+	readonly property bool active: LayoutState.showMusic
+		&& player !== null && player.isPlaying
 	property var bands: zeroBands()
 	property bool ready: false
-	readonly property int bandCount: 32
-	readonly property real bassLevel: averageBandRange(0, 6)
 
 	function zeroBands() {
 		const values = []
@@ -17,18 +23,9 @@ Scope {
 		return values
 	}
 
-	function averageBandRange(start, end) {
-		if (!bands || bands.length === 0) return 0
-
-		let total = 0
-		const limit = Math.min(end, bands.length)
-		for (let index = start; index < limit; index++) total += bands[index]
-		return limit > start ? total / (limit - start) : 0
-	}
-
 	function applyFrame(frame) {
 		const samples = frame.trim().split(";")
-		if (samples.length < bandCount) return
+		if (samples.length !== bandCount) return
 
 		const previous = bands
 		const next = []
@@ -36,9 +33,9 @@ Scope {
 			const parsed = Number(samples[index])
 			const normalized = isFinite(parsed)
 				? Math.max(0, Math.min(1, parsed / 1000)) : 0
-			const shaped = Math.pow(normalized, 0.72)
+			const shaped = Math.pow(normalized, 1.18)
 			const current = previous[index] || 0
-			const response = shaped > current ? 0.72 : 0.34
+			const response = shaped > current ? 0.68 : 0.26
 			next.push(current + (shaped - current) * response)
 		}
 
@@ -48,8 +45,7 @@ Scope {
 	}
 
 	function beginDecay() {
-		if (!ready) return
-		decayTimer.restart()
+		if (ready) decayTimer.restart()
 	}
 
 	onActiveChanged: {
@@ -61,10 +57,10 @@ Scope {
 	}
 
 	Process {
-		id: cavaProcess
+		id: spectrumProcess
 
 		running: root.active
-		command: ["cava", "-p", Quickshell.shellPath("services/cava.conf")]
+		command: [Quickshell.shellPath(".build/zshell-spectrum")]
 
 		stdout: SplitParser {
 			splitMarker: "\n"

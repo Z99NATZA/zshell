@@ -163,12 +163,6 @@ FloatingPanel {
 		onTriggered: if (root.player) root.player.positionChanged()
 	}
 
-	CavaSpectrum {
-		id: spectrum
-		active: root.expanded && root.visible
-			&& root.player !== null && root.player.isPlaying
-	}
-
 	ParallelAnimation {
 		id: modeTransition
 
@@ -211,44 +205,25 @@ FloatingPanel {
 		id: playerLayout
 		anchors.fill: parent
 		anchors.margins: root.expanded ? Theme.spacingLg : Theme.spacingMd
-		readonly property real artSize: root.expanded
-			? Math.min(height, Math.min(width * 0.38, 280))
-			: Math.min(height, 108)
+		readonly property real visualizerSize: root.expanded
+			? Math.min(height, Math.min(width * 0.34, 220))
+			: Math.min(height, 104)
+		readonly property real artSize: visualizerSize
+			* (root.expanded ? 0.72 : 0.68)
 
-		Rectangle {
-			id: artwork
+		Item {
+			id: artworkStage
 			anchors.left: parent.left
 			anchors.verticalCenter: parent.verticalCenter
-			width: playerLayout.artSize
+			width: playerLayout.visualizerSize
 			height: width
-			radius: Theme.radius
-			color: Theme.surfaceSoft
-			clip: true
 
-			Image {
+			RadialSpectrum {
 				anchors.fill: parent
-				source: root.player ? root.player.trackArtUrl : ""
-				fillMode: Image.PreserveAspectCrop
-				asynchronous: true
-			}
-
-			Text {
-				anchors.centerIn: parent
-				visible: !root.player || root.player.trackArtUrl.length === 0
-				text: "󰎈"
-				color: Theme.textMuted
-				font.family: Theme.fontFamily
-				font.pixelSize: root.expanded ? 42 : 28
-			}
-
-			Rectangle {
-				anchors.fill: parent
-				color: "transparent"
-				radius: parent.radius
-				border.width: 1
-				border.color: Theme.accent
-				opacity: root.expanded && spectrum.ready
-					? 0.14 + spectrum.bassLevel * 0.62 : 0
+				coverDiameter: artwork.width
+				expanded: root.expanded
+				bands: AudioSpectrum.bands
+				opacity: AudioSpectrum.ready ? 1 : 0
 
 				Behavior on opacity {
 					NumberAnimation {
@@ -257,11 +232,37 @@ FloatingPanel {
 					}
 				}
 			}
+
+			Rectangle {
+				id: artwork
+				anchors.centerIn: parent
+				width: playerLayout.artSize
+				height: width
+				radius: width / 2
+				color: Theme.surfaceSoft
+				clip: true
+
+				Image {
+					anchors.fill: parent
+					source: root.player ? root.player.trackArtUrl : ""
+					fillMode: Image.PreserveAspectCrop
+					asynchronous: true
+				}
+
+				Text {
+					anchors.centerIn: parent
+					visible: !root.player || root.player.trackArtUrl.length === 0
+					text: "󰎈"
+					color: Theme.textMuted
+					font.family: Theme.fontFamily
+					font.pixelSize: root.expanded ? 34 : 22
+				}
+			}
 		}
 
 		Item {
 			id: details
-			anchors.left: artwork.right
+			anchors.left: artworkStage.right
 			anchors.leftMargin: root.expanded ? Theme.spacingLg : Theme.spacingMd
 			anchors.right: parent.right
 			anchors.top: parent.top
@@ -292,25 +293,6 @@ FloatingPanel {
 				font.family: Theme.textFontFamily
 				font.pixelSize: root.expanded ? 13 : 11
 				elide: Text.ElideRight
-			}
-
-			SpectrumLandscape {
-				id: spectrumLandscape
-				anchors.left: parent.left
-				anchors.right: parent.right
-				y: artistLabel.y + artistLabel.height + Theme.spacingMd
-				height: Math.max(0,
-					progressTrack.y - Theme.spacingMd - y)
-				visible: root.expanded && height >= Theme.spacingLg
-				opacity: spectrum.ready ? 1 : 0
-				bands: spectrum.bands
-
-				Behavior on opacity {
-					NumberAnimation {
-						duration: Theme.motionDuration
-						easing.type: Easing.OutCubic
-					}
-				}
 			}
 
 			Rectangle {

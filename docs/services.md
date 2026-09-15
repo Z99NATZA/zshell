@@ -36,23 +36,36 @@ service without starting a process or polling.
 
 ## Music spectrum
 
-`CavaSpectrum.qml` owns frequency capture for one expanded Music card. While
-that card has playing media, it starts CAVA with the repository-owned
-`services/cava.conf` and consumes 32 mono frequency bands from newline-delimited
-ASCII output at 30 frames per second.
+`AudioSpectrum.qml` is one shell-wide adapter shared by every Music card. While
+the Music widget is enabled and the selected MPRIS player is playing, it starts
+the repository-owned `.build/zshell-spectrum` helper and consumes 32 normalized
+frequency bands at approximately 30 frames per second.
 
 ```text
-default output monitor -> CAVA -> raw ASCII frames -> smoothed 0.0-1.0 bands
+default PipeWire sink
+        |
+pw-record stereo f32 PCM
+        |
+C++ Hann window + 2048-point FFT + 32 logarithmic bands
+        |
+semicolon-delimited 0-1000 frames
+        |
+AudioSpectrum attack/release smoothing -> Music cards
 ```
 
-CAVA uses the PulseAudio-compatible default-output monitor so it works through
-`pipewire-pulse` on the target PipeWire desktop. The captured signal is the
-mixed default output, not an audio stream selected through MPRIS. Concurrent
-application audio therefore contributes to the same spectrum.
+`native/spectrum.cpp` owns `pw-record` as a child process, averages its stereo
+PCM to mono, covers 50 Hz through 12 kHz, and emits one newline-terminated frame
+after every 1600 new samples. It handles termination and a closed output pipe by
+stopping and reaping the capture child. The executable and its self-test are
+built by `make build`; generated output stays under the ignored `.build/`
+directory.
 
-The adapter applies fast attack and slower release smoothing, and exposes the
-first six bands as a bass average for artwork feedback. Capture stops on pause,
-collapse, close, or player removal. A short local decay returns existing bands
-to zero; the adapter then drops its ready state. Missing CAVA, an unavailable
-output monitor, or malformed frames leave the visualizer absent without
-changing Music metadata or transport controls.
+The adapter accepts only frames containing exactly 32 values, then applies fast
+attack and slower release smoothing. Capture continues across minimal and
+expanded modes, but stops on pause, widget disable, or player removal. A short
+local decay returns existing bands to zero before dropping the ready state.
+Missing build output, missing `pw-record`, unavailable monitor data, or malformed
+frames leave the visualizer absent without changing Music metadata or transport
+controls. The captured signal is the mixed default output rather than an audio
+stream selected through MPRIS, so concurrent application audio contributes to
+the same spectrum.

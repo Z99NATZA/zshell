@@ -9,8 +9,8 @@ Repository commands do not modify Hyprland startup automatically.
 - Quickshell `0.3.1` or newer
 - NetworkManager and BlueZ for system controls
 - PipeWire for reactive output volume control
-- CAVA and a PulseAudio-compatible default-output monitor, normally provided by
-  `pipewire-pulse`, for the expanded Music spectrum
+- `pw-record` from PipeWire tools for default-output spectrum capture
+- A C++20 compiler for building the repository-owned spectrum helper
 - An MPRIS-compatible player for the media card
 - `hypr-power-menu` on `PATH` for the dock power button
 - JetBrains Mono Nerd Font for shell icons
@@ -22,13 +22,19 @@ rather than copying package commands into this repository.
 ## Commands
 
 ```bash
+make build
 make check
 make run
 ```
 
-`make run` invokes `qs -p <repository>`, which gives the project a stable shell
-ID and state directory through the pragmas in `shell.qml`. The runner owns that
-Quickshell child process: interrupting `make run`, including Kitty's
+`make build` compiles `native/spectrum.cpp` into the ignored
+`.build/zshell-spectrum` executable. `make check` and `make run` rebuild it only
+when the source is newer. The check target runs the helper's silence and 440 Hz
+FFT self-test before the repository checks.
+
+`make run` then invokes `qs -p <repository>`, which gives the project a stable
+shell ID and state directory through the pragmas in `shell.qml`. The runner owns
+that Quickshell child process: interrupting `make run`, including Kitty's
 `Super+\\` mapping to `Ctrl+C`, terminates the child before the runner exits.
 
 The root configuration opts into `QApplication` mode so StatusNotifier items
@@ -55,8 +61,9 @@ It still reserves its 44-pixel height so normal windows never overlap it.
 - Missing NetworkManager, BlueZ, or MPRIS data hides or disables only the
   affected controls; the shell remains usable.
 - Missing PipeWire output data disables the volume control.
-- Missing CAVA or default-output monitor data hides only the expanded Music
-  spectrum; metadata, progress, and transport controls remain available.
+- Missing spectrum build output, `pw-record`, or default-output monitor data
+  hides only the Music ring; metadata, progress, and transport controls remain
+  available. `make build` itself fails directly when no C++20 compiler exists.
 - The power button resolves `hypr-power-menu` through the user's Bash login
   environment, so commands installed in `~/.local/bin` remain available even
   when the Quickshell process starts with a system-only `PATH`.

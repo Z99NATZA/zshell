@@ -21,6 +21,7 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 | `shell.qml` | Per-screen window composition |
 | `components/` | Rendering and direct pointer interaction |
 | `services/` | Shared reactive system state, display mapping, and direct actions |
+| `native/` | Small compiled adapters for data unavailable to QML integrations |
 | `state/` | Runtime UI state and persisted user choices |
 | `theme/` | Semantic visual and motion tokens |
 | `scripts/` | Local run and verification commands |
@@ -54,7 +55,8 @@ Hyprland / NetworkManager / BlueZ / MPRIS
 ```text
 shell -> components -> services/state/theme
 components -> Quickshell integrations and services
-services -> Quickshell integrations and focused system queries
+services -> Quickshell integrations, focused system queries, and native helpers
+native -> focused operating-system tools and APIs
 state -> Quickshell.Io
 theme -> persisted theme selection
 ```

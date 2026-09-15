@@ -2,4 +2,5 @@
 *.qmlc
 *.jsc
 .cache/
+.build/
 result
