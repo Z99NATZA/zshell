@@ -213,10 +213,10 @@ FloatingPanel {
 		anchors.fill: parent
 		anchors.margins: root.expanded ? Theme.spacingLg : Theme.spacingMd
 		readonly property real visualizerSize: root.expanded
-			? Math.min(height, Math.min(width * 0.42, 252))
+			? Math.min(height, Math.min(width * 0.46, 260))
 			: Math.min(height, 72)
 		readonly property real artSize: root.expanded
-			? visualizerSize * 0.56 : visualizerSize
+			? visualizerSize * 0.5 : visualizerSize
 
 		Item {
 			id: artworkStage

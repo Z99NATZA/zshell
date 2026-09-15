@@ -154,11 +154,13 @@
   or Escape returns the panel to minimal mode. Music transport controls retain
   their single-click actions and do not toggle panel mode.
 - Music keeps minimal mode quiet with a `72px` circular artwork and no spectrum.
-  Expanded mode grows the visual stage to at most `252px`, uses the artwork for
-  `56%` of that diameter, and mirrors 32 ascending frequency bands into 48
-  rounded accent bars. The wider ring gives active bars enough travel to read as
-  audio motion rather than a fixed gear edge. Its baseline remains faint and the
-  bars fade in only after a valid native frame arrives.
+  Expanded mode grows the visual stage to at most `260px`, uses the artwork for
+  `50%` of that diameter, and mirrors 32 ascending frequency bands into 48
+  rounded accent bars. Each frame maps its strongest band to the available outer
+  radius and suppresses the lowest `14%` of that peak, giving active bars roughly
+  `40px` of travel at the minimum panel size instead of keeping every frequency
+  near one fixed gear edge. Its `2px` baseline remains faint and the bars fade in
+  only after a valid native frame arrives.
 - Expanded Clock and Music headers provide separate Collapse and Close actions.
   Collapse restores the persisted minimal rectangle. Close first restores that
   rectangle and then hides the widget by turning off its persisted Widgets-page

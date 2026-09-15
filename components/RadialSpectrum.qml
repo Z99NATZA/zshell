@@ -41,10 +41,17 @@ Item {
 			const centerX = width / 2
 			const centerY = height / 2
 			const outerRadius = Math.max(1, Math.min(width, height) / 2 - 4)
-			const gap = Theme.spacingMd
+			const gap = Theme.spacingSm + 2
 			const innerRadius = Math.min(outerRadius - 1,
 				root.coverDiameter / 2 + gap)
 			const availableLength = Math.max(1, outerRadius - innerRadius)
+			let peakLevel = 0
+			for (let index = 0; index < root.barCount; index++) {
+				peakLevel = Math.max(peakLevel, Math.max(0,
+					Math.min(1, root.bandForBar(index))))
+			}
+			const visualFloor = Math.max(0.04, peakLevel * 0.14)
+			const visualRange = Math.max(0.08, peakLevel - visualFloor)
 
 			context.beginPath()
 			context.arc(centerX, centerY, innerRadius, 0, Math.PI * 2)
@@ -54,15 +61,17 @@ Item {
 			context.stroke()
 
 			context.strokeStyle = Theme.accent
-			context.lineWidth = 3
+			context.lineWidth = 3.25
 			context.lineCap = "round"
 			for (let index = 0; index < root.barCount; index++) {
 				const rawLevel = Math.max(0,
 					Math.min(1, root.bandForBar(index)))
-				const level = Math.pow(rawLevel, 0.72)
+				const relativeLevel = Math.max(0, Math.min(1,
+					(rawLevel - visualFloor) / visualRange))
+				const level = Math.pow(relativeLevel, 1.25)
 				const angle = -Math.PI / 2
 					+ index * Math.PI * 2 / root.barCount
-				const length = 4 + level * Math.max(0, availableLength - 4)
+				const length = 2 + level * Math.max(0, availableLength - 2)
 				const endRadius = Math.min(outerRadius, innerRadius + length)
 
 				context.beginPath()
@@ -70,7 +79,7 @@ Item {
 					centerY + Math.sin(angle) * innerRadius)
 				context.lineTo(centerX + Math.cos(angle) * endRadius,
 					centerY + Math.sin(angle) * endRadius)
-				context.globalAlpha = 0.18 + level * 0.82
+				context.globalAlpha = 0.12 + level * 0.88
 				context.stroke()
 			}
 
