@@ -70,7 +70,7 @@ Singleton {
 				(normalized - floor) / Math.max(0.12, ceiling - floor)))
 			const target = Math.pow(relative, 1.05)
 			const current = previous[index] || 0
-			const response = target > current ? 0.8 : 0.32
+			const response = target > current ? 0.8 : 0.52
 			next.push(current + (target - current) * response)
 			nextFloors.push(floor)
 			nextCeilings.push(ceiling)

@@ -63,12 +63,15 @@ directory.
 
 The adapter accepts only frames containing exactly 32 values. It tracks a
 separate floor and ceiling envelope for each band, maps that recent local range
-to `0`–`1`, then applies fast attack and gravity-like release smoothing. A new
-capture session resets those envelopes so stale source levels do not carry into
-the next expansion. Each expanded Music card registers a request with the
-adapter, so multiple monitors still share one helper. Capture stops when the
-last card collapses, or on pause, widget disable, or player removal. A short
-local decay returns existing bands to zero before dropping the ready state.
+to `0`–`1`, then applies fast attack and a brisk gravity-like release. A band
+whose target drops to zero returns from full height to within `6%` of its
+range in four spectrum frames, preventing a following beat from catching it
+visually high. A new capture session resets the envelopes so stale source levels
+do not carry into the next expansion. Each expanded Music card registers a
+request with the adapter, so multiple monitors still share one helper. Capture
+stops when the last card collapses, or on pause, widget disable, or player
+removal. A short local decay returns existing bands to zero before dropping the
+ready state.
 Missing build output, missing `pw-record`, unavailable monitor data, or malformed
 frames leave the visualizer absent without changing Music metadata or transport
 controls. The captured signal is the mixed default output rather than an audio

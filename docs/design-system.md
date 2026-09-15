@@ -107,10 +107,11 @@ does not own the icon value.
   and native capture process; collapsing the last expanded card stops capture.
   While requested, the Canvas updates at the native spectrum frame rate only
   while visible media is playing. Per-band floor and ceiling envelopes adapt
-  slowly to the source while fast attack and gravity-like release use the full
-  radial range. This keeps strong bass bands moving and gives quieter treble
-  bands their own useful scale. Pause, widget disable, player removal, or
-  collapse gives existing values a short bounded decay before hiding the ring.
+  slowly to the source while fast attack and a roughly four-frame release use
+  the full radial range. This keeps strong bass bands moving, lets bars settle
+  before the next beat, and gives quieter treble bands their own useful scale.
+  Pause, widget disable, player removal, or collapse gives existing values a
+  short bounded decay before hiding the ring.
 - Panel shadows use three solid rounded underlays without Canvas, runtime blur,
   or transparent ring textures. They follow panel geometry and fade faster than
   the surface as shared component opacity decreases.
