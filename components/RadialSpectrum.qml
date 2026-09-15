@@ -45,13 +45,6 @@ Item {
 			const innerRadius = Math.min(outerRadius - 1,
 				root.coverDiameter / 2 + gap)
 			const availableLength = Math.max(1, outerRadius - innerRadius)
-			let peakLevel = 0
-			for (let index = 0; index < root.barCount; index++) {
-				peakLevel = Math.max(peakLevel, Math.max(0,
-					Math.min(1, root.bandForBar(index))))
-			}
-			const visualFloor = Math.max(0.04, peakLevel * 0.14)
-			const visualRange = Math.max(0.08, peakLevel - visualFloor)
 
 			context.beginPath()
 			context.arc(centerX, centerY, innerRadius, 0, Math.PI * 2)
@@ -64,11 +57,8 @@ Item {
 			context.lineWidth = 3.25
 			context.lineCap = "round"
 			for (let index = 0; index < root.barCount; index++) {
-				const rawLevel = Math.max(0,
+				const level = Math.max(0,
 					Math.min(1, root.bandForBar(index)))
-				const relativeLevel = Math.max(0, Math.min(1,
-					(rawLevel - visualFloor) / visualRange))
-				const level = Math.pow(relativeLevel, 1.25)
 				const angle = -Math.PI / 2
 					+ index * Math.PI * 2 / root.barCount
 				const length = 2 + level * Math.max(0, availableLength - 2)

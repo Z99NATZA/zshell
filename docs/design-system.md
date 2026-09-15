@@ -106,11 +106,11 @@ does not own the icon value.
   reactive decoration. Expanded Music cards request one shared circular Canvas
   and native capture process; collapsing the last expanded card stops capture.
   While requested, the Canvas updates at the native spectrum frame rate only
-  while visible media is playing. Per-frame adaptive contrast maps the strongest
-  current band to the outer radius and keeps weak bands near a quiet baseline,
-  preserving visible travel across differently mastered sources. Pause, widget
-  disable, player removal, or collapse gives existing values a short bounded
-  decay before hiding the ring.
+  while visible media is playing. Per-band floor and ceiling envelopes adapt
+  slowly to the source while fast attack and gravity-like release use the full
+  radial range. This keeps strong bass bands moving and gives quieter treble
+  bands their own useful scale. Pause, widget disable, player removal, or
+  collapse gives existing values a short bounded decay before hiding the ring.
 - Panel shadows use three solid rounded underlays without Canvas, runtime blur,
   or transparent ring textures. They follow panel geometry and fade faster than
   the surface as shared component opacity decreases.

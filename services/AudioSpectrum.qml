@@ -17,6 +17,8 @@ Singleton {
 	readonly property bool active: requested && LayoutState.showMusic
 		&& player !== null && player.isPlaying
 	property var bands: zeroBands()
+	property var bandFloors: []
+	property var bandCeilings: []
 	property bool ready: false
 
 	function setRequested(consumer, requested) {
@@ -39,17 +41,43 @@ Singleton {
 		if (samples.length !== bandCount) return
 
 		const previous = bands
+		const calibrated = bandFloors.length === bandCount
+			&& bandCeilings.length === bandCount
 		const next = []
+		const nextFloors = []
+		const nextCeilings = []
 		for (let index = 0; index < bandCount; index++) {
 			const parsed = Number(samples[index])
 			const normalized = isFinite(parsed)
 				? Math.max(0, Math.min(1, parsed / 1000)) : 0
-			const shaped = Math.pow(normalized, 1.18)
+
+			let floor = calibrated ? bandFloors[index] : normalized * 0.72
+			let ceiling = calibrated ? bandCeilings[index]
+				: Math.min(1, 0.18 + normalized * 0.82)
+			if (calibrated) {
+				floor += (normalized - floor)
+					* (normalized < floor ? 1 : 0.0015)
+				ceiling += (normalized - ceiling)
+					* (normalized > ceiling ? 1 : 0.004)
+			}
+			if (ceiling - floor < 0.12) ceiling = floor + 0.12
+			if (ceiling > 1) {
+				ceiling = 1
+				floor = Math.min(floor, 0.88)
+			}
+
+			const relative = Math.max(0, Math.min(1,
+				(normalized - floor) / Math.max(0.12, ceiling - floor)))
+			const target = Math.pow(relative, 1.05)
 			const current = previous[index] || 0
-			const response = shaped > current ? 0.68 : 0.26
-			next.push(current + (shaped - current) * response)
+			const response = target > current ? 0.8 : 0.32
+			next.push(current + (target - current) * response)
+			nextFloors.push(floor)
+			nextCeilings.push(ceiling)
 		}
 
+		bandFloors = nextFloors
+		bandCeilings = nextCeilings
 		bands = next
 		ready = true
 		decayTimer.stop()
@@ -61,6 +89,8 @@ Singleton {
 
 	onActiveChanged: {
 		if (active) {
+			bandFloors = []
+			bandCeilings = []
 			decayTimer.stop()
 		} else {
 			beginDecay()

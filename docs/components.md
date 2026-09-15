@@ -156,11 +156,11 @@
 - Music keeps minimal mode quiet with a `72px` circular artwork and no spectrum.
   Expanded mode grows the visual stage to at most `260px`, uses the artwork for
   `50%` of that diameter, and mirrors 32 ascending frequency bands into 48
-  rounded accent bars. Each frame maps its strongest band to the available outer
-  radius and suppresses the lowest `14%` of that peak, giving active bars roughly
-  `40px` of travel at the minimum panel size instead of keeping every frequency
-  near one fixed gear edge. Its `2px` baseline remains faint and the bars fade in
-  only after a valid native frame arrives.
+  rounded accent bars. Each frequency owns a slowly adapting floor and ceiling,
+  allowing both bass and treble bars to travel from the quiet `2px` baseline to
+  the outer radius without pinning the strongest frequency on every frame. Bars
+  have roughly `40px` of travel at the minimum panel size and fade in only after
+  a valid native frame arrives.
 - Expanded Clock and Music headers provide separate Collapse and Close actions.
   Collapse restores the persisted minimal rectangle. Close first restores that
   rectangle and then hides the widget by turning off its persisted Widgets-page
