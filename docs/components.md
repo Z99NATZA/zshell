@@ -120,7 +120,7 @@
   components own layout and decide when an operation is busy.
 - The workspace switcher starts with the configurable `Theme.workspaceIcon`.
   Clicking the icon opens the same Rofi application launcher as the Hyprland
-  `Super+I` binding. Its numbers have no shared container, and the active
+  `Super+O` binding. Its numbers have no shared container, and the active
   workspace uses a high-contrast circular indicator.
 - Both language indicators consume the same `KeyboardLayout` state. Clicking
   either label opens a focus-grabbing drop-up above the Dock, marks the active
