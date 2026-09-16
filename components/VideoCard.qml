@@ -559,11 +559,14 @@ FloatingPanel {
 
 			Rectangle {
 				id: controls
+				readonly property real contentHeight: 104
+
 				z: 2
 				anchors.left: parent.left
 				anchors.right: parent.right
 				anchors.bottom: parent.bottom
-				height: 104
+				height: Math.min(280,
+					Math.max(contentHeight + 56, root.height * 0.42))
 				color: "transparent"
 				opacity: root.expanded && root.chromeRevealed ? 1 : 0
 				visible: root.expanded && opacity > 0
@@ -578,15 +581,21 @@ FloatingPanel {
 					}
 
 					GradientStop {
-						position: 0.42
+						position: 0.38
 						color: Qt.rgba(Theme.surface.r, Theme.surface.g,
-							Theme.surface.b, Theme.surface.a * 0.42)
+							Theme.surface.b, Theme.surface.a * 0.12)
+					}
+
+					GradientStop {
+						position: 0.72
+						color: Qt.rgba(Theme.surface.r, Theme.surface.g,
+							Theme.surface.b, Theme.surface.a * 0.56)
 					}
 
 					GradientStop {
 						position: 1
 						color: Qt.rgba(Theme.surface.r, Theme.surface.g,
-							Theme.surface.b, Theme.surface.a * 0.92)
+							Theme.surface.b, Theme.surface.a * 0.94)
 					}
 				}
 
@@ -598,7 +607,10 @@ FloatingPanel {
 				}
 
 				MouseArea {
-					anchors.fill: parent
+					anchors.left: parent.left
+					anchors.right: parent.right
+					anchors.bottom: parent.bottom
+					height: controls.contentHeight
 					onPressed: root.activated()
 				}
 
@@ -607,7 +619,8 @@ FloatingPanel {
 					anchors.left: parent.left
 					anchors.leftMargin: Theme.spacingMd
 					anchors.top: parent.top
-					anchors.topMargin: Theme.spacingSm
+					anchors.topMargin: controls.height - controls.contentHeight
+						+ Theme.spacingSm
 					compact: true
 					icon: "󰉋"
 					onClicked: {

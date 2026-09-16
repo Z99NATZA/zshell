@@ -170,9 +170,11 @@
   Close at the top, then file picker, previous, play or pause, next, mute, and
   seek at the bottom. It has no title or header surface. After the pointer
   leaves, the controls remain available for one second and then fade away. The
-  bottom controls sit on a vertical scrim that is transparent at the top and
-  gradually darkens toward the lower edge, leaving the moving frame visible
-  beneath it. Minimal mode stays chrome-free. Previous and Next wrap through
+  bottom controls stay pinned to the lower edge while a taller vertical scrim
+  extends upward over at least `160px`, otherwise roughly `42%` of the frame,
+  capped at `280px`. It starts transparent and gradually darkens toward the
+  lower edge, leaving the moving frame visible beneath it with no footer
+  boundary. Minimal mode stays chrome-free. Previous and Next wrap through
   supported files, ordered by name, in the fixed
   `/home/znnn/Videos/wallpaper` directory. The file picker starts in that
   directory and accepts common local video containers. A candidate must expose
