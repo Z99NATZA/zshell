@@ -23,6 +23,13 @@ Item {
 			+ (bands[upperIndex] || 0) * mix
 	}
 
+	function directionalGain(angle) {
+		const phaseFromTop = angle + Math.PI / 2
+		const threePointWave = (Math.cos(phaseFromTop * 3) + 1) / 2
+		const shapedPeak = Math.pow(Math.max(0, threePointWave), 1.4)
+		return 0.38 + shapedPeak * 0.62
+	}
+
 	onBandsChanged: spectrumCanvas.requestPaint()
 	onCoverDiameterChanged: spectrumCanvas.requestPaint()
 	onWidthChanged: spectrumCanvas.requestPaint()
@@ -57,10 +64,11 @@ Item {
 			context.lineWidth = 3.25
 			context.lineCap = "round"
 			for (let index = 0; index < root.barCount; index++) {
-				const level = Math.max(0,
+				const bandLevel = Math.max(0,
 					Math.min(1, root.bandForBar(index)))
 				const angle = -Math.PI / 2
 					+ index * Math.PI * 2 / root.barCount
+				const level = bandLevel * root.directionalGain(angle)
 				const length = 2 + level * Math.max(0, availableLength - 2)
 				const endRadius = Math.min(outerRadius, innerRadius + length)
 

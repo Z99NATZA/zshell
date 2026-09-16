@@ -159,11 +159,13 @@
 - Music keeps minimal mode quiet with a `72px` circular artwork and no spectrum.
   Expanded mode grows the visual stage to at most `260px`, uses the artwork for
   `50%` of that diameter, and mirrors 32 ascending frequency bands into 48
-  rounded accent bars. Each frequency owns a slowly adapting floor and ceiling,
-  allowing both bass and treble bars to travel from the quiet `2px` baseline to
-  the outer radius without pinning the strongest frequency on every frame. Bars
-  have roughly `40px` of travel at the minimum panel size and fade in only after
-  a valid native frame arrives.
+  rounded accent bars. A smooth three-point envelope keeps the strongest radial
+  reach centered at the top, lower right, and lower left, with shorter valleys
+  between those directions. Each frequency owns a slowly adapting floor and
+  ceiling, allowing both bass and treble bars to travel from the quiet `2px`
+  baseline to the directional envelope without pinning the strongest frequency
+  on every frame. Bars have roughly `40px` of travel at the minimum panel size
+  and fade in only after a valid native frame arrives.
 - Video is a full-bleed, muted, looping preview in both modes. A rounded clip
   keeps center-cropped frames inside the shared panel radius. Expanded mode
   overlays only icon controls when the pointer enters the panel: Collapse and
