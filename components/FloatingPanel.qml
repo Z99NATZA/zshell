@@ -14,6 +14,8 @@ ShellSurface {
 	property bool dragEnabled: true
 	property bool resizeEnabled: true
 	property bool transitioning: false
+	property bool contentUnderHeader: false
+	property bool headerControlsVisible: true
 	property real boundsWidth: 0
 	property real boundsHeight: 0
 	property real minimumPanelWidth: 240
@@ -117,7 +119,7 @@ ShellSurface {
 		anchors.right: inspectorRegion.visible ? inspectorRegion.left : parent.right
 		anchors.top: parent.top
 		anchors.bottom: parent.bottom
-		anchors.topMargin: root.headerHeight
+		anchors.topMargin: root.contentUnderHeader ? 0 : root.headerHeight
 		z: 1
 
 		Item {
@@ -158,8 +160,17 @@ ShellSurface {
 		anchors.top: parent.top
 		anchors.topMargin: Theme.spacingLg
 		height: 34
-		visible: root.expanded
+		opacity: root.headerControlsVisible ? 1 : 0
+		visible: root.expanded && opacity > 0
+		enabled: root.headerControlsVisible
 		z: 4
+
+		Behavior on opacity {
+			NumberAnimation {
+				duration: Theme.motionDuration
+				easing.type: Easing.OutCubic
+			}
+		}
 
 		Row {
 			anchors.left: parent.left

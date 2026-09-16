@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Dialogs
 import QtMultimedia
+import Quickshell.Widgets
 import qs.state
 import qs.theme
 
@@ -22,6 +23,7 @@ FloatingPanel {
 	property bool muted: true
 	property bool restoringAcceptedSource: false
 	property bool rejectionPending: false
+	property bool chromeRevealed: false
 	readonly property int maximumDuration: 30 * 1000
 	readonly property bool modeTransitionRunning: modeTransition.running
 	readonly property bool playing: mediaPlayer.playbackState
@@ -37,6 +39,8 @@ FloatingPanel {
 	minimumPanelWidth: expanded ? 560 : 320
 	minimumPanelHeight: expanded ? 390 : 180
 	transitioning: modeTransitionRunning
+	contentUnderHeader: true
+	headerControlsVisible: chromeRevealed
 	z: UiState.videoStack
 	focus: active && expanded
 
@@ -227,6 +231,19 @@ FloatingPanel {
 		}
 	}
 
+	function revealChrome() {
+		if (!expanded) return
+
+		chromeHideTimer.stop()
+		chromeRevealed = true
+	}
+
+	function scheduleChromeHide() {
+		if (!expanded || panelHover.hovered || dragging || resizing) return
+
+		chromeHideTimer.restart()
+	}
+
 	onActivated: {
 		UiState.activateComponent("video")
 		if (expanded) focusTimer.restart()
@@ -238,6 +255,28 @@ FloatingPanel {
 	onVisibleChanged: {
 		if (visible && sourceValid && !userPaused) mediaPlayer.play()
 		else if (!visible) mediaPlayer.pause()
+	}
+	onExpandedChanged: {
+		chromeHideTimer.stop()
+		chromeRevealed = expanded
+		if (expanded && !panelHover.hovered) chromeHideTimer.restart()
+	}
+	onDraggingChanged: {
+		if (dragging) revealChrome()
+		else scheduleChromeHide()
+	}
+	onResizingChanged: {
+		if (resizing) revealChrome()
+		else scheduleChromeHide()
+	}
+
+	HoverHandler {
+		id: panelHover
+
+		onHoveredChanged: {
+			if (hovered) root.revealChrome()
+			else root.scheduleChromeHide()
+		}
 	}
 
 	Connections {
@@ -313,6 +352,12 @@ FloatingPanel {
 		id: messageTimer
 		interval: 5000
 		onTriggered: root.validationMessage = ""
+	}
+
+	Timer {
+		id: chromeHideTimer
+		interval: 3000
+		onTriggered: root.chromeRevealed = false
 	}
 
 	ParallelAnimation {
@@ -395,18 +440,12 @@ FloatingPanel {
 	Item {
 		id: content
 		anchors.fill: parent
-		anchors.margins: root.expanded ? Theme.spacingLg : 0
 
-		Rectangle {
+		ClippingRectangle {
 			id: videoFrame
-			anchors.left: parent.left
-			anchors.right: parent.right
-			anchors.top: parent.top
-			anchors.bottom: root.expanded ? controls.top : parent.bottom
-			anchors.bottomMargin: root.expanded ? Theme.spacingMd : 0
-			radius: root.expanded ? Theme.radius * 2 : root.radius
+			anchors.fill: parent
+			radius: root.radius
 			color: Theme.background
-			clip: true
 
 			VideoOutput {
 				id: videoOutput
@@ -415,7 +454,19 @@ FloatingPanel {
 				fillMode: VideoOutput.PreserveAspectCrop
 			}
 
+			MouseArea {
+				z: 0
+				anchors.fill: parent
+				enabled: root.expanded && root.sourceValid
+				cursorShape: Qt.PointingHandCursor
+				onClicked: {
+					root.activated()
+					root.togglePlayback()
+				}
+			}
+
 			Column {
+				z: 1
 				anchors.centerIn: parent
 				width: Math.min(parent.width - Theme.spacingLg * 2, 320)
 				spacing: Theme.spacingSm
@@ -442,38 +493,58 @@ FloatingPanel {
 			}
 
 			Rectangle {
-				z: 1
+				z: 2
+				anchors.left: parent.left
+				anchors.right: parent.right
+				anchors.top: parent.top
+				height: root.headerHeight
+				color: Theme.surface
+				opacity: root.expanded && root.chromeRevealed ? 1 : 0
+				visible: root.expanded && opacity > 0
+
+				Behavior on opacity {
+					NumberAnimation {
+						duration: Theme.motionDuration
+						easing.type: Easing.OutCubic
+					}
+				}
+			}
+
+			Rectangle {
+				id: controls
+				z: 2
 				anchors.left: parent.left
 				anchors.right: parent.right
 				anchors.bottom: parent.bottom
-				height: 54
-				visible: root.expanded && root.sourceValid
+				height: 104
 				color: Theme.surface
+				opacity: root.expanded && root.chromeRevealed ? 1 : 0
+				visible: root.expanded && opacity > 0
+				enabled: root.chromeRevealed
 
-				Text {
-					anchors.left: parent.left
-					anchors.leftMargin: Theme.spacingMd
-					anchors.right: playbackButton.left
-					anchors.rightMargin: Theme.spacingSm
-					anchors.verticalCenter: parent.verticalCenter
-					text: root.sourceName(root.acceptedSource)
-					color: Theme.text
-					font.family: Theme.textFontFamily
-					font.pixelSize: 11
-					elide: Text.ElideMiddle
+				Behavior on opacity {
+					NumberAnimation {
+						duration: Theme.motionDuration
+						easing.type: Easing.OutCubic
+					}
+				}
+
+				MouseArea {
+					anchors.fill: parent
+					onPressed: root.activated()
 				}
 
 				ActionButton {
-					id: playbackButton
-					anchors.right: muteButton.left
-					anchors.rightMargin: Theme.spacingXs
-					anchors.verticalCenter: parent.verticalCenter
-					compact: true
-					icon: root.playing ? "󰏤" : "󰐊"
-					active: root.playing
+					id: chooseButton
+					anchors.left: parent.left
+					anchors.leftMargin: Theme.spacingMd
+					anchors.top: parent.top
+					anchors.topMargin: Theme.spacingSm
+					icon: "󰉋"
+					text: root.acceptedSource ? "Change" : "Choose video"
 					onClicked: {
 						root.activated()
-						root.togglePlayback()
+						videoPicker.open()
 					}
 				}
 
@@ -481,7 +552,7 @@ FloatingPanel {
 					id: muteButton
 					anchors.right: parent.right
 					anchors.rightMargin: Theme.spacingMd
-					anchors.verticalCenter: parent.verticalCenter
+					anchors.verticalCenter: chooseButton.verticalCenter
 					compact: true
 					icon: root.muted ? "󰖁" : "󰕾"
 					active: !root.muted
@@ -490,102 +561,90 @@ FloatingPanel {
 						root.muted = !root.muted
 					}
 				}
-			}
 
-			MouseArea {
-				z: 0
-				anchors.fill: parent
-				enabled: root.expanded && root.sourceValid
-				cursorShape: Qt.PointingHandCursor
-				onClicked: {
-					root.activated()
-					root.togglePlayback()
-				}
-			}
-		}
-
-		Item {
-			id: controls
-			anchors.left: parent.left
-			anchors.right: parent.right
-			anchors.bottom: parent.bottom
-			height: root.expanded ? 74 : 0
-			visible: root.expanded
-
-			ActionButton {
-				id: chooseButton
-				anchors.left: parent.left
-				anchors.top: parent.top
-				icon: "󰉋"
-				text: root.acceptedSource ? "Change" : "Choose video"
-				onClicked: {
-					root.activated()
-					videoPicker.open()
-				}
-			}
-
-			Text {
-				anchors.left: chooseButton.right
-				anchors.leftMargin: Theme.spacingMd
-				anchors.right: parent.right
-				anchors.verticalCenter: chooseButton.verticalCenter
-				text: root.validationMessage || root.sourceName(root.acceptedSource)
-				color: root.validationMessage ? Theme.warning : Theme.textMuted
-				font.family: Theme.textFontFamily
-				font.pixelSize: 11
-				elide: Text.ElideMiddle
-			}
-
-			Rectangle {
-				id: progressTrack
-				anchors.left: parent.left
-				anchors.right: parent.right
-				anchors.bottom: elapsedLabel.top
-				anchors.bottomMargin: Theme.spacingXs
-				height: 4
-				radius: height / 2
-				color: Theme.surfaceSoft
-
-				Rectangle {
-					width: mediaPlayer.duration > 0
-						? parent.width * Math.min(1,
-							mediaPlayer.position / mediaPlayer.duration) : 0
-					height: parent.height
-					radius: parent.radius
-					color: Theme.accent
-				}
-
-				MouseArea {
-					anchors.fill: parent
-					anchors.topMargin: -Theme.spacingSm
-					anchors.bottomMargin: -Theme.spacingSm
-					enabled: root.sourceValid && mediaPlayer.seekable
-					cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-					onClicked: mouse => {
+				ActionButton {
+					id: playbackButton
+					anchors.right: muteButton.left
+					anchors.rightMargin: Theme.spacingXs
+					anchors.verticalCenter: chooseButton.verticalCenter
+					compact: true
+					icon: root.playing ? "󰏤" : "󰐊"
+					active: root.playing
+					enabled: root.sourceValid
+					onClicked: {
 						root.activated()
-						mediaPlayer.position = mediaPlayer.duration
-							* Math.max(0, Math.min(1, mouse.x / width))
+						root.togglePlayback()
 					}
 				}
-			}
 
-			Text {
-				id: elapsedLabel
-				anchors.left: parent.left
-				anchors.bottom: parent.bottom
-				text: root.formatDuration(mediaPlayer.position)
-				color: Theme.textMuted
-				font.family: Theme.textFontFamily
-				font.pixelSize: 10
-			}
+				Text {
+					anchors.left: chooseButton.right
+					anchors.leftMargin: Theme.spacingMd
+					anchors.right: playbackButton.left
+					anchors.rightMargin: Theme.spacingSm
+					anchors.verticalCenter: chooseButton.verticalCenter
+					text: root.validationMessage || root.sourceName(root.acceptedSource)
+					color: root.validationMessage ? Theme.warning : Theme.textMuted
+					font.family: Theme.textFontFamily
+					font.pixelSize: 11
+					elide: Text.ElideMiddle
+				}
 
-			Text {
-				anchors.right: parent.right
-				anchors.bottom: parent.bottom
-				text: root.formatDuration(mediaPlayer.duration)
-				color: Theme.textMuted
-				font.family: Theme.textFontFamily
-				font.pixelSize: 10
+				Rectangle {
+					id: progressTrack
+					anchors.left: parent.left
+					anchors.leftMargin: Theme.spacingMd
+					anchors.right: parent.right
+					anchors.rightMargin: Theme.spacingMd
+					anchors.bottom: elapsedLabel.top
+					anchors.bottomMargin: Theme.spacingXs
+					height: 4
+					radius: height / 2
+					color: Theme.surfaceSoft
+
+					Rectangle {
+						width: mediaPlayer.duration > 0
+							? parent.width * Math.min(1,
+								mediaPlayer.position / mediaPlayer.duration) : 0
+						height: parent.height
+						radius: parent.radius
+						color: Theme.accent
+					}
+
+					MouseArea {
+						anchors.fill: parent
+						anchors.topMargin: -Theme.spacingSm
+						anchors.bottomMargin: -Theme.spacingSm
+						enabled: root.sourceValid && mediaPlayer.seekable
+						cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+						onClicked: mouse => {
+							root.activated()
+							mediaPlayer.position = mediaPlayer.duration
+								* Math.max(0, Math.min(1, mouse.x / width))
+						}
+					}
+				}
+
+				Text {
+					id: elapsedLabel
+					anchors.left: progressTrack.left
+					anchors.bottom: parent.bottom
+					anchors.bottomMargin: Theme.spacingSm
+					text: root.formatDuration(mediaPlayer.position)
+					color: Theme.textMuted
+					font.family: Theme.textFontFamily
+					font.pixelSize: 10
+				}
+
+				Text {
+					anchors.right: progressTrack.right
+					anchors.bottom: parent.bottom
+					anchors.bottomMargin: Theme.spacingSm
+					text: root.formatDuration(mediaPlayer.duration)
+					color: Theme.textMuted
+					font.family: Theme.textFontFamily
+					font.pixelSize: 10
+				}
 			}
 		}
 	}

@@ -84,10 +84,13 @@ does not own the icon value.
 - Resize handles remain visually transparent and communicate direction only
   through the platform horizontal, vertical, or diagonal cursor. Their `12px`
   edge and `24px` corner targets make floating desktop panels easier to grab.
-- Expanded desktop panels place Title, Collapse, and Close within the modal
-  padding, without a separate header strip or divider. Minimal and expanded
-  panels share the Quick Settings modal radius. Body layout reflows from actual
-  width and height; panel resize never scales a rendered snapshot.
+- Expanded Clock and Music panels place Title, Collapse, and Close within the
+  modal padding, without a separate header strip or divider. Video uses a
+  transient top overlay for the same actions and a transient bottom overlay for
+  playback controls; both fade three seconds after the pointer leaves. Minimal
+  and expanded panels share the Quick Settings modal radius. Full-bleed video
+  frames are clipped to that radius. Body layout reflows from actual width and
+  height; panel resize never scales a rendered snapshot.
 - Quick Settings and the Clock, Music, and Video surfaces keep a transparent
   outer border in both minimal and expanded modes. Borders inside those
   surfaces keep their semantic theme colors.
