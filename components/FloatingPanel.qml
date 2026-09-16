@@ -16,6 +16,7 @@ ShellSurface {
 	property bool transitioning: false
 	property bool contentUnderHeader: false
 	property bool headerControlsVisible: true
+	property bool headerTitleVisible: true
 	property real boundsWidth: 0
 	property real boundsHeight: 0
 	property real minimumPanelWidth: 240
@@ -177,6 +178,7 @@ ShellSurface {
 			anchors.leftMargin: Theme.spacingLg + Theme.spacingSm
 			anchors.verticalCenter: parent.verticalCenter
 			spacing: Theme.spacingSm
+			visible: root.headerTitleVisible
 
 			Text {
 				visible: root.icon.length > 0

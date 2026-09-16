@@ -166,12 +166,15 @@
   a valid native frame arrives.
 - Video is a full-bleed, muted, looping preview in both modes. A rounded clip
   keeps center-cropped frames inside the shared panel radius. Expanded mode
-  overlays its title, Collapse, Close, Change, play or pause, mute, and seek
-  controls when the pointer enters the panel. After the pointer leaves, the
-  overlay remains available for three seconds and then fades away. Minimal mode
-  stays chrome-free. The file picker accepts common local
-  video containers. A candidate must expose a video track, a positive duration,
-  and a duration no greater than 30 seconds before it replaces the persisted
+  overlays only icon controls when the pointer enters the panel: Collapse and
+  Close at the top, then file picker, previous, play or pause, next, mute, and
+  seek at the bottom. It has no title or header surface. After the pointer
+  leaves, the controls remain available for three seconds and then fade away.
+  Minimal mode stays chrome-free. Previous and Next wrap through supported
+  files, ordered by name, in the fixed `/home/znnn/Videos/wallpaper` directory.
+  The file picker starts in that directory and accepts common local video
+  containers. A candidate must expose a video track, a positive duration, and
+  a duration no greater than 30 seconds before it replaces the persisted
   source. A rejected candidate reports the reason and restores the last valid
   preview. Hiding Video pauses decoding; showing it resumes unless the user had
   paused it explicitly. This component is only a preview and does not apply the
@@ -184,15 +187,15 @@
 - Clock, Music, and Video use the same `Theme.radius * 3` corner radius as Quick
   Settings in both modes. Clock and Music keep one uninterrupted translucent
   expanded surface: Title, Collapse, and Close sit inside its padding without a
-  separate header fill or divider. Video places the same actions over its
-  full-bleed frame in a transient top surface. The surrounding top region
-  remains the drag target.
+  separate header fill or divider. Video omits the title and header surface,
+  placing only its Collapse and Close icons over the full-bleed frame. The
+  surrounding top region remains the drag target.
 - `FloatingPanel` provides an optional header-action row and right-side
   inspector loader. It can also extend body content beneath the header and
-  independently fade the header controls, which Video uses for its transient
-  overlay. Clock, Music, and Video do not populate the inspector yet, so
-  property interfaces can be added without changing drag, focus, or resize
-  ownership.
+  independently fade the header controls or omit the title, which Video uses
+  for its transient overlay. Clock, Music, and Video do not populate the
+  inspector yet, so property interfaces can be added without changing drag,
+  focus, or resize ownership.
 - Minimal and expanded Clock, Music, and Video panels use true geometry resize
   from every edge and corner. Input-only handles use a `12px` edge area and a
   larger `24px` corner area, and become available after the panel is activated.

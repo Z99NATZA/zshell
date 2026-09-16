@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Dialogs
 import QtMultimedia
+import Quickshell.Io
 import Quickshell.Widgets
 import qs.state
 import qs.theme
@@ -24,7 +25,10 @@ FloatingPanel {
 	property bool restoringAcceptedSource: false
 	property bool rejectionPending: false
 	property bool chromeRevealed: false
+	property var wallpaperFiles: []
+	property bool wallpaperRefreshPending: false
 	readonly property int maximumDuration: 30 * 1000
+	readonly property string wallpaperDirectory: "/home/znnn/Videos/wallpaper"
 	readonly property bool modeTransitionRunning: modeTransition.running
 	readonly property bool playing: mediaPlayer.playbackState
 		=== MediaPlayer.PlayingState
@@ -41,6 +45,7 @@ FloatingPanel {
 	transitioning: modeTransitionRunning
 	contentUnderHeader: true
 	headerControlsVisible: chromeRevealed
+	headerTitleVisible: false
 	z: UiState.videoStack
 	focus: active && expanded
 
@@ -136,6 +141,42 @@ FloatingPanel {
 		const value = decodeURIComponent(String(source))
 		const separator = value.lastIndexOf("/")
 		return separator >= 0 ? value.slice(separator + 1) : value
+	}
+
+	function applyWallpaperFiles(output) {
+		const supported = /\.(mp4|m4v|mov|webm|mkv)$/i
+		const files = String(output || "").split("\n").filter(fileName => {
+			return fileName.length > 0 && supported.test(fileName)
+		})
+		files.sort((left, right) => left.localeCompare(right))
+		wallpaperFiles = files
+	}
+
+	function refreshWallpaperFiles() {
+		if (wallpaperQuery.running) {
+			wallpaperRefreshPending = true
+			return
+		}
+
+		wallpaperQuery.running = true
+	}
+
+	function wallpaperSource(fileName) {
+		return "file://" + wallpaperDirectory + "/" + encodeURIComponent(fileName)
+	}
+
+	function navigateWallpaper(step) {
+		if (wallpaperFiles.length === 0 || step === 0) return
+
+		const currentName = sourceName(acceptedSource)
+		const currentIndex = wallpaperFiles.indexOf(currentName)
+		let nextIndex = step > 0 ? 0 : wallpaperFiles.length - 1
+		if (currentIndex >= 0) {
+			nextIndex = (currentIndex + step + wallpaperFiles.length)
+				% wallpaperFiles.length
+		}
+
+		loadSource(wallpaperSource(wallpaperFiles[nextIndex]), false)
 	}
 
 	function loadSource(source, restoring) {
@@ -303,6 +344,7 @@ FloatingPanel {
 	onAvailableHeightChanged: if (!geometryInitialized) geometryTimer.restart()
 	Component.onCompleted: {
 		geometryTimer.restart()
+		refreshWallpaperFiles()
 		if (LayoutState.videoSource) loadSource(LayoutState.videoSource, false)
 	}
 	Component.onDestruction: {
@@ -319,6 +361,25 @@ FloatingPanel {
 		id: geometryTimer
 		interval: 0
 		onTriggered: root.restoreMinimalGeometry()
+	}
+
+	Process {
+		id: wallpaperQuery
+		command: [
+			"find", root.wallpaperDirectory, "-maxdepth", "1", "-type", "f",
+			"-printf", "%f\n"
+		]
+
+		stdout: StdioCollector {
+			onStreamFinished: root.applyWallpaperFiles(text)
+		}
+
+		onRunningChanged: {
+			if (!running && root.wallpaperRefreshPending) {
+				root.wallpaperRefreshPending = false
+				root.refreshWallpaperFiles()
+			}
+		}
 	}
 
 	Timer {
@@ -402,11 +463,15 @@ FloatingPanel {
 		id: videoPicker
 		title: "Choose a wallpaper preview"
 		fileMode: FileDialog.OpenFile
+		currentFolder: "file://" + root.wallpaperDirectory
 		nameFilters: [
 			"Video files (*.mp4 *.m4v *.mov *.webm *.mkv)",
 			"All files (*)"
 		]
-		onAccepted: root.loadSource(selectedFile, false)
+		onAccepted: {
+			root.loadSource(selectedFile, false)
+			root.refreshWallpaperFiles()
+		}
 	}
 
 	AudioOutput {
@@ -493,24 +558,6 @@ FloatingPanel {
 			}
 
 			Rectangle {
-				z: 2
-				anchors.left: parent.left
-				anchors.right: parent.right
-				anchors.top: parent.top
-				height: root.headerHeight
-				color: Theme.surface
-				opacity: root.expanded && root.chromeRevealed ? 1 : 0
-				visible: root.expanded && opacity > 0
-
-				Behavior on opacity {
-					NumberAnimation {
-						duration: Theme.motionDuration
-						easing.type: Easing.OutCubic
-					}
-				}
-			}
-
-			Rectangle {
 				id: controls
 				z: 2
 				anchors.left: parent.left
@@ -540,8 +587,8 @@ FloatingPanel {
 					anchors.leftMargin: Theme.spacingMd
 					anchors.top: parent.top
 					anchors.topMargin: Theme.spacingSm
+					compact: true
 					icon: "󰉋"
-					text: root.acceptedSource ? "Change" : "Choose video"
 					onClicked: {
 						root.activated()
 						videoPicker.open()
@@ -562,25 +609,52 @@ FloatingPanel {
 					}
 				}
 
-				ActionButton {
-					id: playbackButton
+				Row {
+					id: transportControls
 					anchors.right: muteButton.left
 					anchors.rightMargin: Theme.spacingXs
 					anchors.verticalCenter: chooseButton.verticalCenter
-					compact: true
-					icon: root.playing ? "󰏤" : "󰐊"
-					active: root.playing
-					enabled: root.sourceValid
-					onClicked: {
-						root.activated()
-						root.togglePlayback()
+					spacing: Theme.spacingXs
+
+					ActionButton {
+						compact: true
+						icon: "󰒮"
+						enabled: root.wallpaperFiles.length > 1 && !root.loading
+							&& !root.rejectionPending
+						onClicked: {
+							root.activated()
+							root.navigateWallpaper(-1)
+						}
+					}
+
+					ActionButton {
+						id: playbackButton
+						compact: true
+						icon: root.playing ? "󰏤" : "󰐊"
+						active: root.playing
+						enabled: root.sourceValid
+						onClicked: {
+							root.activated()
+							root.togglePlayback()
+						}
+					}
+
+					ActionButton {
+						compact: true
+						icon: "󰒭"
+						enabled: root.wallpaperFiles.length > 1 && !root.loading
+							&& !root.rejectionPending
+						onClicked: {
+							root.activated()
+							root.navigateWallpaper(1)
+						}
 					}
 				}
 
 				Text {
 					anchors.left: chooseButton.right
 					anchors.leftMargin: Theme.spacingMd
-					anchors.right: playbackButton.left
+					anchors.right: transportControls.left
 					anchors.rightMargin: Theme.spacingSm
 					anchors.verticalCenter: chooseButton.verticalCenter
 					text: root.validationMessage || root.sourceName(root.acceptedSource)
