@@ -6,7 +6,7 @@ a process restart.
 | Owner | Lifetime | Values |
 | --- | --- | --- |
 | `UiState.qml` | Current process | Modal visibility, active component, desktop promotion and stack order, Dock animation target, and selected connection mode |
-| `LayoutState.qml` | Across restarts | Minimal and expanded card geometry, card visibility, Quick Settings geometry, theme, component opacity, and language indicator visibility |
+| `LayoutState.qml` | Across restarts | Card geometry and visibility, Video source, Quick Settings geometry, theme, opacity, and language indicators |
 
 `LayoutState` uses Quickshell `FileView` with `JsonAdapter`. Updates are written
 atomically to `~/.local/state/zshell/layout.json`; external file changes are
@@ -18,16 +18,22 @@ rendering.
 
 `clockX`, `clockY`, `clockWidth`, and `clockHeight` store the minimal Clock
 rectangle. The matching `clockExpanded*` values store its expanded rectangle.
-Music uses the same split through `music*` and `musicExpanded*`. Expansion uses
-the persisted expanded size but derives its position from the current minimal
-rectangle: it grows right and down when space permits and reverses only the
-axis that would cross a screen boundary. Panels always start minimal after a
-process restart; only their two geometry sets persist.
+Music and Video use the same split through `music*` / `musicExpanded*` and
+`video*` / `videoExpanded*`. Expansion uses the persisted expanded size but
+derives its position from the current minimal rectangle: it grows right and
+down when space permits and reverses only the axis that would cross a screen
+boundary. Panels always start minimal after a process restart; only their two
+geometry sets persist.
 
-`showClock` and `showMusic` default to true and are controlled from the Quick
-Settings Widgets page. Disabling either value hides the card across restarts.
-Music visibility remains conditional on an available MPRIS player even when
-`showMusic` is enabled.
+`showClock`, `showMusic`, and `showVideo` default to true and are controlled
+from the Quick Settings Widgets page. Disabling a value hides that card across
+restarts. Music visibility remains conditional on an available MPRIS player
+even when `showMusic` is enabled.
+
+`videoSource` stores the URL of the last local file accepted by Video. A source
+is persisted only after Qt Multimedia reports a video track and a positive
+duration no greater than 30 seconds. Playback position, pause state, and mute
+state remain ephemeral. No state marks a preview as the desktop background.
 
 `quickSettingsX`, `quickSettingsY`, `quickSettingsWidth`, and
 `quickSettingsHeight` store the last committed modal geometry. Size defaults to
@@ -43,27 +49,29 @@ surfaces and borders without fading foreground content.
 open panel's click-through mask and resets whenever the panel closes, so it is
 not stored in `UiState` or `LayoutState`.
 
-Expanded Clock and Music panels have no Pin state. They stay expanded across
-outside clicks and focus changes while transparent outside input passes through.
-Collapse and Escape restore minimal mode. Close restores minimal geometry and
-sets the matching persisted visibility switch to false.
+Expanded Clock, Music, and Video panels have no Pin state. They stay expanded
+across outside clicks and focus changes while transparent outside input passes
+through. Collapse and Escape restore minimal mode. Close restores minimal
+geometry and sets the matching persisted visibility switch to false.
 
-`UiState.activeComponent` and the three component stack counters coordinate
-focus and layer order across Clock, Music, and Quick Settings. Open panels stay
-above normal applications; activating Clock or Music promotes their shared
-shell window above the other zshell panels in both minimal and expanded modes.
+`UiState.activeComponent` and the four component stack counters coordinate
+focus and layer order across Clock, Music, Video, and Quick Settings. Open
+panels stay above normal applications; activating a desktop widget promotes
+their shared shell window above the other zshell panels in both minimal and
+expanded modes.
 Activation advances the process-local serial and assigns the newest stack
-value. Re-enabling Clock or Music also advances that widget's stack value
-without changing the active component. `raisedDesktopComponent` then keeps the
-shared desktop surface on the top layer above normal applications while Quick
-Settings retains focus on the overlay layer. A later Quick Settings activation
-from another component clears that temporary promotion. Stack order and surface
-promotion are intentionally not persisted, so each session starts from a
-deterministic base.
+value. Re-enabling Clock, Music, or Video also advances that widget's stack
+value without changing the active component. `raisedDesktopComponent` then
+keeps the shared desktop surface on the top layer above normal applications
+while Quick Settings retains focus on the overlay layer. A later Quick Settings
+activation from another component clears that temporary promotion. Stack order
+and surface promotion are intentionally not persisted, so each session starts
+from a deterministic base.
 
 `showLanguageLeft` and `showLanguageRight` default to true. They are persisted
 now so a future settings UI can control each side without changing dock layout.
 
 System state such as workspaces, networks, Bluetooth devices, and media players
 is never copied into local storage. The owning Quickshell integration remains
-the source of truth.
+the source of truth. The Video source is persisted because it is an explicit
+user choice rather than discovered system state.

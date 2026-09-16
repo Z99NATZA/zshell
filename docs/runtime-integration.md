@@ -7,6 +7,9 @@ Repository commands do not modify Hyprland startup automatically.
 
 - Hyprland on Wayland
 - Quickshell `0.3.1` or newer
+- Qt Multimedia and Qt Quick Dialogs QML modules for Video playback and file
+  selection (`qml6-module-qtmultimedia` and `qml6-module-qtquick-dialogs` on
+  Ubuntu)
 - NetworkManager and BlueZ for system controls
 - PipeWire for reactive output volume control
 - `pw-record` from PipeWire tools for default-output spectrum capture
@@ -65,6 +68,11 @@ It still reserves its 44-pixel height so normal windows never overlap it.
   hides only the expanded Music ring; metadata, progress, artwork, and transport
   controls remain available. `make build` itself fails directly when no C++20
   compiler exists.
+- Missing Qt Multimedia or Qt Quick Dialogs prevents the configuration from
+  loading because Video owns direct QML imports for playback and file selection.
+- An unavailable, invalid, audio-only, zero-duration, or longer-than-30-second
+  Video source remains uncommitted; the card reports the failure and restores
+  its last valid preview when one exists.
 - The power button resolves `hypr-power-menu` through the user's Bash login
   environment, so commands installed in `~/.local/bin` remain available even
   when the Quickshell process starts with a system-only `PATH`.

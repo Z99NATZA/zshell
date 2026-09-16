@@ -199,12 +199,13 @@ PanelWindow {
 	}
 
 	function setWidgetVisible(widget, visible) {
-		if (widget !== "clock" && widget !== "music") return
+		if (widget !== "clock" && widget !== "music" && widget !== "video") return
 
 		if (visible) UiState.raiseDesktopComponent(widget)
 
 		if (widget === "clock") LayoutState.showClock = visible
-		else LayoutState.showMusic = visible
+		else if (widget === "music") LayoutState.showMusic = visible
+		else LayoutState.showVideo = visible
 	}
 
 	function connectionForKey(items, kind, key) {
@@ -1351,6 +1352,17 @@ PanelWindow {
 							enabled: UiState.quickSettingsPage === "widgets"
 							onToggled: root.setWidgetVisible("music", !checked)
 						}
+
+						WidgetVisibilityCard {
+							width: parent.width
+							icon: "󰕧"
+							title: "Video"
+							description: checked ? "Looping wallpaper preview"
+								: "Hidden from the desktop"
+							checked: LayoutState.showVideo
+							enabled: UiState.quickSettingsPage === "widgets"
+							onToggled: root.setWidgetVisible("video", !checked)
+						}
 					}
 				}
 
@@ -1414,7 +1426,8 @@ PanelWindow {
 							? root.allWifiNetworks.length + " networks"
 								+ (root.allWifiNetworks.length > 6 ? " · 6 shown" : "")
 							: ((LayoutState.showClock ? 1 : 0)
-								+ (LayoutState.showMusic ? 1 : 0)) + " of 2 visible")
+								+ (LayoutState.showMusic ? 1 : 0)
+								+ (LayoutState.showVideo ? 1 : 0)) + " of 3 visible")
 					color: Theme.textMuted
 					font.family: Theme.textFontFamily
 					font.pixelSize: 10

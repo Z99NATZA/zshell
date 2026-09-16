@@ -13,10 +13,11 @@
 | `ResizeHandle` | Invisible edge and corner geometry-resize input |
 | `PanelShadow` | Shared contact shadow behind top-level floating surfaces |
 | `FloatingPanel` | Shared focus, chrome, drag, resize, and inspector slots for desktop widgets |
-| `WidgetVisibilityCard` | Shared Clock and Music visibility switch row |
+| `WidgetVisibilityCard` | Shared desktop-widget visibility switch row |
 | `DesktopSurface` | Desktop-layer composition and click-through regions |
 | `ClockCard` | Minimal clock and expanded floating time panel |
 | `MusicCard` | Minimal MPRIS controls and expanded now-playing panel |
+| `VideoCard` | Looping local-video preview and expanded playback controls |
 | `LanguageIndicator` | Current keyboard label and layout-selection drop-up |
 | `SystemTrayButton` | StatusNotifier icon and pointer actions |
 | `ActionButton` | Shared compact hover, active, and disabled behavior |
@@ -25,10 +26,10 @@
 ## Boundaries
 
 - Visual components consume semantic theme roles; they do not define palettes.
-- Quick Settings, Clock, and Music use the shared `PanelShadow` behind their
-  outer surfaces. Three low-opacity solid underlays create edge separation
-  without an outer border, blur texture, or active-state emphasis. Internal
-  cards and controls do not receive panel shadows.
+- Quick Settings, Clock, Music, and Video use the shared `PanelShadow` behind
+  their outer surfaces. Three low-opacity solid underlays create edge
+  separation without an outer border, blur texture, or active-state emphasis.
+  Internal cards and controls do not receive panel shadows.
 - Quick Settings uses a `960x680` modal and presents Wi-Fi networks or
   Bluetooth devices as persistent bubbles over their targets on a circular
   radar. Its bottom switch changes modes without closing the panel.
@@ -105,12 +106,13 @@
   back to that control when dismissed. Its header Close control and Escape use
   the same close path.
 - Quick Settings adjusts every component surface from fully transparent to
-  opaque in 10% steps. Its own surface and the Clock and Music surfaces use the
-  same selected opacity in both minimal and expanded modes. Text, icons, and
-  media artwork remain opaque.
+  opaque in 10% steps. Its own surface and the Clock, Music, and Video surfaces
+  use the same selected opacity in both minimal and expanded modes. Text,
+  icons, artwork, and video frames remain opaque.
 - The Quick Settings footer includes a `Widgets` page beside Wi-Fi and
-  Bluetooth. It toggles persisted Clock visibility and whether Music may appear
-  when media is available. The Dock time control opens this page directly.
+  Bluetooth. It toggles persisted Clock, Music, and Video visibility; Music
+  still appears only while media is available. The Dock time control opens this
+  page directly.
 - `ActionButton` owns reusable control feedback. Pressing an enabled button
   briefly scales it to `96%`. Compact icon-only instances use circular hover,
   pressed, and active surfaces that switch directly to the shared soft color
@@ -144,15 +146,16 @@
   Quick Settings keeps the full names.
 - The Dock is the sole Power entry point. Its button delegates to
   `hypr-power-menu`; it never runs a session or machine power action directly.
-- Clock and Music start as minimal desktop widgets. A single click activates the
-  widget and raises its stack order. Double-clicking empty widget space expands
-  it into a floating panel through true geometry resize. Expansion keeps the
-  minimal panel's left and top edges fixed and grows right and down whenever
-  both dimensions fit. An axis reverses independently when its preferred side
-  lacks room, so a bottom-left widget grows right and up. Expanded panels stay
-  open when focus moves or the user clicks outside. The header Collapse control
-  or Escape returns the panel to minimal mode. Music transport controls retain
-  their single-click actions and do not toggle panel mode.
+- Clock, Music, and Video start as minimal desktop widgets. A single click
+  activates the widget and raises its stack order. Double-clicking empty widget
+  space expands it into a floating panel through true geometry resize.
+  Expansion keeps the minimal panel's left and top edges fixed and grows right
+  and down whenever both dimensions fit. An axis reverses independently when
+  its preferred side lacks room, so a bottom-left widget grows right and up.
+  Expanded panels stay open when focus moves or the user clicks outside. The
+  header Collapse control or Escape returns the panel to minimal mode. Music
+  transport and expanded Video controls retain their single-click actions and
+  do not toggle panel mode.
 - Music keeps minimal mode quiet with a `72px` circular artwork and no spectrum.
   Expanded mode grows the visual stage to at most `260px`, uses the artwork for
   `50%` of that diameter, and mirrors 32 ascending frequency bands into 48
@@ -161,20 +164,30 @@
   the outer radius without pinning the strongest frequency on every frame. Bars
   have roughly `40px` of travel at the minimum panel size and fade in only after
   a valid native frame arrives.
-- Expanded Clock and Music headers provide separate Collapse and Close actions.
-  Collapse restores the persisted minimal rectangle. Close first restores that
-  rectangle and then hides the widget by turning off its persisted Widgets-page
-  visibility switch; the switch is the path for showing it again.
-- Clock and Music use the same `Theme.radius * 3` corner radius as Quick
+- Video minimal mode is an edge-to-edge, muted, looping preview. Expanded mode
+  adds Change, play or pause, mute, and seek controls while preserving the
+  preview aspect with center cropping. The file picker accepts common local
+  video containers. A candidate must expose a video track, a positive duration,
+  and a duration no greater than 30 seconds before it replaces the persisted
+  source. A rejected candidate reports the reason and restores the last valid
+  preview. Hiding Video pauses decoding; showing it resumes unless the user had
+  paused it explicitly. This component is only a preview and does not apply the
+  video to the real desktop background.
+- Expanded Clock, Music, and Video headers provide separate Collapse and Close
+  actions. Collapse restores the persisted minimal rectangle. Close first
+  restores that rectangle and then hides the widget by turning off its
+  persisted Widgets-page visibility switch; the switch is the path for showing
+  it again.
+- Clock, Music, and Video use the same `Theme.radius * 3` corner radius as Quick
   Settings in both modes. Their expanded mode is one uninterrupted translucent
   surface: Title, Collapse, and Close sit inside its padding without a separate
   header fill or divider, and the surrounding top region remains the drag
   target.
 - `FloatingPanel` provides an optional header-action row and right-side
-  inspector loader. Clock and Music do not populate the inspector yet, so
-  property interfaces can be added without changing drag, focus, or resize
+  inspector loader. Clock, Music, and Video do not populate the inspector yet,
+  so property interfaces can be added without changing drag, focus, or resize
   ownership.
-- Minimal and expanded Clock and Music panels both use true geometry resize
+- Minimal and expanded Clock, Music, and Video panels use true geometry resize
   from every edge and corner. Input-only handles use a `12px` edge area and a
   larger `24px` corner area, and become available after the panel is activated.
   Dragging and resizing commit the geometry for the current mode.
@@ -182,7 +195,7 @@
   stores minimal and expanded rectangles separately.
 - Hiding an expanded desktop card restores its minimal geometry. Showing it
   again restores the last committed minimal rectangle, raises it above normal
-  applications and the other desktop card, and leaves focus with Quick
+  applications and the other desktop cards, and leaves focus with Quick
   Settings. Music still requires an available MPRIS player.
 - The system panel connects only to remembered Wi-Fi networks. Networks that
   require new credentials remain selectable, but their inspector action is
@@ -204,19 +217,19 @@
 
 ## Input behavior
 
-The desktop surface accepts pointer input only over visible Clock and Music
-panels. Transparent outside regions always pass input through while an expanded
-panel stays open. Minimal widgets start on the desktop layer. Clicking either
-minimal widget promotes the shared surface above the other zshell panels, just
-as activating an expanded widget does. Re-enabling a minimal widget promotes
-the shared surface to the top layer above normal applications while Quick
-Settings keeps focus on the overlay layer. Opening Quick Settings from another
-component clears the previous promotion and returns inactive minimal widgets to
-the desktop layer; an inactive expanded widget remains above normal windows.
-Within the desktop surface, the last activated Clock or Music panel has the
-highest item stack value.
+The desktop surface accepts pointer input only over visible Clock, Music, and
+Video panels. Transparent outside regions always pass input through while an
+expanded panel stays open. Minimal widgets start on the desktop layer. Clicking
+a minimal widget promotes the shared surface above the other zshell panels,
+just as activating an expanded widget does. Re-enabling a minimal widget
+promotes the shared surface to the top layer above normal applications while
+Quick Settings keeps focus on the overlay layer. Opening Quick Settings from
+another component clears the previous promotion and returns inactive minimal
+widgets to the desktop layer; an inactive expanded widget remains above normal
+windows. Within the desktop surface, the last activated Clock, Music, or Video
+panel has the highest item stack value.
 
-Pressing a Clock or Music drag area temporarily expands the desktop surface's
+Pressing a Clock, Music, or Video drag area temporarily expands the desktop surface's
 input mask to the full screen until release or cancellation. This preserves the
 pointer grab during fast movement; normal outside click-through resumes as soon
 as the drag ends.

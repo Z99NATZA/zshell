@@ -7,13 +7,13 @@ reactive system state; QML components own presentation and interaction.
 ## System shape
 
 ```text
-Hyprland / NetworkManager / BlueZ / MPRIS
-                    |
-          Quickshell integrations
-                    |
-       Dock + panel + desktop cards
-                    |
-       semantic theme and local state
+Hyprland / NetworkManager / BlueZ / MPRIS / Qt Multimedia
+                           |
+                 QML integrations
+                           |
+              Dock + panel + desktop cards
+                           |
+              semantic theme and local state
 ```
 
 | Layer | Owns |
@@ -35,15 +35,16 @@ Hyprland / NetworkManager / BlueZ / MPRIS
   the visible controls.
 - `QuickSettingsPanel` is created per screen and shown on demand.
 - `DesktopSurface` is below normal application windows and uses a click-through
-  mask so transparent areas never block desktop input. Expanded Clock and Music
-  cards remain open while outside input passes through. The surface moves above
-  normal windows while either card is expanded.
-- Clock and Music share `DesktopSurface`, so their QML stack values provide
-  deterministic last-activated ordering. Quick Settings remains a separate
-  window. Expanded or open panels remain on the layer-shell `Top` layer above
-  normal applications. `UiState.activeComponent` promotes the active zshell
-  window to `Overlay`, so switching panels only changes their order relative to
-  each other and never sends an inactive panel behind an application window.
+  mask so transparent areas never block desktop input. Expanded Clock, Music,
+  and Video cards remain open while outside input passes through. The surface
+  moves above normal windows while any card is expanded.
+- Clock, Music, and Video share `DesktopSurface`, so their QML stack values
+  provide deterministic last-activated ordering. Quick Settings remains a
+  separate window. Expanded or open panels remain on the layer-shell `Top`
+  layer above normal applications. `UiState.activeComponent` promotes the
+  active zshell window to `Overlay`, so switching panels only changes their
+  order relative to each other and never sends an inactive panel behind an
+  application window.
 - `FloatingPanel` owns reusable desktop-panel chrome, optional property slots,
   drag interaction, and edge/corner geometry resize. Content components own
   responsive body layout and mode-specific persistence.

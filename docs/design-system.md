@@ -32,8 +32,8 @@ The persisted component opacity applies to all surface and border roles. It
 does not reduce the opacity of foreground text, icons, or media artwork.
 The Dock window and island containers remain transparent. Individual Dock
 controls use `surfaceSoft` only for interaction feedback. Quick Settings and
-the Clock and Music panels use the same `surfaceRaised` opacity in both minimal
-and expanded modes.
+the Clock, Music, and Video panels use the same `surfaceRaised` opacity in both
+minimal and expanded modes.
 
 Connection bubbles use dedicated glass surface roles. Their base alpha is
 `54%` in the gray theme and `62%` in the light theme, multiplied by the shared
@@ -66,9 +66,9 @@ does not own the icon value.
   tooltips use the raised surface above the hovered icon, appear after `500ms`,
   and remain at most `300px` wide.
 - Prefer borders and surface contrast over heavy shadows.
-- Quick Settings, Clock, and Music use one restrained contact shadow treatment
-  only to separate overlapping components. Their outer borders remain
-  transparent.
+- Quick Settings, Clock, Music, and Video use one restrained contact shadow
+  treatment only to separate overlapping components. Their outer borders
+  remain transparent.
 - Reserve fully round shapes for indicators, progress details, and square
   icon-only controls. Controls containing text retain the standard rounded
   rectangle. Compact font icons and native system tray images remain
@@ -88,9 +88,9 @@ does not own the icon value.
   padding, without a separate header strip or divider. Minimal and expanded
   panels share the Quick Settings modal radius. Body layout reflows from actual
   width and height; panel resize never scales a rendered snapshot.
-- Quick Settings and the Clock and Music surfaces keep a transparent outer
-  border in both minimal and expanded modes. Borders inside those surfaces keep
-  their semantic theme colors.
+- Quick Settings and the Clock, Music, and Video surfaces keep a transparent
+  outer border in both minimal and expanded modes. Borders inside those
+  surfaces keep their semantic theme colors.
 - Expand Quick Settings from its invoking Dock control and collapse it back to
   the same target. Opening uses `Easing.OutCubic`; closing uses `Easing.InCubic`.
 
@@ -102,6 +102,8 @@ does not own the icon value.
   separately persisted minimal rectangle on collapse.
 - Limit large translucent surface animation to bounded open and close motion;
   never animate one continuously or continuously sample idle data.
+- Video frames update only while the preview is visible and not user-paused.
+  Preview audio starts muted, and hiding the widget pauses media decoding.
 - Music is the only audio-reactive surface. Minimal mode shows artwork without
   reactive decoration. Expanded Music cards request one shared circular Canvas
   and native capture process; collapsing the last expanded card stops capture.

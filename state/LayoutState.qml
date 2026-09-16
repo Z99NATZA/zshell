@@ -22,6 +22,15 @@ Singleton {
 	property alias musicExpandedY: adapter.musicExpandedY
 	property alias musicExpandedWidth: adapter.musicExpandedWidth
 	property alias musicExpandedHeight: adapter.musicExpandedHeight
+	property alias videoX: adapter.videoX
+	property alias videoY: adapter.videoY
+	property alias videoWidth: adapter.videoWidth
+	property alias videoHeight: adapter.videoHeight
+	property alias videoExpandedX: adapter.videoExpandedX
+	property alias videoExpandedY: adapter.videoExpandedY
+	property alias videoExpandedWidth: adapter.videoExpandedWidth
+	property alias videoExpandedHeight: adapter.videoExpandedHeight
+	property alias videoSource: adapter.videoSource
 	property alias quickSettingsX: adapter.quickSettingsX
 	property alias quickSettingsY: adapter.quickSettingsY
 	property alias quickSettingsWidth: adapter.quickSettingsWidth
@@ -30,6 +39,7 @@ Singleton {
 	property alias componentOpacity: adapter.componentOpacity
 	property alias showClock: adapter.showClock
 	property alias showMusic: adapter.showMusic
+	property alias showVideo: adapter.showVideo
 	property alias showLanguageLeft: adapter.showLanguageLeft
 	property alias showLanguageRight: adapter.showLanguageRight
 
@@ -58,6 +68,15 @@ Singleton {
 			property int musicExpandedY: -1
 			property int musicExpandedWidth: 720
 			property int musicExpandedHeight: 420
+			property int videoX: 48
+			property int videoY: 72
+			property int videoWidth: 360
+			property int videoHeight: 203
+			property int videoExpandedX: -1
+			property int videoExpandedY: -1
+			property int videoExpandedWidth: 720
+			property int videoExpandedHeight: 480
+			property string videoSource: ""
 			property int quickSettingsX: -1
 			property int quickSettingsY: -1
 			property int quickSettingsWidth: 960
@@ -66,6 +85,7 @@ Singleton {
 			property real componentOpacity: 1
 			property bool showClock: true
 			property bool showMusic: true
+			property bool showVideo: true
 			property bool showLanguageLeft: true
 			property bool showLanguageRight: true
 		}
