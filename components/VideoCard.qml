@@ -417,7 +417,7 @@ FloatingPanel {
 
 	Timer {
 		id: chromeHideTimer
-		interval: 3000
+		interval: 1000
 		onTriggered: root.chromeRevealed = false
 	}
 
@@ -564,10 +564,31 @@ FloatingPanel {
 				anchors.right: parent.right
 				anchors.bottom: parent.bottom
 				height: 104
-				color: Theme.surface
+				color: "transparent"
 				opacity: root.expanded && root.chromeRevealed ? 1 : 0
 				visible: root.expanded && opacity > 0
 				enabled: root.chromeRevealed
+				gradient: Gradient {
+					orientation: Gradient.Vertical
+
+					GradientStop {
+						position: 0
+						color: Qt.rgba(Theme.surface.r, Theme.surface.g,
+							Theme.surface.b, 0)
+					}
+
+					GradientStop {
+						position: 0.42
+						color: Qt.rgba(Theme.surface.r, Theme.surface.g,
+							Theme.surface.b, Theme.surface.a * 0.42)
+					}
+
+					GradientStop {
+						position: 1
+						color: Qt.rgba(Theme.surface.r, Theme.surface.g,
+							Theme.surface.b, Theme.surface.a * 0.92)
+					}
+				}
 
 				Behavior on opacity {
 					NumberAnimation {

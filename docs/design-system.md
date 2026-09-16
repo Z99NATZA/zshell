@@ -87,11 +87,12 @@ does not own the icon value.
 - Expanded Clock and Music panels place Title, Collapse, and Close within the
   modal padding, without a separate header strip or divider. Video uses a
   title-free pair of top icon controls with no header surface and a transient
-  bottom overlay whose file and transport buttons are icon-only. Both fade
-  three seconds after the pointer leaves. Minimal and expanded panels share the
-  Quick Settings modal radius. Full-bleed video frames are clipped to that
-  radius. Body layout reflows from actual width and height; panel resize never
-  scales a rendered snapshot.
+  bottom gradient scrim whose file and transport buttons are icon-only. The
+  scrim stays transparent at its top and darkens toward the lower edge without
+  blurring the frame. Both control regions fade one second after the pointer
+  leaves. Minimal and expanded panels share the Quick Settings modal radius.
+  Full-bleed video frames are clipped to that radius. Body layout reflows from
+  actual width and height; panel resize never scales a rendered snapshot.
 - Quick Settings and the Clock, Music, and Video surfaces keep a transparent
   outer border in both minimal and expanded modes. Borders inside those
   surfaces keep their semantic theme colors.

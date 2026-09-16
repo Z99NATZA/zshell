@@ -169,16 +169,18 @@
   overlays only icon controls when the pointer enters the panel: Collapse and
   Close at the top, then file picker, previous, play or pause, next, mute, and
   seek at the bottom. It has no title or header surface. After the pointer
-  leaves, the controls remain available for three seconds and then fade away.
-  Minimal mode stays chrome-free. Previous and Next wrap through supported
-  files, ordered by name, in the fixed `/home/znnn/Videos/wallpaper` directory.
-  The file picker starts in that directory and accepts common local video
-  containers. A candidate must expose a video track, a positive duration, and
-  a duration no greater than 30 seconds before it replaces the persisted
-  source. A rejected candidate reports the reason and restores the last valid
-  preview. Hiding Video pauses decoding; showing it resumes unless the user had
-  paused it explicitly. This component is only a preview and does not apply the
-  video to the real desktop background.
+  leaves, the controls remain available for one second and then fade away. The
+  bottom controls sit on a vertical scrim that is transparent at the top and
+  gradually darkens toward the lower edge, leaving the moving frame visible
+  beneath it. Minimal mode stays chrome-free. Previous and Next wrap through
+  supported files, ordered by name, in the fixed
+  `/home/znnn/Videos/wallpaper` directory. The file picker starts in that
+  directory and accepts common local video containers. A candidate must expose
+  a video track, a positive duration, and a duration no greater than 30 seconds
+  before it replaces the persisted source. A rejected candidate reports the
+  reason and restores the last valid preview. Hiding Video pauses decoding;
+  showing it resumes unless the user had paused it explicitly. This component
+  is only a preview and does not apply the video to the real desktop background.
 - Expanded Clock, Music, and Video headers provide separate Collapse and Close
   actions. Collapse restores the persisted minimal rectangle. Close first
   restores that rectangle and then hides the widget by turning off its
