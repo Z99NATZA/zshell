@@ -114,13 +114,15 @@ does not own the icon value.
 - Music is the only audio-reactive surface. Minimal mode shows artwork without
   reactive decoration. Expanded Music cards request one shared circular Canvas
   and native capture process; collapsing the last expanded card stops capture.
-  While requested, the Canvas updates at the native spectrum frame rate only
-  while visible media is playing. Per-band floor and ceiling envelopes adapt
-  slowly to the source while fast attack and a roughly four-frame release use
-  the full radial range. This keeps strong bass bands moving, lets bars settle
-  before the next beat, and gives quieter treble bands their own useful scale.
-  Pause, widget disable, player removal, or collapse gives existing values a
-  short bounded decay before hiding the ring.
+  While requested, the Canvas updates at the native spectrum frame rate while
+  visible media is playing, plus bounded `650ms` morphs between randomized
+  two- or three-peak directional envelopes. Per-band floor and ceiling
+  envelopes adapt slowly to the source while fast attack and a roughly
+  four-frame release use the directional radial range. This keeps strong bass
+  bands moving, lets bars settle before the next beat, and gives quieter treble
+  bands their own useful scale. Pause, widget disable, player removal, or
+  collapse gives existing values a short bounded decay before hiding the ring
+  and stopping peak changes.
 - Panel shadows use three solid rounded underlays without Canvas, runtime blur,
   or transparent ring textures. They follow panel geometry and fade faster than
   the surface as shared component opacity decreases.
